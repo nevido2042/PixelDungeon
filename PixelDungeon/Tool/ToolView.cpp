@@ -129,7 +129,7 @@ void CToolView::OnLButtonDown(UINT nFlags, CPoint point)
 
 	m_pTerrain->Tile_Change(D3DXVECTOR3(float((point.x) + GetScrollPos(0)) / Get_Zoom(),
 										float((point.y) + GetScrollPos(1)) / Get_Zoom(),
-										0.f), 0);
+										0.f), 1);
 
 	// Invalidate : 호출 시 윈도우에 WM_PAINT와 WM_ERASEBKGND 메세지를 발생시킴
 	// WM_PAINT 메세지 발생 시, OnDraw함수가 다시 호출
@@ -163,7 +163,7 @@ void CToolView::OnMouseMove(UINT nFlags, CPoint point)
 	{
 		m_pTerrain->Tile_Change(D3DXVECTOR3(float((point.x) + GetScrollPos(0)) / Get_Zoom(),
 											float((point.y) + GetScrollPos(1)) / Get_Zoom(),
-											0.f), 0);
+											0.f), 1);
 		Invalidate(FALSE);
 
 		CMainFrame* pMainFrm = dynamic_cast<CMainFrame*>(GetParentFrame());

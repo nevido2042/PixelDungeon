@@ -35,4 +35,9 @@ public:
 
 	afx_msg void OnDestroy();
 	CStatic m_Picture;
+
+	virtual BOOL OnInitDialog();
+
+private:
+	void CMapTool::Load_FileData(const CString& strFilePath);
 };

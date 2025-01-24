@@ -76,14 +76,25 @@ void CMapTool::OnDropFiles(HDROP hDropInfo)
 	// 두 번째 매개 변수 : 0xffffffff(-1)인 경우 드롭된 파일의 개수를 반환
 	int	iFileCnt = DragQueryFile(hDropInfo, 0xffffffff, nullptr, 0);
 
+	// 파일 열기 (쓰기 모드, 새 파일 생성)
+	CStdioFile File;
+	if (!File.Open(L"../Save/Tiles/Tiles.txt", CFile::modeCreate | CFile::modeWrite | CFile::typeText))
+	{
+		AfxMessageBox(_T("파일을 열 수 없습니다!"));
+	}
+
 	for (int i = 0; i < iFileCnt; ++i)
 	{
 		DragQueryFile(hDropInfo, i, szFilePath, MAX_PATH);
 
+		// 상대 경로
 		CString strRelative = CFileInfo::Convert_RelativePath(szFilePath);
 
-		// PathFindFileName : 경로 중 파일 이름만 추출
+		// 파일 저장
+		// CString 데이터를 파일에 저장
+		File.WriteString(strRelative + _T("\n"));
 
+		// PathFindFileName : 경로 중 파일 이름만 추출
 		CString strFileName = PathFindFileName(strRelative);
 
 		lstrcpy(szFileName, strFileName.GetString());
@@ -105,6 +116,9 @@ void CMapTool::OnDropFiles(HDROP hDropInfo)
 
 		}
 	}
+
+	// 파일 닫기
+	File.Close();
 
 	Horizontal_Scroll();
 
@@ -152,4 +166,63 @@ void CMapTool::OnDestroy()
 		});
 
 	m_mapPngImage.clear();
+}
+
+
+BOOL CMapTool::OnInitDialog()
+{
+	CDialog::OnInitDialog();
+
+	Load_FileData(L"../Save/Tiles/Tiles.txt");
+	// TODO:  여기에 추가 초기화 작업을 추가합니다.
+	Horizontal_Scroll();
+
+	return TRUE;  // return TRUE unless you set the focus to a control
+	// 예외: OCX 속성 페이지는 FALSE를 반환해야 합니다.
+}
+
+void CMapTool::Load_FileData(const CString& strFilePath)
+{
+	CStdioFile file;
+	if (!file.Open(strFilePath, CFile::modeRead | CFile::typeText))
+	{
+		AfxMessageBox(_T("파일을 열 수 없습니다."));
+		return;
+	}
+
+	TCHAR	szFileName[MAX_STR] = L"";
+
+	CString strLine;
+	while (file.ReadString(strLine)) // 파일에서 한 줄씩 읽기
+	{
+		// 읽어온 데이터를 리스트 박스에 추가
+		if (!strLine.IsEmpty()) // 빈 줄 방지
+		{
+			m_ListBox.AddString(strLine);
+		}
+
+		// PathFindFileName : 경로 중 파일 이름만 추출
+		CString strFileName = PathFindFileName(strLine);
+
+		lstrcpy(szFileName, strFileName.GetString());
+
+		// 확장자 명을 제거하는 함수
+		PathRemoveExtension(szFileName);
+
+		strFileName = szFileName;
+
+		auto	iter = m_mapPngImage.find(strFileName);
+
+		if (iter == m_mapPngImage.end())
+		{
+			CImage* pPngImage = new CImage;
+			pPngImage->Load(strLine);
+
+			m_mapPngImage.insert({ strFileName, pPngImage });
+			//m_ListBox.AddString(strFileName);
+
+		}
+	}
+
+	file.Close();
 }

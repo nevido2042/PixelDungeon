@@ -4,6 +4,7 @@
 #include "CDevice.h"
 
 CTerrain::CTerrain()
+	:m_pMainView(nullptr)
 {
 	m_vecTile.reserve(TILEX * TILEY);
 }
@@ -16,8 +17,8 @@ CTerrain::~CTerrain()
 HRESULT CTerrain::Initialize()
 {
 	if (FAILED(CTextureMgr::Get_Instance()->Insert_Texture(
-		L"../Texture/Stage/Terrain/Tile/Tile%d.png",
-		TEX_MULTI, L"Terrain", L"Tile", 36)))
+		L"../Resources/Tile/Tile_1/tiles%d.png",
+		TEX_MULTI, L"Terrain", L"Tile", 63)))
 	{
 		AfxMessageBox(L"Terrain Texture Insert Failed");
 		return E_FAIL;
@@ -29,13 +30,13 @@ HRESULT CTerrain::Initialize()
 		{
 			TILE* pTile = new TILE;
 
-			float	fY = (TILECY / 2.f) * i;
-			float	fX = (TILECX * j) + (i % 2) * (TILECX / 2.f);
+			float	fY = float(TILECY * i);// (TILECY / 2.f)* i;
+			float	fX = float(TILECX * j);// (TILECX * j) + (i % 2) * (TILECX / 2.f);
 
 			pTile->vPos = { fX, fY, 0.f };
 			pTile->vSize = { (float)TILECX, (float)TILECY };
 			pTile->byOption = 0;
-			pTile->byDrawID = 7;
+			pTile->byDrawID = 0;
 
 			m_vecTile.push_back(pTile);
 		}
@@ -95,12 +96,12 @@ void CTerrain::Render()
 			
 		swprintf_s(szBuf, L"%d", iIndex);
 
-		CDevice::Get_Instance()->Get_Font()->DrawTextW(CDevice::Get_Instance()->Get_Sprite(),
-			szBuf,		// 출력할 문자열
-			lstrlen(szBuf),  // 문자열 버퍼의 크기
-			nullptr,	// 출력할 렉트 위치
-			0,			// 정렬 기준(옵션)
-			D3DCOLOR_ARGB(255, 255, 255, 255));
+		//CDevice::Get_Instance()->Get_Font()->DrawTextW(CDevice::Get_Instance()->Get_Sprite(),
+		//	szBuf,		// 출력할 문자열
+		//	lstrlen(szBuf),  // 문자열 버퍼의 크기
+		//	nullptr,	// 출력할 렉트 위치
+		//	0,			// 정렬 기준(옵션)
+		//	D3DCOLOR_ARGB(255, 255, 255, 255));
 
 		iIndex++;
 	}	
@@ -182,9 +183,9 @@ int CTerrain::Get_TileIdx(const D3DXVECTOR3& vPos)
 {
 	for (size_t index = 0; index < m_vecTile.size(); ++index)
 	{
-		if (Picking_Dot(vPos, index))
+		if (Picking_Dot(vPos, (int)index))
 		{
-			return index;
+			return (int)index;
 		}
 	}
 

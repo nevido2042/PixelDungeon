@@ -15,8 +15,8 @@ extern HWND		g_hWnd;
 #define		TILECX			16//130
 #define		TILECY			16//68
 
-#define		TILEX			20
-#define		TILEY			30
+#define		TILEX			30
+#define		TILEY			20
 
 #define		MIN_STR			64
 #define		MAX_STR			256
