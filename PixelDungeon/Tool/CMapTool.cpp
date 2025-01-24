@@ -6,6 +6,7 @@
 #include "afxdialogex.h"
 #include "CMapTool.h"
 #include "CFileInfo.h"
+#include "MainFrm.h"
 
 // CMapTool 대화 상자
 
@@ -48,6 +49,23 @@ void CMapTool::OnListBox()
 	// GetCurSel : 커서가 선택한 셀의 인덱스 값을 반환
 	int	iIndex = m_ListBox.GetCurSel();
 
+	/*
+		1. 박스 리스트 클릭
+		2. 선택 한 셀의 이름 툴뷰로 전달
+		3. 전달된 이름에 따라 DrawID 변경
+
+		1. 박스 리스트 클릭
+		2. 선택 한 셀의 이름으로 m_mapPngImage에 저장된 정보(?)를 툴뷰로 전달
+		3. 전달된 정보(?)에 따라 DrawID 변경
+
+		1. 박스 리스트 클릭
+		2. 선택 한 셀의 파일 이름 숫자로 툴뷰로 전달
+		3. 전달된 숫자에 따라 DrawID 변경
+	*/
+
+	//임시방편으로 박스리스트 인덱스 값으로 선택 타일 변경
+	//Get_ToolView()->Set_DrawID(iIndex);
+
 	m_ListBox.GetText(iIndex, strFindName);
 
 	auto	iter = m_mapPngImage.find(strFindName);
@@ -55,7 +73,33 @@ void CMapTool::OnListBox()
 	if (iter == m_mapPngImage.end())
 		return;
 
-	m_Picture.SetBitmap(*(iter->second));
+	// 마지막 두 번째 문자와 마지막 문자 추출
+	TCHAR lastChar = strFindName.GetAt(strFindName.GetLength() - 1);
+	TCHAR secondLastChar = strFindName.GetAt(strFindName.GetLength() - 2);
+	int combinedIndex = -1;
+
+	// 두 자리 수일 경우
+	if (_istdigit(secondLastChar) && _istdigit(lastChar))
+	{
+		combinedIndex = (secondLastChar - _T('0')) * 10 + (lastChar - _T('0'));
+	}
+	// 한 자리 수일 경우: 마지막 두 문자를 합쳐 사용
+	else if(_istdigit(lastChar))
+	{
+		combinedIndex = lastChar - _T('0');
+	}
+	else
+	{
+		AfxMessageBox(_T("fileN (N = 정수 두자리 까지 가능) 형식을 지켜라"));
+	}
+
+	// 툴뷰의 드로우 아이디 변경
+	if (combinedIndex != -1)
+	{
+		Get_ToolView()->Set_DrawID(combinedIndex);
+	}
+
+	m_Picture.SetBitmap(*(iter->second.pImage));
 
 	UpdateData(FALSE);
 }
@@ -76,23 +120,12 @@ void CMapTool::OnDropFiles(HDROP hDropInfo)
 	// 두 번째 매개 변수 : 0xffffffff(-1)인 경우 드롭된 파일의 개수를 반환
 	int	iFileCnt = DragQueryFile(hDropInfo, 0xffffffff, nullptr, 0);
 
-	// 파일 열기 (쓰기 모드, 새 파일 생성)
-	CStdioFile File;
-	if (!File.Open(L"../Save/Tiles/Tiles.txt", CFile::modeCreate | CFile::modeWrite | CFile::typeText))
-	{
-		AfxMessageBox(_T("파일을 열 수 없습니다!"));
-	}
-
 	for (int i = 0; i < iFileCnt; ++i)
 	{
 		DragQueryFile(hDropInfo, i, szFilePath, MAX_PATH);
 
 		// 상대 경로
 		CString strRelative = CFileInfo::Convert_RelativePath(szFilePath);
-
-		// 파일 저장
-		// CString 데이터를 파일에 저장
-		File.WriteString(strRelative + _T("\n"));
 
 		// PathFindFileName : 경로 중 파일 이름만 추출
 		CString strFileName = PathFindFileName(strRelative);
@@ -111,14 +144,15 @@ void CMapTool::OnDropFiles(HDROP hDropInfo)
 			CImage* pPngImage = new CImage;
 			pPngImage->Load(strRelative);
 
-			m_mapPngImage.insert({ strFileName, pPngImage });
-			m_ListBox.AddString(szFileName);
+			IMAGE_INFO tImgInfo{ pPngImage , strRelative };
 
+			m_mapPngImage.insert({ strFileName, tImgInfo });
+			m_ListBox.AddString(szFileName);
 		}
 	}
 
-	// 파일 닫기
-	File.Close();
+	//추가한 파일경로를 저장한다.
+	Save_Tile();
 
 	Horizontal_Scroll();
 
@@ -161,8 +195,8 @@ void CMapTool::OnDestroy()
 
 	for_each(m_mapPngImage.begin(), m_mapPngImage.end(), [](auto& MyPair)
 		{
-			MyPair.second->Destroy();
-			Safe_Delete(MyPair.second);
+			(MyPair.second).pImage->Destroy();
+			Safe_Delete((MyPair.second).pImage);
 		});
 
 	m_mapPngImage.clear();
@@ -186,23 +220,23 @@ void CMapTool::Load_FileData(const CString& strFilePath)
 	CStdioFile File;
 	if (!File.Open(strFilePath, CFile::modeRead | CFile::typeText))
 	{
-		AfxMessageBox(_T("파일을 열 수 없습니다."));
+		AfxMessageBox(_T("저장된 타일이 없다, 드래그앤 드랍으로 넣어라, 파일 이름 형식 맞춰서(tile00)"));
 		return;
 	}
 
 	TCHAR	szFileName[MAX_STR] = L"";
 
-	CString strLine;
-	while (File.ReadString(strLine)) // 파일에서 한 줄씩 읽기
+	CString strRelativePath;
+	while (File.ReadString(strRelativePath)) // 파일에서 한 줄씩 읽기
 	{
 		// 읽어온 데이터를 리스트 박스에 추가
-		if (strLine.IsEmpty()) // 빈 줄 방지
+		if (strRelativePath.IsEmpty()) // 빈 줄 방지
 		{
 			break;
 		}
 
 		// PathFindFileName : 경로 중 파일 이름만 추출
-		CString strFileName = PathFindFileName(strLine);
+		CString strFileName = PathFindFileName(strRelativePath);
 
 		lstrcpy(szFileName, strFileName.GetString());
 
@@ -216,13 +250,43 @@ void CMapTool::Load_FileData(const CString& strFilePath)
 		if (iter == m_mapPngImage.end())
 		{
 			CImage* pPngImage = new CImage;
-			pPngImage->Load(strLine);
+			pPngImage->Load(strRelativePath);
 
-			m_mapPngImage.insert({ strFileName, pPngImage });
+			IMAGE_INFO tImgInfo{ pPngImage, strRelativePath };
+
+			m_mapPngImage.insert({ strFileName, tImgInfo });
 			m_ListBox.AddString(strFileName);
-
 		}
 	}
 
+	File.Close();
+}
+
+CToolView* CMapTool::Get_ToolView()
+{
+	CToolView* pToolView = NULL;
+	CMainFrame* pMainFrm = dynamic_cast<CMainFrame*>(GetParentFrame());
+	pToolView = dynamic_cast<CToolView*>(pMainFrm->m_MainSplitter.GetPane(0, 1));
+
+	return pToolView;
+}
+
+void CMapTool::Save_Tile()
+{
+	// 파일 열기 (쓰기 모드, 새 파일 생성)
+	CStdioFile File;
+	if (!File.Open(L"../Save/Tiles/Tiles.txt", CFile::modeCreate | CFile::modeWrite | CFile::typeText))
+	{
+		AfxMessageBox(_T("저장 파일 생성 불가."));
+	}
+
+	// 파일 저장
+	for (auto iter = m_mapPngImage.begin(); iter != m_mapPngImage.end(); ++iter)
+	{
+		CString strRelative = (*iter).second.strRelative;
+		File.WriteString(strRelative + _T("\n"));
+	}
+
+	// 파일 닫기
 	File.Close();
 }
