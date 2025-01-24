@@ -10,6 +10,8 @@
 // 여기에 미리 컴파일하려는 헤더 추가
 #include "framework.h"
 
+#include <afxwin.h> // MFC 핵심 클래스 지원
+
 #include <d3d9.h>
 #include <d3dx9.h>
 

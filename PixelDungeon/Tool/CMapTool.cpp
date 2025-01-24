@@ -183,8 +183,8 @@ BOOL CMapTool::OnInitDialog()
 
 void CMapTool::Load_FileData(const CString& strFilePath)
 {
-	CStdioFile file;
-	if (!file.Open(strFilePath, CFile::modeRead | CFile::typeText))
+	CStdioFile File;
+	if (!File.Open(strFilePath, CFile::modeRead | CFile::typeText))
 	{
 		AfxMessageBox(_T("파일을 열 수 없습니다."));
 		return;
@@ -193,12 +193,12 @@ void CMapTool::Load_FileData(const CString& strFilePath)
 	TCHAR	szFileName[MAX_STR] = L"";
 
 	CString strLine;
-	while (file.ReadString(strLine)) // 파일에서 한 줄씩 읽기
+	while (File.ReadString(strLine)) // 파일에서 한 줄씩 읽기
 	{
 		// 읽어온 데이터를 리스트 박스에 추가
-		if (!strLine.IsEmpty()) // 빈 줄 방지
+		if (strLine.IsEmpty()) // 빈 줄 방지
 		{
-			m_ListBox.AddString(strLine);
+			break;
 		}
 
 		// PathFindFileName : 경로 중 파일 이름만 추출
@@ -219,10 +219,10 @@ void CMapTool::Load_FileData(const CString& strFilePath)
 			pPngImage->Load(strLine);
 
 			m_mapPngImage.insert({ strFileName, pPngImage });
-			//m_ListBox.AddString(strFileName);
+			m_ListBox.AddString(strFileName);
 
 		}
 	}
 
-	file.Close();
+	File.Close();
 }
