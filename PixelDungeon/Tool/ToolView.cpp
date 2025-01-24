@@ -36,15 +36,13 @@ BEGIN_MESSAGE_MAP(CToolView, CScrollView)
 	ON_WM_DESTROY()
 	ON_WM_LBUTTONDOWN()
 	ON_WM_MOUSEMOVE()
-	ON_WM_KEYDOWN()
 END_MESSAGE_MAP()
 
 // CToolView 생성/소멸
 
 CToolView::CToolView() noexcept
 	: m_pDevice(CDevice::Get_Instance())
-	, m_pTerrain(nullptr),
-	m_fZoom(0.f)
+	, m_pTerrain(nullptr)
 
 {
 	// TODO: 여기에 생성 코드를 추가합니다.
@@ -58,8 +56,6 @@ CToolView::~CToolView()
 void CToolView::OnInitialUpdate()
 {
 	CScrollView::OnInitialUpdate();
-
-	m_fZoom = 1.f;
 
 	// SetScrollSizes : 스크롤 바의 사이즈를 지정
 	// MM_TEXT : 픽셀 단위로 조정하겠다는 옵션
@@ -127,8 +123,8 @@ void CToolView::OnLButtonDown(UINT nFlags, CPoint point)
 
 	CScrollView::OnLButtonDown(nFlags, point);
 
-	m_pTerrain->Tile_Change(D3DXVECTOR3((float(point.x) + GetScrollPos(0))/ m_fZoom, //클릭판정
-										(float(point.y) + GetScrollPos(1))/ m_fZoom,
+	m_pTerrain->Tile_Change(D3DXVECTOR3(float(point.x) + GetScrollPos(0),
+										float(point.y) + GetScrollPos(1),
 										0.f), 0);
 
 	// Invalidate : 호출 시 윈도우에 WM_PAINT와 WM_ERASEBKGND 메세지를 발생시킴
@@ -161,8 +157,8 @@ void CToolView::OnMouseMove(UINT nFlags, CPoint point)
 
 	if (GetAsyncKeyState(VK_LBUTTON) & 0x8000)
 	{
-		m_pTerrain->Tile_Change(D3DXVECTOR3((float(point.x) + GetScrollPos(0)) / m_fZoom, //클릭 판정
-											(float(point.y) + GetScrollPos(1)) / m_fZoom,
+		m_pTerrain->Tile_Change(D3DXVECTOR3(float(point.x) + GetScrollPos(0), 
+											float(point.y) + GetScrollPos(1), 
 											0.f), 0);
 		Invalidate(FALSE);
 
@@ -249,24 +245,15 @@ CToolDoc* CToolView::GetDocument() const // 디버그되지 않은 버전은 인
 }
 #endif //_DEBUG
 
+
 // CToolView 메시지 처리기
 
 #pragma endregion
 
-void CToolView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
-{
-	if (nChar == VK_ADD) // VK_ADD는 키패드의 '+' 키
-	{
-		m_fZoom += 0.5f;
-	}
 
-	if (nChar == VK_SUBTRACT) // VK_ADD는 키패드의 '+' 키
-	{
-		m_fZoom -= 0.5f;
-	}
 
-	Invalidate(FALSE);
 
-	CView::OnKeyDown(nChar, nRepCnt, nFlags); // 기본 처리 호출
 
-}
+
+
+

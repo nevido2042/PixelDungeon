@@ -48,19 +48,14 @@ public:
 
 private:
 	CDevice*	m_pDevice;
+
 public:
-	CTerrain*	m_pTerrain;
+	CTerrain* m_pTerrain;
+
 public:
 	virtual void OnInitialUpdate();
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
-
-public:
-	float Get_Zoom() { return m_fZoom; }
-private:
-	float		m_fZoom;
-public:
-	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 };
 
 #ifndef _DEBUG  // ToolView.cpp의 디버그 버전

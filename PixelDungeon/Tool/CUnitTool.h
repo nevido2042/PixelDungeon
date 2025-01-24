@@ -1,8 +1,7 @@
 ﻿#pragma once
+
 #include "afxdialogex.h"
-
-
-// CUnitTool 대화 상자
+#include "Include.h"
 
 class CUnitTool : public CDialog
 {
@@ -21,9 +20,31 @@ protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 지원입니다.
 
 	DECLARE_MESSAGE_MAP()
+
+	virtual BOOL OnInitDialog();
+	afx_msg void OnDelete();
+	afx_msg void OnSave();
+	afx_msg void OnLoad();
+	afx_msg void OnAdd();
+	afx_msg void OnListBox();
+	afx_msg void OnDestroy();
+
+public:	// value
+
+	CString m_strName;
+	int m_iAttack;
+	int m_iHp;
+
+public:// control
+	CListBox m_ListBox;
+	CButton m_Radio[3];
+	CButton m_Check[3];
+	CButton m_Bitmap;
+	CString m_strFindName;
+
+private:
+	map<CString, UNITDATA*>		m_mapUnitData;
 public:
-	// 그냥 썼음
-	CString m_strTemp;
-	CString m_strCopy;
-	afx_msg void OnBnClickedButton1();
+	
+
 };

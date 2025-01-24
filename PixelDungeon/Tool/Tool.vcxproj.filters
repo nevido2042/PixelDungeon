@@ -58,6 +58,12 @@
     <Filter Include="04. Etc\03. Dialog\02. UnitTool">
       <UniqueIdentifier>{3bcadda5-186a-4054-bae3-5b2b188d86de}</UniqueIdentifier>
     </Filter>
+    <Filter Include="04. Etc\03. Dialog\03. MapTool">
+      <UniqueIdentifier>{2c4af996-c027-429d-8662-83c336e4b7ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="04. Etc\04. FileInfo">
+      <UniqueIdentifier>{f7394afc-9cc8-40f0-82b1-4ba2722b682e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Tool.h">
@@ -111,6 +117,12 @@
     <ClInclude Include="CUnitTool.h">
       <Filter>04. Etc\03. Dialog\02. UnitTool</Filter>
     </ClInclude>
+    <ClInclude Include="CMapTool.h">
+      <Filter>04. Etc\03. Dialog\03. MapTool</Filter>
+    </ClInclude>
+    <ClInclude Include="CFileInfo.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Tool.cpp">
@@ -154,6 +166,12 @@
     </ClCompile>
     <ClCompile Include="CUnitTool.cpp">
       <Filter>04. Etc\03. Dialog\02. UnitTool</Filter>
+    </ClCompile>
+    <ClCompile Include="CMapTool.cpp">
+      <Filter>04. Etc\03. Dialog\03. MapTool</Filter>
+    </ClCompile>
+    <ClCompile Include="CFileInfo.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

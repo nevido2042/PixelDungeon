@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "CUnitTool.h"
+#include "CMapTool.h"
 
 class CMyForm : public CFormView
 {
@@ -25,6 +26,7 @@ private:
 	CFont		m_Font;
 public:
 	CUnitTool	m_UnitTool;
+	CMapTool	m_MapTool;
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 지원입니다.
@@ -33,6 +35,7 @@ protected:
 public:
 	virtual void OnInitialUpdate();
 	afx_msg void OnUnitTool();
+	afx_msg void OnMapTool();
 };
 
 

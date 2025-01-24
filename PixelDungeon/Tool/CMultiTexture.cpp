@@ -82,14 +82,8 @@ void CMultiTexture::Release()
 {
     for_each(m_MapMultiTex.begin(), m_MapMultiTex.end(), [](auto& MyPair)
         {
-            for_each(MyPair.second.begin(), MyPair.second.end(),
-                [](TEXINFO* pTexInfo) {
-                    if (pTexInfo) {
-                        Safe_Release(pTexInfo->pTexture); // 텍스처 릴리즈
-                        Safe_Delete(pTexInfo);           // 메모리 삭제
-                    }
-                });
-
+            for_each(MyPair.second.begin(), MyPair.second.end(), 
+                Safe_Delete<TEXINFO*>);
             MyPair.second.clear();
         });
 

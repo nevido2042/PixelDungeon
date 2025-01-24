@@ -31,7 +31,7 @@ HRESULT CDevice::Init_Device()
 
 	if (FAILED(m_pSDK->GetDeviceCaps(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, &DeviceCaps)))
 	{
-		//AfxMessageBox(L"GetDeviceCaps Failed");
+		AfxMessageBox(L"GetDeviceCaps Failed");
 		return E_FAIL;
 	}
 
@@ -55,14 +55,14 @@ HRESULT CDevice::Init_Device()
 	if (FAILED(m_pSDK->CreateDevice(D3DADAPTER_DEFAULT,
 							D3DDEVTYPE_HAL, g_hWnd, vp, &d3dpp, &m_pDevice)))
 	{
-		//AfxMessageBox(L"CreateDevice Failed");
+		AfxMessageBox(L"CreateDevice Failed");
 		return E_FAIL;
 	}
 
 	// sprite
 	if (FAILED(D3DXCreateSprite(m_pDevice, &m_pSprite)))
 	{
-		//AfxMessageBox(L"D3DXCreateSprite Failed");
+		AfxMessageBox(L"D3DXCreateSprite Failed");
 		return E_FAIL;
 	}
 
@@ -79,7 +79,7 @@ HRESULT CDevice::Init_Device()
 
 	if (FAILED(D3DXCreateFontIndirect(m_pDevice, &tFontInfo, &m_pFont)))
 	{
-		//AfxMessageBox(L"D3DXCreateFontIndirect Failed");
+		AfxMessageBox(L"D3DXCreateFontIndirect Failed");
 		return E_FAIL;
 	}
 

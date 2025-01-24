@@ -4,7 +4,6 @@
 #include "CDevice.h"
 
 CTerrain::CTerrain()
-	:m_pMainView(nullptr)
 {
 	m_vecTile.reserve(TILEX * TILEY);
 }
@@ -30,13 +29,13 @@ HRESULT CTerrain::Initialize()
 		{
 			TILE* pTile = new TILE;
 
-			float	fY = float(TILECY * i);// (TILECY / 2.f)* i;
-			float	fX = float(TILECX * j);//(TILECX * j) + (i % 2) * (TILECX / 2.f);
+			float	fY = (TILECY / 2.f) * i;
+			float	fX = (TILECX * j) + (i % 2) * (TILECX / 2.f);
 
 			pTile->vPos = { fX, fY, 0.f };
 			pTile->vSize = { (float)TILECX, (float)TILECY };
 			pTile->byOption = 0;
-			pTile->byDrawID = 7;
+			pTile->byDrawID = 3;
 
 			m_vecTile.push_back(pTile);
 		}
@@ -75,8 +74,7 @@ void CTerrain::Render()
 		float	fX = WINCX / float(rc.right - rc.left);
 		float	fY = WINCY / float(rc.bottom - rc.top);
 
-		float fZoom = m_pMainView->Get_Zoom();
-		Set_Ratio(&matWorld, fX * fZoom, fY * fZoom); // 이미지 크기 조절
+		Set_Ratio(&matWorld, fX, fY);
 
 		CDevice::Get_Instance()->Get_Sprite()->SetTransform(&matWorld);
 
@@ -93,14 +91,14 @@ void CTerrain::Render()
 			nullptr,		// 위치 좌표에 대한 vec3 주소, null인 경우 스크린 상 0, 0 좌표 출력	
 			D3DCOLOR_ARGB(255, 255, 255, 255)); // 출력할 이미지와 섞을 색상 값, 0xffffffff를 넘겨주면 섞지 않고 원본 색상 유지
 			
-		//swprintf_s(szBuf, L"%d", iIndex);
+		swprintf_s(szBuf, L"%d", iIndex);
 
-		//CDevice::Get_Instance()->Get_Font()->DrawTextW(CDevice::Get_Instance()->Get_Sprite(),
-		//	szBuf,		// 출력할 문자열
-		//	lstrlen(szBuf),  // 문자열 버퍼의 크기
-		//	nullptr,	// 출력할 렉트 위치
-		//	0,			// 정렬 기준(옵션)
-		//	D3DCOLOR_ARGB(255, 255, 255, 255));
+		CDevice::Get_Instance()->Get_Font()->DrawTextW(CDevice::Get_Instance()->Get_Sprite(),
+			szBuf,		// 출력할 문자열
+			lstrlen(szBuf),  // 문자열 버퍼의 크기
+			nullptr,	// 출력할 렉트 위치
+			0,			// 정렬 기준(옵션)
+			D3DCOLOR_ARGB(255, 255, 255, 255));
 
 		iIndex++;
 	}	
@@ -182,9 +180,9 @@ int CTerrain::Get_TileIdx(const D3DXVECTOR3& vPos)
 {
 	for (size_t index = 0; index < m_vecTile.size(); ++index)
 	{
-		if (Picking_Dot(vPos, (int)index))
+		if (Picking_Dot(vPos, index))
 		{
-			return (int)index;
+			return index;
 		}
 	}
 

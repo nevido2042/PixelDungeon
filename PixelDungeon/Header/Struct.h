@@ -41,7 +41,7 @@ typedef struct tagTile
 
 typedef	struct tagUnitData
 {
-	//CString strName;
+	CString strName;
 	int		iHp;
 	int		iAttack;
 	BYTE	byJobIndex;
