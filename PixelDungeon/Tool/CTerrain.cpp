@@ -35,7 +35,7 @@ HRESULT CTerrain::Initialize()
 			pTile->vPos = { fX, fY, 0.f };
 			pTile->vSize = { (float)TILECX, (float)TILECY };
 			pTile->byOption = 0;
-			pTile->byDrawID = 3;
+			pTile->byDrawID = 7;
 
 			m_vecTile.push_back(pTile);
 		}
@@ -74,7 +74,9 @@ void CTerrain::Render()
 		float	fX = WINCX / float(rc.right - rc.left);
 		float	fY = WINCY / float(rc.bottom - rc.top);
 
-		Set_Ratio(&matWorld, fX, fY);
+		float fZoom = m_pMainView->Get_Zoom();
+
+		Set_Ratio(&matWorld, fX * fZoom, fY * fZoom);
 
 		CDevice::Get_Instance()->Get_Sprite()->SetTransform(&matWorld);
 

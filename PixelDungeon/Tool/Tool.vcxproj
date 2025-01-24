@@ -247,6 +247,7 @@
     <ResourceCompile Include="Tool.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="ClassDiagram.cd" />
     <None Include="res\Tool.rc2" />
   </ItemGroup>
   <ItemGroup>
