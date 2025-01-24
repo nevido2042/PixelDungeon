@@ -24,20 +24,29 @@ protected:
 public:
 	afx_msg void OnListBox();
 	afx_msg void OnDropFiles(HDROP hDropInfo);
+	afx_msg void OnDestroy();
 
+public:
+	virtual BOOL OnInitDialog();
 public:
 	void	Horizontal_Scroll();
-
-public:
-	CListBox m_ListBox;
-
+	CListBox					m_ListBox;
 	map<CString, CImage*>		m_mapPngImage;
-
-	afx_msg void OnDestroy();
-	CStatic m_Picture;
-
-	virtual BOOL OnInitDialog();
+	CStatic						m_Picture;
 
 private:
 	void CMapTool::Load_FileData(const CString& strFilePath);
+	//CToolView* GetToolView()
+	//{
+	//	// 이 예제는 CToolView가 CMainFrame 내에 있는 경우에 해당
+	//	CToolView* pToolView = NULL;
+	//	CWnd* pWnd = GetDescendantWindow(ID_VIEW_TOOLVIEW); // ID_VIEW_TOOLVIEW는 CToolView의 ID입니다.
+
+	//	if (pWnd != NULL && pWnd->IsKindOf(RUNTIME_CLASS(CToolView)))
+	//	{
+	//		pToolView = (CToolView*)pWnd;
+	//	}
+
+	//	return pToolView;
+	//}
 };

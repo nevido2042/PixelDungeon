@@ -44,35 +44,27 @@ protected:
 protected:
 	DECLARE_MESSAGE_MAP()
 public:
-	afx_msg void OnDestroy();
-
-private:
-	CDevice*	m_pDevice;
-
-public:
-	CTerrain* m_pTerrain;
-
-public:
 	virtual void OnInitialUpdate();
+	afx_msg void OnDestroy();
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
-
+	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 public:
 	float Get_Zoom() { return m_fZoom; }
-private:
-	float m_fZoom;
 public:
-	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
+	CTerrain*	m_pTerrain;
+private:
+	CDevice*	m_pDevice;
+	float		m_fZoom;
+	BYTE		m_byDrawID;
+
+
+public:
+//	afx_msg void OnMouseHWheel(UINT nFlags, short zDelta, CPoint pt);
+	afx_msg BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
 };
 
 #ifndef _DEBUG  // ToolView.cpp의 디버그 버전
 inline CToolDoc* CToolView::GetDocument() const
    { return reinterpret_cast<CToolDoc*>(m_pDocument); }
 #endif
-
-// 1. 쿼터 뷰 형식으로 타일 깔기
-// 2. 마우스 피킹을 이용하여 원하는 타일 이미지 변경하기
-
-// 직선의 방정식을 사용할 것
-
-// y = ax + b (a : 기울기 b : y 절편)

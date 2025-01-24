@@ -1,3 +1,6 @@
+..\Resources\Tile\Tile_1\tiles5.png
 ..\Resources\Tile\Tile_1\tiles0.png
 ..\Resources\Tile\Tile_1\tiles1.png
 ..\Resources\Tile\Tile_1\tiles2.png
+..\Resources\Tile\Tile_1\tiles3.png
+..\Resources\Tile\Tile_1\tiles4.png

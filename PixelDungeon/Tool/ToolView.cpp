@@ -37,6 +37,8 @@ BEGIN_MESSAGE_MAP(CToolView, CScrollView)
 	ON_WM_LBUTTONDOWN()
 	ON_WM_MOUSEMOVE()
 	ON_WM_KEYDOWN()
+//	ON_WM_MOUSEHWHEEL()
+ON_WM_MOUSEWHEEL()
 END_MESSAGE_MAP()
 
 // CToolView 생성/소멸
@@ -44,7 +46,8 @@ END_MESSAGE_MAP()
 CToolView::CToolView() noexcept
 	: m_pDevice(CDevice::Get_Instance()),
 	m_pTerrain(nullptr),
-	m_fZoom(0.f)
+	m_fZoom(0.f),
+	m_byDrawID(0)
 
 {
 	// TODO: 여기에 생성 코드를 추가합니다.
@@ -60,6 +63,8 @@ void CToolView::OnInitialUpdate()
 	CScrollView::OnInitialUpdate();
 
 	m_fZoom = 1.f;
+
+	m_byDrawID = 1;
 
 	// SetScrollSizes : 스크롤 바의 사이즈를 지정
 	// MM_TEXT : 픽셀 단위로 조정하겠다는 옵션
@@ -129,7 +134,7 @@ void CToolView::OnLButtonDown(UINT nFlags, CPoint point)
 
 	m_pTerrain->Tile_Change(D3DXVECTOR3(float((point.x) + GetScrollPos(0)) / Get_Zoom(),
 										float((point.y) + GetScrollPos(1)) / Get_Zoom(),
-										0.f), 1);
+										0.f), m_byDrawID);
 
 	// Invalidate : 호출 시 윈도우에 WM_PAINT와 WM_ERASEBKGND 메세지를 발생시킴
 	// WM_PAINT 메세지 발생 시, OnDraw함수가 다시 호출
@@ -163,7 +168,7 @@ void CToolView::OnMouseMove(UINT nFlags, CPoint point)
 	{
 		m_pTerrain->Tile_Change(D3DXVECTOR3(float((point.x) + GetScrollPos(0)) / Get_Zoom(),
 											float((point.y) + GetScrollPos(1)) / Get_Zoom(),
-											0.f), 1);
+											0.f), m_byDrawID);
 		Invalidate(FALSE);
 
 		CMainFrame* pMainFrm = dynamic_cast<CMainFrame*>(GetParentFrame());
@@ -278,4 +283,22 @@ void CToolView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	Invalidate(FALSE);
 
 	CView::OnKeyDown(nChar, nRepCnt, nFlags); // 기본 처리 호출
+}
+
+BOOL CToolView::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
+{
+	if (zDelta > 0)
+	{
+		//휠 업 (위로 스크롤)
+		m_fZoom += 0.1f;
+	}
+	else if (zDelta < 0)
+	{
+		//휠 다운 (아래로 스크롤)
+		m_fZoom -= 0.1f;
+	}
+
+	Invalidate(FALSE);
+
+	return CScrollView::OnMouseWheel(nFlags, zDelta, pt);
 }
