@@ -243,22 +243,22 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>../Tool;../Tool;../Header;$(IncludePath)</IncludePath>
     <ExternalIncludePath>$(DXSDK_DIR)Include;$(ExternalIncludePath)</ExternalIncludePath>
-    <LibraryPath>$(DXSDK_DIR)Lib/x86;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(DXSDK_DIR)Lib/x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>../Tool;../Header;$(IncludePath)</IncludePath>
     <ExternalIncludePath>$(DXSDK_DIR)Include;$(ExternalIncludePath)</ExternalIncludePath>
-    <LibraryPath>$(DXSDK_DIR)Lib/x86;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(DXSDK_DIR)Lib/x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>../Tool;../Tool;../Header;$(IncludePath)</IncludePath>
     <ExternalIncludePath>$(DXSDK_DIR)Include;$(ExternalIncludePath)</ExternalIncludePath>
-    <LibraryPath>$(DXSDK_DIR)Lib/x86;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(DXSDK_DIR)Lib/x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>../Tool;../Header;$(IncludePath)</IncludePath>
     <ExternalIncludePath>$(DXSDK_DIR)Include;$(ExternalIncludePath)</ExternalIncludePath>
-    <LibraryPath>$(DXSDK_DIR)Lib/x86;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(DXSDK_DIR)Lib/x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

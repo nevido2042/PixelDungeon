@@ -4,6 +4,7 @@
 #include "CDevice.h"
 
 CTerrain::CTerrain()
+	:m_pMainView(nullptr)
 {
 	m_vecTile.reserve(TILEX * TILEY);
 }
@@ -29,8 +30,8 @@ HRESULT CTerrain::Initialize()
 		{
 			TILE* pTile = new TILE;
 
-			float	fY = TILECY * i;// (TILECY / 2.f)* i;
-			float	fX = TILECX * j;//(TILECX * j) + (i % 2) * (TILECX / 2.f);
+			float	fY = float(TILECY * i);// (TILECY / 2.f)* i;
+			float	fX = float(TILECX * j);//(TILECX * j) + (i % 2) * (TILECX / 2.f);
 
 			pTile->vPos = { fX, fY, 0.f };
 			pTile->vSize = { (float)TILECX, (float)TILECY };
@@ -181,9 +182,9 @@ int CTerrain::Get_TileIdx(const D3DXVECTOR3& vPos)
 {
 	for (size_t index = 0; index < m_vecTile.size(); ++index)
 	{
-		if (Picking_Dot(vPos, index))
+		if (Picking_Dot(vPos, (int)index))
 		{
-			return index;
+			return (int)index;
 		}
 	}
 

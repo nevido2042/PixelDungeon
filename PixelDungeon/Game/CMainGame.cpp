@@ -80,7 +80,7 @@ void CMainGame::Load_Texture()
 	}
 
 	if (FAILED(CTextureMgr::Get_Instance()->Insert_Texture(
-		L"../Texture/Resources/Logo/banners.png",
+		L"../Resources/Logo/banners.png",
 		TEX_SINGLE, L"GameTitle")))
 	{
 		//AfxMessageBox(L"Terrain Texture Insert Failed");
