@@ -29,6 +29,7 @@ public:
 
 public:
 	virtual BOOL OnInitDialog();
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 public:
 	void	Horizontal_Scroll();
 	CListBox					m_ListBox;
@@ -39,6 +40,7 @@ private:
 	void		Load_FileData(const CString& strFilePath);
 	CToolView*	Get_ToolView();
 	void		Save_Tile();
-public:
-	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	void		Setting_ListBox();
+	// 특정 경로에서 파일 이름을 리스트 박스에 추가하는 함수
+	void Add_FilesToListBox(const CString& relativeFolderPath, const CString& fileFilter);
 };
