@@ -112,13 +112,17 @@ void CMapTool::OnListBox()
 		Get_ToolView()->Set_DrawID(combinedIndex);
 	}
 
-
+	//이미지를 가져온다
 	CImage* pImage = iter->second.pImage;
+	//픽쳐 디시를 가져온다.
 	CClientDC dc(&m_Picture);
+	//렉트
 	CRect rect;
-
+	//픽쳐의 렉트를 가져온다.
 	m_Picture.GetClientRect(&rect);
+	//픽쳐를 렉트만큼 배경(파랑)으로 채운다.
 	dc.FillSolidRect(rect, RGB(0, 0, 255));
+	//이미지를 픽쳐에 렉트만큼 그린다.
 	pImage->Draw(dc, rect);
 
 	//m_Picture.SetBitmap(*(iter->second.pImage));

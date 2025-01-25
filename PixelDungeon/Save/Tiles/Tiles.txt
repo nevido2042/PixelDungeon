@@ -1,3 +1,5 @@
 ..\Resources\Tile\tiles_sewers\00_tiles_sewers.png
-..\Resources\Tile\tiles_sewers\08_tiles_sewers.png
+..\Resources\Tile\tiles_sewers\146_tiles_sewers.png
+..\Resources\Tile\tiles_sewers\156_tiles_sewers.png
 ..\Resources\Tile\tiles_sewers\24_tiles_sewers.png
+..\Resources\Tile\tiles_sewers\80_tiles_sewers.png
