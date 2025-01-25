@@ -7,7 +7,7 @@ class CMyForm : public CFormView
 {
 	DECLARE_DYNCREATE(CMyForm)
 
-protected:
+public:
 	CMyForm();           // 동적 만들기에 사용되는 protected 생성자입니다.
 	virtual ~CMyForm();
 
@@ -28,7 +28,7 @@ public:
 	CUnitTool	m_UnitTool;
 	CMapTool	m_MapTool;
 
-protected:
+public:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 지원입니다.
 
 	DECLARE_MESSAGE_MAP()
