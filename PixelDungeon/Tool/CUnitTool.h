@@ -3,7 +3,6 @@
 #include "afxdialogex.h"
 #include "Include.h"
 
-// 아이템 비트 플래그 예시
 #define RUBY        0x01
 #define DIAMOND     0x02
 #define SAPPHIRE    0x04
@@ -41,7 +40,6 @@ private:
     map<CString, CString>  m_mapFilePaths;
 
 public:
-    // MFC UI 연결 멤버
     CString m_strName;       // 유닛 이름
     int     m_iAttack;       // 공격력
     int     m_iHp;           // 체력
