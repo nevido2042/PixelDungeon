@@ -7,6 +7,7 @@
 #include "CMapTool.h"
 #include "CFileInfo.h"
 #include "MainFrm.h"
+#include "CTerrain.h"
 
 // CMapTool 대화 상자
 
@@ -35,6 +36,7 @@ BEGIN_MESSAGE_MAP(CMapTool, CDialog)
 	ON_WM_DROPFILES()
 	ON_WM_DESTROY()
 	ON_WM_KEYDOWN()
+	ON_BN_CLICKED(IDC_SAVE_MAP, &CMapTool::OnBnClickedSaveMap)
 END_MESSAGE_MAP()
 
 
@@ -78,24 +80,30 @@ void CMapTool::OnListBox()
 	if (iter == m_mapPngImage.end())
 		return;
 
-	// 마지막 두 번째 문자와 마지막 문자 추출
-	TCHAR lastChar = strFindName.GetAt(strFindName.GetLength() - 1);
-	TCHAR secondLastChar = strFindName.GetAt(strFindName.GetLength() - 2);
+	// 첫 번째, 두 번째, 세 번째 문자 추출
+	TCHAR firstChar = strFindName.GetAt(0);
+	TCHAR secondChar = strFindName.GetAt(1);
+	TCHAR thirdChar = strFindName.GetAt(2);
 	int combinedIndex = -1;
 
-	// 두 자리 수일 경우
-	if (_istdigit(secondLastChar) && _istdigit(lastChar))
+	// 세 자리 수일 경우
+	if (_istdigit(firstChar) && _istdigit(secondChar) && _istdigit(thirdChar))
 	{
-		combinedIndex = (secondLastChar - _T('0')) * 10 + (lastChar - _T('0'));
+		combinedIndex = (firstChar - _T('0')) * 100 + (secondChar - _T('0')) * 10 + (thirdChar - _T('0'));
 	}
-	// 한 자리 수일 경우: 마지막 두 문자를 합쳐 사용
-	else if(_istdigit(lastChar))
+	// 두 자리 수일 경우: 첫 번째와 두 번째 문자를 사용
+	else if (_istdigit(firstChar) && _istdigit(secondChar))
 	{
-		combinedIndex = lastChar - _T('0');
+		combinedIndex = (firstChar - _T('0')) * 10 + (secondChar - _T('0'));
+	}
+	// 한 자리 수일 경우: 첫 번째 문자만 사용
+	else if (_istdigit(firstChar))
+	{
+		combinedIndex = firstChar - _T('0');
 	}
 	else
 	{
-		AfxMessageBox(_T("fileN (N = 정수 두자리 까지 가능) 형식을 지켜라"));
+		AfxMessageBox(_T("fileN (N = 정수 세 자리 까지 가능) 형식을 지켜라"));
 	}
 
 	// 툴뷰의 드로우 아이디 변경
@@ -103,6 +111,7 @@ void CMapTool::OnListBox()
 	{
 		Get_ToolView()->Set_DrawID(combinedIndex);
 	}
+
 
 	m_Picture.SetBitmap(*(iter->second.pImage));
 
@@ -212,7 +221,10 @@ BOOL CMapTool::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
+	//Setting_ListBox();
+
 	Load_FileData(L"../Save/Tiles/Tiles.txt");
+
 	// TODO:  여기에 추가 초기화 작업을 추가합니다.
 	Horizontal_Scroll();
 
@@ -225,7 +237,7 @@ void CMapTool::Load_FileData(const CString& strFilePath)
 	CStdioFile File;
 	if (!File.Open(strFilePath, CFile::modeRead | CFile::typeText))
 	{
-		AfxMessageBox(_T("저장된 타일이 없다, 드래그앤 드랍으로 넣어라, 파일 이름 형식 맞춰서(tile00)"));
+		AfxMessageBox(_T("저장된 타일이 없다, 드래그앤 드랍으로 넣어라, 파일 이름 형식 맞춰서"));
 		return;
 	}
 
@@ -296,25 +308,103 @@ void CMapTool::Save_Tile()
 	File.Close();
 }
 
-
-void CMapTool::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
+void CMapTool::Setting_ListBox()
 {
-	//if (m_ListBox.m_hWnd)
-	//{  // 리스트 박스가 유효한지 확인
-	//	// WM_KEYDOWN 메시지를 리스트 박스로 전달
-	//	m_ListBox.SendMessage(WM_KEYDOWN, nChar, MAKELPARAM(nRepCnt, nFlags));
-	//}
+	//m_ListBox.AddString()
+	// 상대 경로와 필터 설정
+	CString relativeFolderPath = _T("../Resources/Tile/Use");  // 상대 경로
+	CString fileFilter = _T("*.png");  // .png 파일만 필터링
 
-	//if (nChar == VK_DELETE)
-	//{
-	//	int	iIndex = m_ListBox.GetCurSel();
-	//	if (iIndex == -1)
-	//	{
-	//		return; //아무것도 클릭 안했을 시 리턴
-	//	}
+	// AddFilesToListBox 호출
+	Add_FilesToListBox(relativeFolderPath, fileFilter);
+}
 
-	//	m_ListBox.DeleteString(iIndex);
-	//}
+void CMapTool::Add_FilesToListBox(const CString& relativeFolderPath, const CString& fileFilter)
+{
+	WIN32_FIND_DATA findData;
+	HANDLE hFind = INVALID_HANDLE_VALUE;
 
-	CDialog::OnKeyDown(nChar, nRepCnt, nFlags);
+	// 현재 작업 디렉토리 가져오기
+	TCHAR currentDir[MAX_PATH];
+	GetCurrentDirectory(MAX_PATH, currentDir);
+
+	// 현재 디렉토리와 상대 경로를 결합하여 절대 경로를 만듬
+	CString fullPath = CString(currentDir) + _T("\\") + relativeFolderPath;
+
+	// 경로와 필터 결합 (예: "C:\\MyFolder\\*.png")
+	CString searchPath = fullPath + _T("\\") + fileFilter;
+
+	hFind = FindFirstFile(searchPath, &findData);
+
+	if (hFind == INVALID_HANDLE_VALUE)
+	{
+		AfxMessageBox(_T("파일을 찾을 수 없습니다."), MB_OK | MB_ICONERROR);
+		return;
+	}
+
+	do
+	{
+		// 디렉토리는 제외하고 파일만 추가
+		if (!(findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+		{
+			// 파일 이름 추가
+			m_ListBox.AddString(findData.cFileName);
+
+			// 상대경로 생성
+			CString strRelative = relativeFolderPath + _T("\\") + findData.cFileName;
+
+			// 이미지 로드
+			CImage* pPngImage = new CImage;
+			if (pPngImage->Load(strRelative) != S_OK)  // 이미지 로드 오류 체크
+			{
+				delete pPngImage;  // 실패 시 메모리 해제
+				continue;
+			}
+
+			// 이미지 정보 구조체
+			IMAGE_INFO tImgInfo{ pPngImage, strRelative };
+
+			// m_mapPngImage에 상대경로와 이미지 객체 추가
+			m_mapPngImage.insert({ findData.cFileName, tImgInfo });
+		}
+	} while (FindNextFile(hFind, &findData) != 0);
+
+	FindClose(hFind); // 검색 종료
+}
+
+
+BOOL CMapTool::PreTranslateMessage(MSG* pMsg)
+{
+	if (pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_DELETE) {  // Delete 키 확인
+		if (GetFocus() == &m_ListBox) {  // 리스트 박스가 포커스를 가지고 있는지 확인
+			int iIndex = m_ListBox.GetCurSel();  // 선택된 항목 가져오기
+			if (iIndex != LB_ERR) {  // 유효한 항목인지 확인
+
+				CString strFindName;
+				m_ListBox.GetText(iIndex, strFindName);
+
+				auto iter = m_mapPngImage.find(strFindName);
+				if (iter != m_mapPngImage.end())
+				{
+					Safe_Delete((*iter).second.pImage);
+					m_mapPngImage.erase(iter);
+					Save_Tile();
+				}
+
+
+				m_ListBox.DeleteString(iIndex);  // 선택된 항목 삭제
+
+			}
+			return TRUE;  // 메시지 처리 완료
+		}
+	}
+	return CDialog::PreTranslateMessage(pMsg);
+}
+
+
+void CMapTool::OnBnClickedSaveMap()
+{
+	CTerrain* pTerrain = Get_ToolView()->m_pTerrain;
+
+	pTerrain->Save_Tile();
 }

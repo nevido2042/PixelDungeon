@@ -16,31 +16,8 @@ CTerrain::~CTerrain()
 
 HRESULT CTerrain::Initialize()
 {
-	if (FAILED(CTextureMgr::Get_Instance()->Insert_Texture(
-		L"../Resources/Tile/Tile_1/tiles%d.png",
-		TEX_MULTI, L"Terrain", L"Tile", 63)))
-	{
-		AfxMessageBox(L"Terrain Texture Insert Failed");
-		return E_FAIL;
-	}
-
-	for (int i = 0; i < TILEY; ++i)
-	{
-		for (int j = 0; j < TILEX; ++j)
-		{
-			TILE* pTile = new TILE;
-
-			float	fY = float(TILECY * i);// (TILECY / 2.f)* i;
-			float	fX = float(TILECX * j);// (TILECX * j) + (i % 2) * (TILECX / 2.f);
-
-			pTile->vPos = { fX, fY, 0.f };
-			pTile->vSize = { (float)TILECX, (float)TILECY };
-			pTile->byOption = 0;
-			pTile->byDrawID = 0;
-
-			m_vecTile.push_back(pTile);
-		}
-	}
+	Import_TilePng();
+	Create_TileMap();
 
 	return S_OK;
 }
@@ -190,6 +167,119 @@ int CTerrain::Get_TileIdx(const D3DXVECTOR3& vPos)
 	}
 
 	return -1;
+}
+
+int CTerrain::GetPngCount_InDirectory(const CString& directoryPath)
+{
+	int fileCount = 0;
+
+	WIN32_FIND_DATA findData;
+	HANDLE hFind = INVALID_HANDLE_VALUE;
+
+	// 폴더 경로에 *.* 필터를 추가하여 모든 파일을 찾도록 설정
+	CString searchPath = directoryPath + _T("\\*.*");
+
+	hFind = FindFirstFile(searchPath, &findData);
+	if (hFind == INVALID_HANDLE_VALUE)
+	{
+		// 폴더를 찾을 수 없는 경우
+		AfxMessageBox(_T("폴더를 찾을 수 없습니다."), MB_OK | MB_ICONERROR);
+		return 0;
+	}
+
+	do
+	{
+		// 디렉토리는 제외하고, 파일만 .png 확장자 확인
+		if (!(findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+		{
+			CString fileName = findData.cFileName;
+			int dotPos = fileName.ReverseFind(_T('.'));
+
+			// 확장자가 .png인 파일만 카운트
+			if (dotPos != -1 && fileName.Mid(dotPos + 1).CompareNoCase(_T("png")) == 0)
+			{
+				fileCount++;
+			}
+		}
+	} while (FindNextFile(hFind, &findData) != 0);
+
+	FindClose(hFind); // 핸들 종료
+	return fileCount;
+}
+
+void CTerrain::Import_TilePng()
+{
+	CString folderPath = L"../Resources/Tile/tiles_sewers"; // 경로 설정
+	int fileCount = GetPngCount_InDirectory(folderPath);
+
+	if (FAILED(CTextureMgr::Get_Instance()->Insert_Texture(
+		L"../Resources/Tile/tiles_sewers/%02d_tiles_sewers.png",
+		TEX_MULTI, L"Terrain", L"Tile", fileCount)))
+	{
+		AfxMessageBox(L"Terrain Texture Insert Failed");
+	}
+}
+
+void CTerrain::Create_TileMap()
+{
+	//저장 파일이 있는 지 확인
+	//저장 파일이 있으면 저장파일대로 drawID와 option 조정
+	if (!Load_Terrain())
+	{
+		//저장 파일이 없으면 아래와 같이
+		for (int i = 0; i < TILEY; ++i)
+		{
+			for (int j = 0; j < TILEX; ++j)
+			{
+				TILE* pTile = new TILE;
+
+				float	fY = float(TILECY * i);// (TILECY / 2.f)* i;
+				float	fX = float(TILECX * j);// (TILECX * j) + (i % 2) * (TILECX / 2.f);
+
+				pTile->vPos = { fX, fY, 0.f };
+				pTile->vSize = { (float)TILECX, (float)TILECY };
+				pTile->byOption = 0;
+				pTile->byDrawID = 24;
+
+				m_vecTile.push_back(pTile);
+			}
+		}
+	}
+
+	
+
+}
+
+bool CTerrain::Load_Terrain()
+{
+	return false;
+}
+
+void CTerrain::Save_Tile()
+{
+	// 파일 열기 (쓰기 모드, 새 파일 생성)
+	CStdioFile File;
+	if (!File.Open(L"../Save/Terrain/Terrain.txt", CFile::modeCreate | CFile::modeWrite | CFile::typeBinary))
+	{
+		AfxMessageBox(_T("저장 파일 생성 불가."));
+	}
+
+	// 벡터 데이터를 순회하며 byOption과 byDrawID를 파일에 저장
+	for (size_t i = 0; i < m_vecTile.size(); ++i)
+	{
+		if (m_vecTile[i] != nullptr)
+		{
+			// byOption과 byDrawID를 각각 저장
+			BYTE byOption = m_vecTile[i]->byOption;
+			BYTE byDrawID = m_vecTile[i]->byDrawID;
+
+			File.Write(&byOption, sizeof(BYTE)); // byOption 저장
+			File.Write(&byDrawID, sizeof(BYTE)); // byDrawID 저장
+		}
+	}
+
+	// 파일 닫기
+	File.Close();
 }
 
 bool CTerrain::Picking(const D3DXVECTOR3& vPos, const int& iIndex)
