@@ -526,7 +526,7 @@ void CUnitTool::OnBnClickedButtonDelete()
 
 
 BOOL CUnitTool::PreTranslateMessage(MSG* pMsg)
-{
+{ 
      ////////////////
     /////////////////////////
     //////////////////////// 
