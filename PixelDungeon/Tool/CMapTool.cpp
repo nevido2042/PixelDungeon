@@ -113,7 +113,15 @@ void CMapTool::OnListBox()
 	}
 
 
-	m_Picture.SetBitmap(*(iter->second.pImage));
+	CImage* pImage = iter->second.pImage;
+	CClientDC dc(&m_Picture);
+	CRect rect;
+
+	m_Picture.GetClientRect(&rect);
+	dc.FillSolidRect(rect, RGB(0, 0, 255));
+	pImage->Draw(dc, rect);
+
+	//m_Picture.SetBitmap(*(iter->second.pImage));
 
 	UpdateData(FALSE);
 }
