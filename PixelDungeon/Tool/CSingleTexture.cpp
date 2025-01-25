@@ -6,6 +6,7 @@ CSingleTexture::CSingleTexture()
     : m_pTexInfo(nullptr)
 {
 }
+
 CSingleTexture::~CSingleTexture()
 {
     Release();

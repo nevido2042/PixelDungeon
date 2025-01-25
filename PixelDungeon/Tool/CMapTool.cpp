@@ -297,24 +297,30 @@ void CMapTool::Save_Tile()
 }
 
 
-void CMapTool::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
+BOOL CMapTool::PreTranslateMessage(MSG* pMsg)
 {
-	//if (m_ListBox.m_hWnd)
-	//{  // 리스트 박스가 유효한지 확인
-	//	// WM_KEYDOWN 메시지를 리스트 박스로 전달
-	//	m_ListBox.SendMessage(WM_KEYDOWN, nChar, MAKELPARAM(nRepCnt, nFlags));
-	//}
+	if (pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_DELETE) {  // Delete 키 확인
+		if (GetFocus() == &m_ListBox) {  // 리스트 박스가 포커스를 가지고 있는지 확인
+			int iIndex = m_ListBox.GetCurSel();  // 선택된 항목 가져오기
+			if (iIndex != LB_ERR) {  // 유효한 항목인지 확인
 
-	//if (nChar == VK_DELETE)
-	//{
-	//	int	iIndex = m_ListBox.GetCurSel();
-	//	if (iIndex == -1)
-	//	{
-	//		return; //아무것도 클릭 안했을 시 리턴
-	//	}
+				CString strFindName;
+				m_ListBox.GetText(iIndex, strFindName);
 
-	//	m_ListBox.DeleteString(iIndex);
-	//}
+				auto iter = m_mapPngImage.find(strFindName);
+				if (iter != m_mapPngImage.end())
+				{
+					Safe_Delete((*iter).second.pImage);
+					m_mapPngImage.erase(iter);
+					Save_Tile();
+				}
 
-	CDialog::OnKeyDown(nChar, nRepCnt, nFlags);
+
+				m_ListBox.DeleteString(iIndex);  // 선택된 항목 삭제
+
+			}
+			return TRUE;  // 메시지 처리 완료
+		}
+	}
+	return CDialog::PreTranslateMessage(pMsg);
 }
