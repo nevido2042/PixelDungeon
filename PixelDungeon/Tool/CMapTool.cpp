@@ -36,7 +36,7 @@ BEGIN_MESSAGE_MAP(CMapTool, CDialog)
 	ON_WM_DROPFILES()
 	ON_WM_DESTROY()
 	ON_WM_KEYDOWN()
-	//ON_BN_CLICKED(IDC_SAVE_MAP, &CMapTool::OnBnClickedSaveMap)
+	ON_BN_CLICKED(IDC_BTN_SAVE_MAP, &CMapTool::OnBnClickedBtnSaveMap)
 END_MESSAGE_MAP()
 
 
@@ -401,8 +401,7 @@ BOOL CMapTool::PreTranslateMessage(MSG* pMsg)
 	return CDialog::PreTranslateMessage(pMsg);
 }
 
-
-void CMapTool::OnBnClickedSaveMap()
+void CMapTool::OnBnClickedBtnSaveMap()
 {
 	CTerrain* pTerrain = Get_ToolView()->m_pTerrain;
 
