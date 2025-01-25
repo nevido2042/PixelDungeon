@@ -164,7 +164,7 @@ void CMapTool::OnDropFiles(HDROP hDropInfo)
 	}
 
 	//추가한 파일경로를 저장한다.
-	//Save_Tile();
+	Save_Tile();
 
 	Horizontal_Scroll();
 
@@ -219,9 +219,10 @@ BOOL CMapTool::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
-	Setting_ListBox();
+	//Setting_ListBox();
 
-	//Load_FileData(L"../Save/Tiles/Tiles.txt");
+	Load_FileData(L"../Save/Tiles/Tiles.txt");
+
 	// TODO:  여기에 추가 초기화 작업을 추가합니다.
 	Horizontal_Scroll();
 
@@ -234,7 +235,7 @@ void CMapTool::Load_FileData(const CString& strFilePath)
 	CStdioFile File;
 	if (!File.Open(strFilePath, CFile::modeRead | CFile::typeText))
 	{
-		AfxMessageBox(_T("저장된 타일이 없다, 드래그앤 드랍으로 넣어라, 파일 이름 형식 맞춰서(tile00)"));
+		AfxMessageBox(_T("저장된 타일이 없다, 드래그앤 드랍으로 넣어라, 파일 이름 형식 맞춰서"));
 		return;
 	}
 
@@ -372,28 +373,28 @@ void CMapTool::Add_FilesToListBox(const CString& relativeFolderPath, const CStri
 
 BOOL CMapTool::PreTranslateMessage(MSG* pMsg)
 {
-	//if (pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_DELETE) {  // Delete 키 확인
-	//	if (GetFocus() == &m_ListBox) {  // 리스트 박스가 포커스를 가지고 있는지 확인
-	//		int iIndex = m_ListBox.GetCurSel();  // 선택된 항목 가져오기
-	//		if (iIndex != LB_ERR) {  // 유효한 항목인지 확인
+	if (pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_DELETE) {  // Delete 키 확인
+		if (GetFocus() == &m_ListBox) {  // 리스트 박스가 포커스를 가지고 있는지 확인
+			int iIndex = m_ListBox.GetCurSel();  // 선택된 항목 가져오기
+			if (iIndex != LB_ERR) {  // 유효한 항목인지 확인
 
-	//			CString strFindName;
-	//			m_ListBox.GetText(iIndex, strFindName);
+				CString strFindName;
+				m_ListBox.GetText(iIndex, strFindName);
 
-	//			auto iter = m_mapPngImage.find(strFindName);
-	//			if (iter != m_mapPngImage.end())
-	//			{
-	//				Safe_Delete((*iter).second.pImage);
-	//				m_mapPngImage.erase(iter);
-	//				Save_Tile();
-	//			}
+				auto iter = m_mapPngImage.find(strFindName);
+				if (iter != m_mapPngImage.end())
+				{
+					Safe_Delete((*iter).second.pImage);
+					m_mapPngImage.erase(iter);
+					Save_Tile();
+				}
 
 
-	//			m_ListBox.DeleteString(iIndex);  // 선택된 항목 삭제
+				m_ListBox.DeleteString(iIndex);  // 선택된 항목 삭제
 
-	//		}
-	//		return TRUE;  // 메시지 처리 완료
-	//	}
-	//}
+			}
+			return TRUE;  // 메시지 처리 완료
+		}
+	}
 	return CDialog::PreTranslateMessage(pMsg);
 }

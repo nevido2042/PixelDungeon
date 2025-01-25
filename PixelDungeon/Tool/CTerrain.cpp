@@ -209,11 +209,11 @@ int CTerrain::GetPngCount_InDirectory(const CString& directoryPath)
 
 void CTerrain::Import_TilePng()
 {
-	CString folderPath = L"../Resources/Tile/Use"; // 경로 설정
+	CString folderPath = L"../Resources/Tile/tiles_sewers"; // 경로 설정
 	int fileCount = GetPngCount_InDirectory(folderPath);
 
 	if (FAILED(CTextureMgr::Get_Instance()->Insert_Texture(
-		L"../Resources/Tile/Use/%02d_tiles_sewers.png",
+		L"../Resources/Tile/tiles_sewers/%02d_tiles_sewers.png",
 		TEX_MULTI, L"Terrain", L"Tile", fileCount)))
 	{
 		AfxMessageBox(L"Terrain Texture Insert Failed");
@@ -234,7 +234,7 @@ void CTerrain::Create_TileMap()
 			pTile->vPos = { fX, fY, 0.f };
 			pTile->vSize = { (float)TILECX, (float)TILECY };
 			pTile->byOption = 0;
-			pTile->byDrawID = 0;
+			pTile->byDrawID = 24;
 
 			m_vecTile.push_back(pTile);
 		}
