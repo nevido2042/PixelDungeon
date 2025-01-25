@@ -527,6 +527,12 @@ void CUnitTool::OnBnClickedButtonDelete()
 
 BOOL CUnitTool::PreTranslateMessage(MSG* pMsg)
 {
+     ////////////////
+    /////////////////////////
+    //////////////////////// 
+    /////////////////////
+    ////////////////////
+    ////////////////
     if (pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_DELETE) // 메세지 확인하고 // 이게 딜리트 버튼일때
     {
      
