@@ -34,6 +34,7 @@ BEGIN_MESSAGE_MAP(CMapTool, CDialog)
 	ON_LBN_SELCHANGE(IDC_LIST1, &CMapTool::OnListBox)
 	ON_WM_DROPFILES()
 	ON_WM_DESTROY()
+	ON_WM_KEYDOWN()
 END_MESSAGE_MAP()
 
 
@@ -48,6 +49,10 @@ void CMapTool::OnListBox()
 
 	// GetCurSel : 커서가 선택한 셀의 인덱스 값을 반환
 	int	iIndex = m_ListBox.GetCurSel();
+	if (iIndex == -1)
+	{
+		return; //아무것도 클릭 안했을 시 리턴
+	}
 
 	/*
 		1. 박스 리스트 클릭
@@ -289,4 +294,27 @@ void CMapTool::Save_Tile()
 
 	// 파일 닫기
 	File.Close();
+}
+
+
+void CMapTool::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
+{
+	//if (m_ListBox.m_hWnd)
+	//{  // 리스트 박스가 유효한지 확인
+	//	// WM_KEYDOWN 메시지를 리스트 박스로 전달
+	//	m_ListBox.SendMessage(WM_KEYDOWN, nChar, MAKELPARAM(nRepCnt, nFlags));
+	//}
+
+	//if (nChar == VK_DELETE)
+	//{
+	//	int	iIndex = m_ListBox.GetCurSel();
+	//	if (iIndex == -1)
+	//	{
+	//		return; //아무것도 클릭 안했을 시 리턴
+	//	}
+
+	//	m_ListBox.DeleteString(iIndex);
+	//}
+
+	CDialog::OnKeyDown(nChar, nRepCnt, nFlags);
 }
