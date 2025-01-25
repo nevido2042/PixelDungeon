@@ -50,7 +50,8 @@ public:
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 public:
-	float Get_Zoom() { return m_fZoom; }
+	float	Get_Zoom() { return m_fZoom; }
+	void	Set_DrawID(BYTE _byDrawID) { m_byDrawID = _byDrawID; }
 public:
 	CTerrain*	m_pTerrain;
 private:
