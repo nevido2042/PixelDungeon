@@ -20,6 +20,7 @@ public:
 	void	Tile_Change(const D3DXVECTOR3& vPos, const BYTE& byDrawID);
 	void	Set_MainView(CToolView* pMainView) { m_pMainView = pMainView;  }
 	void	Set_Ratio(D3DXMATRIX* pOut, float _fX, float _fY);
+	void	Save_Tile();
 
 private:
 	bool	Picking(const D3DXVECTOR3& vPos, const int& iIndex);
@@ -28,6 +29,8 @@ private:
 	int		GetPngCount_InDirectory(const CString& directoryPath);
 	void	Import_TilePng();
 	void	Create_TileMap();
+	bool	Load_Terrain();
+
 
 
 private:

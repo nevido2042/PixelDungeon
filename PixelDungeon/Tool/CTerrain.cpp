@@ -222,23 +222,64 @@ void CTerrain::Import_TilePng()
 
 void CTerrain::Create_TileMap()
 {
-	for (int i = 0; i < TILEY; ++i)
+	//저장 파일이 있는 지 확인
+	//저장 파일이 있으면 저장파일대로 drawID와 option 조정
+	if (!Load_Terrain())
 	{
-		for (int j = 0; j < TILEX; ++j)
+		//저장 파일이 없으면 아래와 같이
+		for (int i = 0; i < TILEY; ++i)
 		{
-			TILE* pTile = new TILE;
+			for (int j = 0; j < TILEX; ++j)
+			{
+				TILE* pTile = new TILE;
 
-			float	fY = float(TILECY * i);// (TILECY / 2.f)* i;
-			float	fX = float(TILECX * j);// (TILECX * j) + (i % 2) * (TILECX / 2.f);
+				float	fY = float(TILECY * i);// (TILECY / 2.f)* i;
+				float	fX = float(TILECX * j);// (TILECX * j) + (i % 2) * (TILECX / 2.f);
 
-			pTile->vPos = { fX, fY, 0.f };
-			pTile->vSize = { (float)TILECX, (float)TILECY };
-			pTile->byOption = 0;
-			pTile->byDrawID = 24;
+				pTile->vPos = { fX, fY, 0.f };
+				pTile->vSize = { (float)TILECX, (float)TILECY };
+				pTile->byOption = 0;
+				pTile->byDrawID = 24;
 
-			m_vecTile.push_back(pTile);
+				m_vecTile.push_back(pTile);
+			}
 		}
 	}
+
+	
+
+}
+
+bool CTerrain::Load_Terrain()
+{
+	return false;
+}
+
+void CTerrain::Save_Tile()
+{
+	// 파일 열기 (쓰기 모드, 새 파일 생성)
+	CStdioFile File;
+	if (!File.Open(L"../Save/Terrain/Terrain.txt", CFile::modeCreate | CFile::modeWrite | CFile::typeBinary))
+	{
+		AfxMessageBox(_T("저장 파일 생성 불가."));
+	}
+
+	// 벡터 데이터를 순회하며 byOption과 byDrawID를 파일에 저장
+	for (size_t i = 0; i < m_vecTile.size(); ++i)
+	{
+		if (m_vecTile[i] != nullptr)
+		{
+			// byOption과 byDrawID를 각각 저장
+			BYTE byOption = m_vecTile[i]->byOption;
+			BYTE byDrawID = m_vecTile[i]->byDrawID;
+
+			File.Write(&byOption, sizeof(BYTE)); // byOption 저장
+			File.Write(&byDrawID, sizeof(BYTE)); // byDrawID 저장
+		}
+	}
+
+	// 파일 닫기
+	File.Close();
 }
 
 bool CTerrain::Picking(const D3DXVECTOR3& vPos, const int& iIndex)
