@@ -38,6 +38,23 @@ private:
     // PNG 이미지와 경로를 저장하는 맵
     map<CString, CImage*>  m_mapPngImages;
     map<CString, CString>  m_mapFilePaths;
+    map<CString, map<CString, vector<CString>>> m_mapCategory;
+
+//예: m_mapCategory["Monster"]["신승훈"] 신승훈이 가진 여러 이미지 경로를 vector<CString> 형태로 저장
+//LoadFileData에서 타입 | 유닛이름 | 이미지경로를 읽어올 때마다 m_mapCategory[타입][유닛이름]에 이미지경로를 push_back 
+//OnInitDialog(또는 적절한 초기화 시점)에서 IDC_LIST3 에 “Monster”, “NPC”, “Player” 같은 타입들을 추가한다.
+//만약 파일로부터 동적으로 타입이 정해진다면, m_mapCategory에 있는 key값(타입)을 반복문으로 넣어주면 된다.
+//IDC_LIST3(타입 목록)에서 SelChange가 일어날 때(ON_LBN_SELCHANGE 등) :
+//
+//    선택된 타입을 얻어온다.
+//    IDC_LIST2를 ResetContent()하고, m_mapCategory[선택된타입]에 들어 있는 유닛 이름들을 넣어줄꺼임
+//    IDC_LIST2(유닛 목록)에서 SelChange가 일어날 때 선택된 유닛 이름을 얻어온다.
+//IDC_LIST1를 ResetContent()하고, 그 유닛이 가지는 모든 이미지 경로를 하나씩 리스트박스에 추가한다.
+//IDC_LIST1(이미지 목록)에서 SelChange 또는 더블클릭(LBN_DBLCLK 등) :
+//    선택된 이미지 경로를 얻어온다.
+//    그 경로로부터 CImage 또는 Bitmap을 로드하여 Picture Control에 표시한다.
+//    (이미 map< CString, CImage* > 형태로 관리하고 있다면, 경로 키를 이용해 이미지를 찾아서 그려줄 수도 있다.)
+
 
 public:
     CString m_strName;       // 유닛 이름
@@ -45,9 +62,11 @@ public:
     int     m_iHp;           // 체력
     int     m_iMaxHp;        // 최대체력 (사용하신다면)
     float   m_iEvasion;      // 회피율 (사용하신다면)
-    CString m_strFindName;   // 검색 키워드
+    CString m_strFindName;   // 검색 키ㄹ워드
 
-    CListBox  m_ListBox;     // 리스트박스
+    CListBox  m_ListBox;     // 리스트박스 ( 이미지 출력하는곳 )
+    CListBox m_ListBox2;     // 리스트박스2 ( 객체들 출력하는곳 )
+    CListBox m_ListBox3;     // 리스트박스3 ( 무슨 객체를 출력할지 선택하는곳)
     CButton   m_Radio[3];    // 플레이어/몬스터/NPC 라디오 버튼
     CButton   m_Check[3];    // 체크박스 예시 (쓰신다면)
     CButton   m_Bitmap;      // 비트맵 버튼 (사용하신다면)
@@ -89,6 +108,12 @@ public:
     //이미지 관련
     void DisplayImage(const CString& strName);
 
+
     // 애니메이션
     void StartAnimation();
+
+
+
+    afx_msg void OnLbnDblclkList2();
+    afx_msg void OnLbnDblclkList3();
 };
