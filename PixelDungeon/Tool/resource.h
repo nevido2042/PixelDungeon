@@ -13,6 +13,7 @@
 #define IDC_evasion                     1022
 #define IDP_                            1023
 #define IDC_BTN_SAVE_MAP                1023
+#define IDC_BUTTON2                     1024
 #define IDC_STATIC_MAXHP                1050
 #define IDC_STATIC_EVASION              1051
 #define IDC_BUTTON1                     2000

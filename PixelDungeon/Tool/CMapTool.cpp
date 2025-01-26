@@ -37,6 +37,7 @@ BEGIN_MESSAGE_MAP(CMapTool, CDialog)
 	ON_WM_DESTROY()
 	ON_WM_KEYDOWN()
 	ON_BN_CLICKED(IDC_BTN_SAVE_MAP, &CMapTool::OnBnClickedBtnSaveMap)
+	ON_BN_CLICKED(IDC_BUTTON1, &CMapTool::OnBnClickedButton1)
 END_MESSAGE_MAP()
 
 
@@ -419,4 +420,10 @@ void CMapTool::OnBnClickedBtnSaveMap()
 	CTerrain* pTerrain = Get_ToolView()->m_pTerrain;
 
 	pTerrain->Save_Tile();
+}
+
+
+void CMapTool::OnBnClickedButton1()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 }
