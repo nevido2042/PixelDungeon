@@ -23,6 +23,13 @@ public:
 								const TCHAR* pStateKey = L"",
 								const int& iCnt = 0);
 
+	HRESULT		Insert_Texture(const std::vector<CString>& vecFilePaths,
+								TEXTYPE eTexture,
+								const TCHAR* pObjKey,
+								const TCHAR* pStateKey);
+
+	int			Find_MultiTex_Index(wstring _strObjKey, int _iDrawID);
+
 	 void		Release();
 
 

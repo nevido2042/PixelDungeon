@@ -71,6 +71,60 @@ HRESULT CTextureMgr::Insert_Texture(const TCHAR* pFilePath, TEXTYPE eTexture, co
 	return S_OK;
 }
 
+HRESULT CTextureMgr::Insert_Texture(const std::vector<CString>& vecFilePaths, TEXTYPE eTexture, const TCHAR* pObjKey, const TCHAR* pStateKey)
+{
+	auto iter = find_if(m_mapTex.begin(), m_mapTex.end(),
+		[&](auto& MyPair) -> bool
+		{
+			return MyPair.first == pObjKey;
+		});
+
+	if (iter == m_mapTex.end())
+	{
+		CTexture* pTexture = nullptr;
+
+		switch (eTexture)
+		{
+		case TEX_SINGLE:
+			pTexture = new CSingleTexture;
+			break;
+
+		case TEX_MULTI:
+			pTexture = new CMultiTexture;
+			break;
+
+		default:
+			return E_FAIL;
+		}
+
+		// 여러 파일 경로를 처리
+		for (const auto& filePath : vecFilePaths)
+		{
+			if (FAILED(pTexture->Insert_Texture(filePath, pStateKey, 1))) // iCnt는 0 또는 무시
+			{
+				AfxMessageBox(filePath);
+				return E_FAIL;
+			}
+		}
+
+		m_mapTex.insert({ pObjKey, pTexture });
+	}
+
+	return S_OK;
+}
+
+int CTextureMgr::Find_MultiTex_Index(wstring _strObjKey, int _iDrawID)
+{
+	auto iter = m_mapTex.find(_strObjKey);
+
+	if (CMultiTexture* pMultiTex = dynamic_cast<CMultiTexture*>(iter->second))
+	{
+		return pMultiTex->Find_TextureIndex(L"Tile", _iDrawID);
+	}
+
+	return -1;
+}
+
 void CTextureMgr::Release()
 {
 	for_each(m_mapTex.begin(), m_mapTex.end(), [](auto& MyPair)

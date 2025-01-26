@@ -38,7 +38,7 @@ void CTerrain::Render()
 	{
 		D3DXMatrixIdentity(&matWorld);
 		D3DXMatrixScaling(&matScale, 1.f, 1.f, 1.f);
-		D3DXMatrixTranslation(&matTrans, 
+		D3DXMatrixTranslation(&matTrans,
 			pTile->vPos.x - m_pMainView->GetScrollPos(0),
 			pTile->vPos.y - m_pMainView->GetScrollPos(1),
 			pTile->vPos.z);
@@ -46,7 +46,6 @@ void CTerrain::Render()
 		matWorld = matScale * matTrans;
 
 		RECT	rc{};
-
 		GetClientRect(m_pMainView->m_hWnd, &rc);
 
 		float	fX = WINCX / float(rc.right - rc.left);
@@ -65,24 +64,43 @@ void CTerrain::Render()
 
 		D3DXVECTOR3	vTemp{ fCenterX, fCenterY, 0.f };
 
-		CDevice::Get_Instance()->Get_Sprite()->Draw(pTexInfo->pTexture, //출력할 텍스처 컴객체
-			nullptr,		// 출력할 이미지 영역에 대한 Rect 주소, null인 경우 이미지의 0, 0기준으로 출력
-			&vTemp,		// 출력할 이미지의 중심 좌표 vec3 주소, null인 경우 0, 0 이미지 중심
-			nullptr,		// 위치 좌표에 대한 vec3 주소, null인 경우 스크린 상 0, 0 좌표 출력	
-			D3DCOLOR_ARGB(255, 255, 255, 255)); // 출력할 이미지와 섞을 색상 값, 0xffffffff를 넘겨주면 섞지 않고 원본 색상 유지
-			
-		swprintf_s(szBuf, L"%d", iIndex);
-
-		//CDevice::Get_Instance()->Get_Font()->DrawTextW(CDevice::Get_Instance()->Get_Sprite(),
-		//	szBuf,		// 출력할 문자열
-		//	lstrlen(szBuf),  // 문자열 버퍼의 크기
-		//	nullptr,	// 출력할 렉트 위치
-		//	0,			// 정렬 기준(옵션)
-		//	D3DCOLOR_ARGB(255, 255, 255, 255));
+		// 스프라이트로 타일 텍스처 렌더링
+		CDevice::Get_Instance()->Get_Sprite()->Draw(pTexInfo->pTexture,
+			nullptr, &vTemp, nullptr, D3DCOLOR_ARGB(255, 255, 255, 255));
 
 		iIndex++;
-	}	
-	
+	}
+
+	// 스프라이트 종료 후 선 그리기
+	CDevice::Get_Instance()->Get_Sprite()->End();
+
+	for (auto pTile : m_vecTile)
+	{
+		if (pTile->byOption == 1) // 특정 조건에서 X 표시
+		{
+			ID3DXLine* pLine;
+			if (SUCCEEDED(D3DXCreateLine(CDevice::Get_Instance()->Get_Device(), &pLine)))
+			{
+				D3DXVECTOR2 vLines[4] =
+				{
+					{ pTile->vPos.x - TILECX * 0.5f - m_pMainView->GetScrollPos(0), pTile->vPos.y - TILECY * 0.5f -m_pMainView->GetScrollPos(1) },
+					{ pTile->vPos.x + TILECX * 0.5f - m_pMainView->GetScrollPos(0), pTile->vPos.y + TILECY * 0.5f -m_pMainView->GetScrollPos(1) },
+					{ pTile->vPos.x + TILECX * 0.5f - m_pMainView->GetScrollPos(0), pTile->vPos.y - TILECY * 0.5f -m_pMainView->GetScrollPos(1) },
+					{ pTile->vPos.x - TILECX * 0.5f - m_pMainView->GetScrollPos(0), pTile->vPos.y + TILECY * 0.5f -m_pMainView->GetScrollPos(1) }
+				};
+
+				pLine->SetWidth(2.0f); // 선 두께
+				pLine->Begin();
+				pLine->Draw(vLines, 2, D3DCOLOR_ARGB(255, 255, 0, 0)); // 첫 번째 대각선 (빨간색)
+				pLine->Draw(&vLines[2], 2, D3DCOLOR_ARGB(255, 255, 0, 0)); // 두 번째 대각선 (빨간색)
+				pLine->End();
+				pLine->Release();
+			}
+		}
+	}
+
+	// 스프라이트 다시 시작
+	CDevice::Get_Instance()->Get_Sprite()->Begin(D3DXSPRITE_ALPHABLEND);
 }
 
 void CTerrain::Release()
@@ -136,6 +154,11 @@ void CTerrain::Tile_Change(const D3DXVECTOR3& vPos, const BYTE& byDrawID)
 
 	if (-1 == iIndex)
 		return;
+
+	//멀티텍스쳐에서 byDrawID의 숫자를 가진 애를 찾아서 
+	//int iTexIndex = CTextureMgr::Get_Instance()->Find_MultiTex_Index(L"Terrain", byDrawID);
+	//그 인덱스를 넣어라
+
 
 	m_vecTile[iIndex]->byDrawID = byDrawID;
 	m_vecTile[iIndex]->byOption = 1;
@@ -218,6 +241,32 @@ void CTerrain::Import_TilePng()
 	{
 		AfxMessageBox(L"Terrain Texture Insert Failed");
 	}
+
+	/*CString folderPath = L"../Resources/Tile/tiles_sewers";
+	CFileFind finder;
+	BOOL bWorking = finder.FindFile(folderPath + L"/*.png");
+	std::vector<CString> filePaths;
+
+	while (bWorking)
+	{
+		bWorking = finder.FindNextFile();
+		if (!finder.IsDots() && !finder.IsDirectory())
+		{
+			filePaths.push_back(finder.GetFilePath());
+		}
+	}
+	finder.Close();
+
+	if (filePaths.empty())
+	{
+		AfxMessageBox(L"No PNG files found in the directory.");
+		return;
+	}
+
+	if (FAILED(CTextureMgr::Get_Instance()->Insert_Texture(filePaths, TEX_MULTI, L"Terrain", L"Tile")))
+	{
+		AfxMessageBox(L"Failed to insert textures for Terrain.");
+	}*/
 }
 
 void CTerrain::Create_TileMap()
@@ -239,7 +288,7 @@ void CTerrain::Create_TileMap()
 				pTile->vPos = { fX, fY, 0.f };
 				pTile->vSize = { (float)TILECX, (float)TILECY };
 				pTile->byOption = 0;
-				pTile->byDrawID = 24;
+				pTile->byDrawID = 0;
 
 				m_vecTile.push_back(pTile);
 			}
@@ -252,7 +301,46 @@ void CTerrain::Create_TileMap()
 
 bool CTerrain::Load_Terrain()
 {
-	return false;
+	// 파일 열기 (읽기 모드)
+	CStdioFile File;
+	if (!File.Open(L"../Save/Terrain/Terrain.txt", CFile::modeRead | CFile::typeBinary))
+	{
+		AfxMessageBox(_T("저장 파일 없음."));
+		return false;
+	}
+
+	for (int i = 0; i < TILEY; ++i)
+	{
+		for (int j = 0; j < TILEX; ++j)
+		{
+			TILE* pTile = new TILE;
+
+			float fY = float(TILECY * i);
+			float fX = float(TILECX * j);
+
+			pTile->vPos = { fX, fY, 0.f };
+			pTile->vSize = { (float)TILECX, (float)TILECY };
+
+			// 파일에서 byOption과 byDrawID 읽기
+			BYTE byOption, byDrawID;
+			if (File.Read(&byOption, sizeof(BYTE)) != sizeof(BYTE) ||
+				File.Read(&byDrawID, sizeof(BYTE)) != sizeof(BYTE))
+			{
+				AfxMessageBox(_T("파일 데이터 읽기 오류."));
+				delete pTile;
+				File.Close();
+				return false;
+			}
+
+			pTile->byOption = byOption;
+			pTile->byDrawID = byDrawID;
+
+			m_vecTile.push_back(pTile);
+		}
+	}
+
+	File.Close();
+	return true;
 }
 
 void CTerrain::Save_Tile()
