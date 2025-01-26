@@ -279,7 +279,7 @@ void CUnitTool::SaveUnitData(const CString& strFilePath)
 
     file.Close();
 }
-
+//////////
 void CUnitTool::LoadUnitData(const CString& strFilePath)
 {
     // (1) 파일 열기
