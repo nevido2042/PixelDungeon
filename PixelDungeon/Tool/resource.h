@@ -13,6 +13,7 @@
 #define IDC_evasion                     1022
 #define IDP_                            1023
 #define IDC_BTN_SAVE_MAP                1023
+#define IDC_BUTTON2                     1024
 #define IDC_STATIC_MAXHP                1050
 #define IDC_STATIC_EVASION              1051
 #define IDC_BUTTON1                     2000
@@ -47,7 +48,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        313
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1024
+#define _APS_NEXT_CONTROL_VALUE         1025
 #define _APS_NEXT_SYMED_VALUE           313
 #endif
 #endif
