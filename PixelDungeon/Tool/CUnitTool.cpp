@@ -53,6 +53,7 @@ BEGIN_MESSAGE_MAP(CUnitTool, CDialog)
     ON_LBN_SELCHANGE(IDC_LIST2, &CUnitTool::OnLbnDblclkList2)
     ON_LBN_SELCHANGE(IDC_LIST3, &CUnitTool::OnLbnDblclkList3)
     ON_STN_CLICKED(IDC_PICTURE, &CUnitTool::OnStnClickedPicture)
+ 
 END_MESSAGE_MAP()
 
 
@@ -756,3 +757,4 @@ CString CUnitTool::Convert_RelativePath(const CString& fullPath)
 
     return relativePath;
 }
+
