@@ -39,8 +39,6 @@ void CUnitTool::DoDataExchange(CDataExchange* pDX)
     DDX_Control(pDX, IDC_LIST2, m_ListBox2);
 }
 BEGIN_MESSAGE_MAP(CUnitTool, CDialog)
-    ON_BN_CLICKED(IDC_BUTTON4, &CUnitTool::OnSave)
-    ON_BN_CLICKED(IDC_BUTTON5, &CUnitTool::OnLoad)
     ON_BN_CLICKED(IDC_BUTTON7, &CUnitTool::OnSearch)
     ON_LBN_SELCHANGE(IDC_LIST1, &CUnitTool::OnListBox)
     ON_WM_DESTROY()
@@ -54,6 +52,7 @@ BEGIN_MESSAGE_MAP(CUnitTool, CDialog)
     ON_BN_CLICKED(IDC_BUTTON_DELETE, &CUnitTool::OnBnClickedButtonDelete)
     ON_LBN_SELCHANGE(IDC_LIST2, &CUnitTool::OnLbnDblclkList2)
     ON_LBN_SELCHANGE(IDC_LIST3, &CUnitTool::OnLbnDblclkList3)
+    ON_STN_CLICKED(IDC_PICTURE, &CUnitTool::OnStnClickedPicture)
 END_MESSAGE_MAP()
 
 
@@ -65,6 +64,12 @@ BOOL CUnitTool::OnInitDialog()
     m_ListBox3.AddString(_T("Player"));
     m_ListBox3.AddString(_T("Monster"));
     m_ListBox3.AddString(_T("NPC"));
+
+    // 이미지 리스트 불러오기
+    LoadFileData(L"../Save/UnitToolFiles.txt");
+
+    // 유닛 데이터 불러오기
+    LoadUnitData(L"../Save/UnitData.txt");
 
     DragAcceptFiles(TRUE);
 
@@ -173,97 +178,8 @@ void CUnitTool::OnDropFiles(HDROP hDropInfo)
     UpdateData(FALSE);
 }
 
-// 파일 저장
-void CUnitTool::OnSave()
-{
-    CFileDialog dlg(FALSE, _T("dat"), _T("UnitData.dat"),
-        OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
-        _T("Data Files (*.dat)|*.dat|All Files (*.*)|*.*||"), this);
 
-    if (dlg.DoModal() != IDOK) return;
-    CString strPath = dlg.GetPathName();
 
-    CFile file;
-    if (!file.Open(strPath, CFile::modeCreate | CFile::modeWrite))
-    {
-        AfxMessageBox(_T("파일 열기 실패(저장)."));
-        return;
-    }
-
-    CArchive ar(&file, CArchive::store);
-
-    int nCount = (int)m_mapUnitData.size();
-    ar << nCount;
-
-    for (auto& pair : m_mapUnitData)
-    {
-        UNITDATA* pData = pair.second;
-        ar << pData->strName;
-        ar << pData->iAttack;
-        ar << pData->iHp;
-
-        // BYTE -> int 변환
-        ar << (int)pData->byJobIndex;
-        ar << (int)pData->byItem;
-    }
-
-    ar.Close();
-    file.Close();
-
-    AfxMessageBox(_T("유닛 정보가 저장되었습니다."));
-}
-
-// 파일 불러오기
-void CUnitTool::OnLoad()
-{
-    CFileDialog dlg(TRUE, _T("dat"), _T("UnitData.dat"),
-        OFN_HIDEREADONLY | OFN_FILEMUSTEXIST,
-        _T("Data Files (*.dat)|*.dat|All Files (*.*)|*.*||"), this);
-
-    if (dlg.DoModal() != IDOK) return;
-    CString strPath = dlg.GetPathName();
-
-    CFile file;
-    if (!file.Open(strPath, CFile::modeRead))
-    {
-        AfxMessageBox(_T("파일 열기 실패(불러오기)."));
-        return;
-    }
-
-    CArchive ar(&file, CArchive::load);
-
-    for (auto& pair : m_mapUnitData)
-        delete pair.second;
-    m_mapUnitData.clear();
-    m_ListBox.ResetContent();
-
-    int nCount = 0;
-    ar >> nCount;
-
-    for (int i = 0; i < nCount; ++i)
-    {
-        UNITDATA* pData = new UNITDATA;
-        int nJobIndex, nItem;
-
-        ar >> pData->strName;
-        ar >> pData->iAttack;
-        ar >> pData->iHp;
-        ar >> nJobIndex;
-        ar >> nItem;
-
-        pData->byJobIndex = (BYTE)nJobIndex;
-        pData->byItem = (BYTE)nItem;
-
-        m_mapUnitData.insert({ pData->strName, pData });
-        m_ListBox.AddString(pData->strName);
-    }
-
-    ar.Close();
-    file.Close();
-
-    AfxMessageBox(_T("유닛 정보를 불러왔습니다."));
-    UpdateData(FALSE);
-}
 
 // 검색
 void CUnitTool::OnSearch()
@@ -301,9 +217,13 @@ void CUnitTool::OnDestroy()
 {
     CDialog::OnDestroy();
 
-    // 현재 이미지 목록 파일로 저장
+    // 이미지 목록 저장
     SaveFileData(L"../Save/UnitToolFiles.txt");
 
+    // 유닛 데이터 저장
+    SaveUnitData(L"../Save/UnitData.txt");
+
+    // 동적 할당된 이미지/데이터 해제
     for (auto& pair : m_mapPngImages)
     {
         pair.second->Destroy();
@@ -311,6 +231,113 @@ void CUnitTool::OnDestroy()
     }
     m_mapPngImages.clear();
     m_mapFilePaths.clear();
+
+    for (auto& kv : m_mapUnitData)
+    {
+        delete kv.second;
+    }
+    m_mapUnitData.clear();
+}
+void CUnitTool::SaveUnitData(const CString& strFilePath)
+{
+    // (1) 파일 열기
+    CStdioFile file;
+    if (!file.Open(strFilePath, CFile::modeCreate | CFile::modeWrite | CFile::typeText))
+    {
+        AfxMessageBox(_T("유닛 데이터 파일을 열 수 없습니다!"));
+        return;
+    }
+
+    // (2) m_mapUnitData 순회하며 한 줄씩 저장
+    //     key 형태가 "Category:UnitName" 이라고 가정
+    for (auto& kv : m_mapUnitData)
+    {
+        const CString& strFullKey = kv.first;   // "Player:Hero" 등
+        UNITDATA* pData = kv.second;
+        if (pData == nullptr)
+            continue;
+
+        // 먼저 Category, UnitName 분리
+        int posColon = strFullKey.Find(_T(":"));
+        if (posColon == -1)
+            continue; // 잘못된 키라면 패스
+
+        CString strCategory = strFullKey.Left(posColon);
+        CString strUnitName = strFullKey.Mid(posColon + 1);
+
+        // 필요하다면 pData->iMaxHp, m_iEvasion 등도 같이 저장 가능
+        // 여기서는 예시로 iAttack, iHp 두 가지만 저장
+        CString strLine;
+        strLine.Format(_T("%s|%s|%d|%d\n"),
+            strCategory,
+            strUnitName,
+            pData->iAttack,
+            pData->iHp);
+
+        file.WriteString(strLine);
+    }
+
+    file.Close();
+}
+
+void CUnitTool::LoadUnitData(const CString& strFilePath)
+{
+    // (1) 파일 열기
+    CStdioFile file;
+    if (!file.Open(strFilePath, CFile::modeRead | CFile::typeText))
+    {
+        // 없으면 없는 대로 패스(또는 메시지 박스)
+        // AfxMessageBox(_T("유닛 데이터 파일을 열 수 없습니다!"));
+        return;
+    }
+
+    // (2) 기존 데이터 날리거나(또는 append) 필요에 따라 정리
+    //     여기서는 중복 방지를 위해 싹 날린다고 가정
+    for (auto& kv : m_mapUnitData)
+    {
+        delete kv.second;
+    }
+    m_mapUnitData.clear();
+
+    // (3) 파일에서 한 줄씩 읽어서 파싱
+    CString strLine;
+    while (file.ReadString(strLine))
+    {
+        // 예) "Monster|슬라임|25|100"
+        //     [카테고리]|[유닛이름]|[공격력]|[HP]
+        if (strLine.IsEmpty())
+            continue;
+
+        // 구분자(|) 찾아 분리
+        int pos1 = strLine.Find(_T("|"));
+        if (pos1 == -1) continue;
+        int pos2 = strLine.Find(_T("|"), pos1 + 1);
+        if (pos2 == -1) continue;
+        int pos3 = strLine.Find(_T("|"), pos2 + 1);
+        if (pos3 == -1) continue;
+
+        CString strCategory = strLine.Left(pos1);
+        CString strUnitName = strLine.Mid(pos1 + 1, pos2 - (pos1 + 1));
+        CString strAttack = strLine.Mid(pos2 + 1, pos3 - (pos2 + 1));
+        CString strHp = strLine.Mid(pos3 + 1);
+
+        int iAttack = _ttoi(strAttack);
+        int iHp = _ttoi(strHp);
+
+        // (4) UNITDATA 동적 할당, 맵에 삽입
+        UNITDATA* pData = new UNITDATA;
+        pData->strName = strUnitName;
+        pData->iAttack = iAttack;
+        pData->iHp = iHp;
+
+        // key: "Category:UnitName"
+        CString strKey;
+        strKey.Format(_T("%s:%s"), strCategory, strUnitName);
+
+        m_mapUnitData[strKey] = pData;
+    }
+
+    file.Close();
 }
 
 void CUnitTool::SaveFileData(const CString& strFilePath)
@@ -403,6 +430,17 @@ void CUnitTool::LoadFileData(const CString& strFilePath)
     file.Close();
 }
 
+
+
+
+
+
+
+
+
+
+
+
 // PNG 표시
 void CUnitTool::DisplayImage(const CString& strKey)
 {
@@ -421,6 +459,36 @@ void CUnitTool::DisplayImage(const CString& strKey)
     dc.FillSolidRect(rect, RGB(255, 255, 255));
     pImage->Draw(dc, rect);
 }
+
+
+//CImage* pImage = iter->second.pImage;  // iter는   map<CString, CImage*>임.
+//CClientDC dc(&m_Picture); // m_Picture는 픽쳐 컨트롤의 제어 변수임
+//CRect rect;  // 백 이미지 넣을 렉트 선언해주는거
+//
+//m_Picture.GetClientRect(&rect); 
+//dc.FillSolidRect(rect, RGB(255, 255, 255));
+//pImage->Draw(dc, rect); // 이미지를 넣는 부분
+//
+//UpdateData(FALSE);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void CUnitTool::StartAnimation()
 {
@@ -669,4 +737,22 @@ void CUnitTool::OnLbnDblclkList3()
     }
 
     UpdateData(FALSE);
+}
+
+
+void CUnitTool::OnStnClickedPicture()
+{
+    // TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+CString CUnitTool::Convert_RelativePath(const CString& fullPath)
+{
+    TCHAR currentDir[MAX_PATH];
+    GetCurrentDirectory(MAX_PATH, currentDir);
+
+    CString relativePath = fullPath;
+    PathRelativePathTo(relativePath.GetBuffer(MAX_PATH), currentDir, FILE_ATTRIBUTE_DIRECTORY, fullPath, FILE_ATTRIBUTE_NORMAL);
+    relativePath.ReleaseBuffer();
+
+    return relativePath;
 }

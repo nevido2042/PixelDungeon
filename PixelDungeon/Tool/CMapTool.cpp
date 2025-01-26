@@ -112,8 +112,15 @@ void CMapTool::OnListBox()
 		Get_ToolView()->Set_DrawID(combinedIndex);
 	}
 
+	CImage* pImage = iter->second.pImage;
+	CClientDC dc(&m_Picture);
+	CRect rect;
 
-	m_Picture.SetBitmap(*(iter->second.pImage));
+	m_Picture.GetClientRect(&rect);
+	dc.FillSolidRect(rect, RGB(255, 255, 255));
+	pImage->Draw(dc, rect);
+	 
+	//m_Picture.SetBitmap(*(iter->second.pImage));
 
 	UpdateData(FALSE);
 }
