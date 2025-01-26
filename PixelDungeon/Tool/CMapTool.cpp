@@ -112,6 +112,7 @@ void CMapTool::OnListBox()
 		Get_ToolView()->Set_DrawID(combinedIndex);
 	}
 
+
 	//이미지를 가져온다
 	CImage* pImage = iter->second.pImage;
 	//픽쳐 디시를 가져온다.

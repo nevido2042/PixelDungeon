@@ -27,8 +27,6 @@
 #define IDC_EDIT8                       2009
 #define IDC_LIST2                       2010
 #define IDC_LIST3                       2011
-#define IDC_BUTTON4                     2016
-#define IDC_BUTTON5                     2017
 #define IDC_EDIT6                       2019
 #define IDC_PICTURE                     2020
 #define IDC_BUTTON8                     2021

@@ -13,7 +13,6 @@ struct IMAGE_ITEM
     CString strName;     // 실제 파일 이름(확장자 제외)
     CImage* pImage;
 };
-
 class CUnitTool : public CDialog
 {
     DECLARE_DYNAMIC(CUnitTool)
@@ -83,11 +82,13 @@ public:
     // 이벤트 핸들러
     virtual BOOL OnInitDialog();
     afx_msg void OnDropFiles(HDROP hDropInfo);
-    afx_msg void OnSave();
-    afx_msg void OnLoad();
     afx_msg void OnSearch();
     afx_msg void OnListBox();
     afx_msg void OnDestroy();
+    void SaveUnitData(const CString& strFilePath);
+
+    void LoadUnitData(const CString& strFilePath);
+
     afx_msg void OnTimer(UINT_PTR nIDEvent);
     afx_msg void OnBnClickedButton9();
     afx_msg void OnBnClickedButton10();
@@ -116,4 +117,6 @@ public:
 
     afx_msg void OnLbnDblclkList2();
     afx_msg void OnLbnDblclkList3();
+    afx_msg void OnStnClickedPicture();
+    afx_msg CString Convert_RelativePath(const CString& fullPath);
 };
