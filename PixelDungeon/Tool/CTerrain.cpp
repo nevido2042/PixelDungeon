@@ -283,7 +283,46 @@ void CTerrain::Create_TileMap()
 
 bool CTerrain::Load_Terrain()
 {
-	return false;
+	// 파일 열기 (읽기 모드)
+	CStdioFile File;
+	if (!File.Open(L"../Save/Terrain/Terrain.txt", CFile::modeRead | CFile::typeBinary))
+	{
+		AfxMessageBox(_T("저장 파일 없음."));
+		return false;
+	}
+
+	for (int i = 0; i < TILEY; ++i)
+	{
+		for (int j = 0; j < TILEX; ++j)
+		{
+			TILE* pTile = new TILE;
+
+			float fY = float(TILECY * i);
+			float fX = float(TILECX * j);
+
+			pTile->vPos = { fX, fY, 0.f };
+			pTile->vSize = { (float)TILECX, (float)TILECY };
+
+			// 파일에서 byOption과 byDrawID 읽기
+			BYTE byOption, byDrawID;
+			if (File.Read(&byOption, sizeof(BYTE)) != sizeof(BYTE) ||
+				File.Read(&byDrawID, sizeof(BYTE)) != sizeof(BYTE))
+			{
+				AfxMessageBox(_T("파일 데이터 읽기 오류."));
+				delete pTile;
+				File.Close();
+				return false;
+			}
+
+			pTile->byOption = byOption;
+			pTile->byDrawID = byDrawID;
+
+			m_vecTile.push_back(pTile);
+		}
+	}
+
+	File.Close();
+	return true;
 }
 
 void CTerrain::Save_Tile()

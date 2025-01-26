@@ -26,6 +26,7 @@ public:
 	afx_msg void OnListBox();
 	afx_msg void OnDropFiles(HDROP hDropInfo);
 	afx_msg void OnDestroy();
+	afx_msg void OnBnClickedBtnSaveMap();
 
 public:
 	virtual BOOL OnInitDialog();
@@ -43,6 +44,4 @@ private:
 	void		Setting_ListBox();
 	// 특정 경로에서 파일 이름을 리스트 박스에 추가하는 함수
 	void Add_FilesToListBox(const CString& relativeFolderPath, const CString& fileFilter);
-public:
-	afx_msg void OnBnClickedBtnSaveMap();
 };
