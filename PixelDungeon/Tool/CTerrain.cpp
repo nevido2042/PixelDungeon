@@ -89,6 +89,7 @@ void CTerrain::Render()
 					{ pTile->vPos.x - TILECX * 0.5f - m_pMainView->GetScrollPos(0), pTile->vPos.y + TILECY * 0.5f -m_pMainView->GetScrollPos(1) }
 				};
 
+
 				pLine->SetWidth(2.0f); // 선 두께
 				pLine->Begin();
 				pLine->Draw(vLines, 2, D3DCOLOR_ARGB(255, 255, 0, 0)); // 첫 번째 대각선 (빨간색)
