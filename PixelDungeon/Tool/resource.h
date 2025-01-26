@@ -41,6 +41,7 @@
 #define IDC_RADIO_NPC                   2030
 #define IDC_BUTTON_APPLY                2031
 #define IDC_BUTTON_DELETE               2032
+#define IDC_BUTTON_APPLY2               2033
 
 // Next default values for new objects
 // 
