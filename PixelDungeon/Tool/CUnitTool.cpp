@@ -37,7 +37,6 @@ void CUnitTool::DoDataExchange(CDataExchange* pDX)
 
     DDX_Control(pDX, IDC_LIST3, m_ListBox3);
     DDX_Control(pDX, IDC_LIST2, m_ListBox2);
-    DDX_Control(pDX, IDC_BUTTON_APPLY2, m_iButtonApply2);
 }
 BEGIN_MESSAGE_MAP(CUnitTool, CDialog)
     ON_BN_CLICKED(IDC_BUTTON7, &CUnitTool::OnSearch)
@@ -54,8 +53,6 @@ BEGIN_MESSAGE_MAP(CUnitTool, CDialog)
     ON_LBN_SELCHANGE(IDC_LIST2, &CUnitTool::OnLbnDblclkList2)
     ON_LBN_SELCHANGE(IDC_LIST3, &CUnitTool::OnLbnDblclkList3)
     ON_STN_CLICKED(IDC_PICTURE, &CUnitTool::OnStnClickedPicture)
- 
-    ON_BN_CLICKED(IDC_BUTTON_APPLY2, &CUnitTool::OnBnClickedButtonApply2)
 END_MESSAGE_MAP()
 
 
@@ -760,6 +757,8 @@ CString CUnitTool::Convert_RelativePath(const CString& fullPath)
     return relativePath;
 }
 
+///
 
+//
 
-
+//
