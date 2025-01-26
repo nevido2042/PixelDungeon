@@ -29,6 +29,13 @@ const TEXINFO* CMultiTexture::Get_Texture(const TCHAR* pStateKey,
     return iter->second[iCnt];
 }
 
+const int CMultiTexture::Find_TextureIndex(const TCHAR* pStateKey, const int& iDrawID)
+{
+    auto iter = m_MapMultiTex.find(pStateKey);
+    
+    return -1;
+}
+
 HRESULT CMultiTexture::Insert_Texture(const TCHAR* pFilePath, const TCHAR* pStateKey, const int& iCnt)
 {
 

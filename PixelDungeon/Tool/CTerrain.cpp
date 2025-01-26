@@ -137,6 +137,11 @@ void CTerrain::Tile_Change(const D3DXVECTOR3& vPos, const BYTE& byDrawID)
 	if (-1 == iIndex)
 		return;
 
+	//멀티텍스쳐에서 byDrawID의 숫자를 가진 애를 찾아서 
+	//int iTexIndex = CTextureMgr::Get_Instance()->Find_MultiTex_Index(L"Terrain", byDrawID);
+	//그 인덱스를 넣어라
+
+
 	m_vecTile[iIndex]->byDrawID = byDrawID;
 	m_vecTile[iIndex]->byOption = 1;
 }
@@ -218,6 +223,32 @@ void CTerrain::Import_TilePng()
 	{
 		AfxMessageBox(L"Terrain Texture Insert Failed");
 	}
+
+	/*CString folderPath = L"../Resources/Tile/tiles_sewers";
+	CFileFind finder;
+	BOOL bWorking = finder.FindFile(folderPath + L"/*.png");
+	std::vector<CString> filePaths;
+
+	while (bWorking)
+	{
+		bWorking = finder.FindNextFile();
+		if (!finder.IsDots() && !finder.IsDirectory())
+		{
+			filePaths.push_back(finder.GetFilePath());
+		}
+	}
+	finder.Close();
+
+	if (filePaths.empty())
+	{
+		AfxMessageBox(L"No PNG files found in the directory.");
+		return;
+	}
+
+	if (FAILED(CTextureMgr::Get_Instance()->Insert_Texture(filePaths, TEX_MULTI, L"Terrain", L"Tile")))
+	{
+		AfxMessageBox(L"Failed to insert textures for Terrain.");
+	}*/
 }
 
 void CTerrain::Create_TileMap()
@@ -239,7 +270,7 @@ void CTerrain::Create_TileMap()
 				pTile->vPos = { fX, fY, 0.f };
 				pTile->vSize = { (float)TILECX, (float)TILECY };
 				pTile->byOption = 0;
-				pTile->byDrawID = 24;
+				pTile->byDrawID = 0;
 
 				m_vecTile.push_back(pTile);
 			}
