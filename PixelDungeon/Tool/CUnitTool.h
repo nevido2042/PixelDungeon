@@ -119,4 +119,5 @@ public:
     afx_msg void OnLbnDblclkList3();
     afx_msg void OnStnClickedPicture();
     afx_msg CString Convert_RelativePath(const CString& fullPath);
+    afx_msg void OnAcnStartAnimate1();
 };
