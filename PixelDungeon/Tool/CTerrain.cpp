@@ -179,7 +179,7 @@ void CTerrain::Mini_Render()
 	}
 }
 
-void CTerrain::Tile_Change(const D3DXVECTOR3& vPos, const BYTE& byDrawID)
+void CTerrain::Tile_Change(const D3DXVECTOR3& vPos, const BYTE& byDrawID, const BYTE& byOption)
 {
 	int iIndex = Get_TileIdx(vPos);
 
@@ -192,7 +192,7 @@ void CTerrain::Tile_Change(const D3DXVECTOR3& vPos, const BYTE& byDrawID)
 
 
 	m_vecTile[iIndex]->byDrawID = byDrawID;
-	m_vecTile[iIndex]->byOption = 1;
+	m_vecTile[iIndex]->byOption = byOption;
 }
 
 void CTerrain::Set_Ratio(D3DXMATRIX* pOut, float _fX, float _fY)

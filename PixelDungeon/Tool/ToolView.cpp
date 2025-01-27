@@ -47,8 +47,8 @@ CToolView::CToolView() noexcept
 	: m_pDevice(CDevice::Get_Instance()),
 	m_pTerrain(nullptr),
 	m_fZoom(0.f),
-	m_byDrawID(0)
-
+	m_byDrawID(0),
+	m_byOption(0)
 {
 	// TODO: 여기에 생성 코드를 추가합니다.
 
@@ -132,30 +132,7 @@ void CToolView::OnLButtonDown(UINT nFlags, CPoint point)
 
 	CScrollView::OnLButtonDown(nFlags, point);
 
-	m_pTerrain->Tile_Change(D3DXVECTOR3(float((point.x) + GetScrollPos(0)) / Get_Zoom(),
-										float((point.y) + GetScrollPos(1)) / Get_Zoom(),
-										0.f), m_byDrawID);
-
-	// Invalidate : 호출 시 윈도우에 WM_PAINT와 WM_ERASEBKGND 메세지를 발생시킴
-	// WM_PAINT 메세지 발생 시, OnDraw함수가 다시 호출
-
-	// false : WM_PAINT 메세지만 발생
-	// true : WM_PAINT, WM_ERASEBKGND 둘 다 메세지 발생
-
-	Invalidate(FALSE);
-
-	// AfxGetMainWnd : 현재 쓰레드로부터 Wnd 반환
-	// 현재 쓰레드가 메인 쓰레드일 경우에 정상적인 동작
-	//CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
-
-	// AfxGetApp : 메인 쓰레드가 갖고 있는 현재 메인 app을 반환
-	// CMainFrame* pMainFrm = dynamic_cast<CMainFrame*>(AfxGetApp()->GetMainWnd())
-
-	// GetParentFrame : 현재 View창을 둘러싸고 있는 상위 FrameWnd
-	CMainFrame* pMainFrm = dynamic_cast<CMainFrame*>(GetParentFrame());
-	CMiniView* pMiniView = dynamic_cast<CMiniView*>(pMainFrm->m_SecondSplitter.GetPane(0, 0));
-
-	pMiniView->Invalidate(FALSE);
+	Change_Tile(point);
 }
 
 void CToolView::OnMouseMove(UINT nFlags, CPoint point)
@@ -166,15 +143,7 @@ void CToolView::OnMouseMove(UINT nFlags, CPoint point)
 
 	if (GetAsyncKeyState(VK_LBUTTON) & 0x8000)
 	{
-		m_pTerrain->Tile_Change(D3DXVECTOR3(float((point.x) + GetScrollPos(0)) / Get_Zoom(),
-											float((point.y) + GetScrollPos(1)) / Get_Zoom(),
-											0.f), m_byDrawID);
-		Invalidate(FALSE);
-
-		CMainFrame* pMainFrm = dynamic_cast<CMainFrame*>(GetParentFrame());
-		CMiniView* pMiniView = dynamic_cast<CMiniView*>(pMainFrm->m_SecondSplitter.GetPane(0, 0));
-
-		pMiniView->Invalidate(FALSE);
+		Change_Tile(point);
 	}
 }
 
@@ -283,6 +252,34 @@ void CToolView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	Invalidate(FALSE);
 
 	CView::OnKeyDown(nChar, nRepCnt, nFlags); // 기본 처리 호출
+}
+
+void CToolView::Change_Tile(CPoint _point)
+{
+	m_pTerrain->Tile_Change(D3DXVECTOR3(float((_point.x) + GetScrollPos(0)) / Get_Zoom(),
+		float((_point.y) + GetScrollPos(1)) / Get_Zoom(),
+		0.f), m_byDrawID, m_byOption);
+
+	// Invalidate : 호출 시 윈도우에 WM_PAINT와 WM_ERASEBKGND 메세지를 발생시킴
+	// WM_PAINT 메세지 발생 시, OnDraw함수가 다시 호출
+
+	// false : WM_PAINT 메세지만 발생
+	// true : WM_PAINT, WM_ERASEBKGND 둘 다 메세지 발생
+
+	Invalidate(FALSE);
+
+	// AfxGetMainWnd : 현재 쓰레드로부터 Wnd 반환
+	// 현재 쓰레드가 메인 쓰레드일 경우에 정상적인 동작
+	//CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
+
+	// AfxGetApp : 메인 쓰레드가 갖고 있는 현재 메인 app을 반환
+	// CMainFrame* pMainFrm = dynamic_cast<CMainFrame*>(AfxGetApp()->GetMainWnd())
+
+	// GetParentFrame : 현재 View창을 둘러싸고 있는 상위 FrameWnd
+	CMainFrame* pMainFrm = dynamic_cast<CMainFrame*>(GetParentFrame());
+	CMiniView* pMiniView = dynamic_cast<CMiniView*>(pMainFrm->m_SecondSplitter.GetPane(0, 0));
+
+	pMiniView->Invalidate(FALSE);
 }
 
 BOOL CToolView::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)

@@ -37,6 +37,8 @@ BEGIN_MESSAGE_MAP(CMapTool, CDialog)
 	ON_WM_DESTROY()
 	ON_WM_KEYDOWN()
 	ON_BN_CLICKED(IDC_BTN_SAVE_MAP, &CMapTool::OnBnClickedBtnSaveMap)
+	ON_BN_CLICKED(IDC_RADIO_PASS, &CMapTool::OnBnClickedRadioPass)
+	ON_BN_CLICKED(IDC_RADIO_BLOCK, &CMapTool::OnBnClickedRadioBlock)
 END_MESSAGE_MAP()
 
 
@@ -241,6 +243,14 @@ BOOL CMapTool::OnInitDialog()
 	// TODO:  여기에 추가 초기화 작업을 추가합니다.
 	Horizontal_Scroll();
 
+	// 라디오 버튼 초기 상태 설정
+	CButton* pRadioPass = (CButton*)GetDlgItem(IDC_RADIO_PASS);
+	if (pRadioPass)
+	{
+		pRadioPass->SetCheck(BST_CHECKED); // 라디오 버튼 활성화
+		OnBnClickedRadioPass(); // 핸들러 직접 호출
+	}
+
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 예외: OCX 속성 페이지는 FALSE를 반환해야 합니다.
 }
@@ -419,4 +429,16 @@ void CMapTool::OnBnClickedBtnSaveMap()
 	CTerrain* pTerrain = Get_ToolView()->m_pTerrain;
 
 	pTerrain->Save_Tile();
+}
+
+
+void CMapTool::OnBnClickedRadioPass()
+{
+	Get_ToolView()->Set_Option(OPT_PASS);
+}
+
+
+void CMapTool::OnBnClickedRadioBlock()
+{
+	Get_ToolView()->Set_Option(OPT_BLOCK);
 }

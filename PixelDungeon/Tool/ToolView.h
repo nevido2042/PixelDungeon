@@ -52,13 +52,18 @@ public:
 public:
 	float	Get_Zoom() { return m_fZoom; }
 	void	Set_DrawID(BYTE _byDrawID) { m_byDrawID = _byDrawID; }
+	void	Set_Option(BYTE _byOption) { m_byOption = _byOption; }
 public:
 	CTerrain*	m_pTerrain;
+
+private:
+	void		Change_Tile(CPoint point);
+
 private:
 	CDevice*	m_pDevice;
 	float		m_fZoom;
 	BYTE		m_byDrawID;
-
+	BYTE		m_byOption;
 
 public:
 //	afx_msg void OnMouseHWheel(UINT nFlags, short zDelta, CPoint pt);

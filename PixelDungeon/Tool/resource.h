@@ -14,7 +14,6 @@
 #define IDP_                            1023
 #define IDC_BTN_SAVE_MAP                1023
 #define IDC_RADIO1                      1024
-#define IDC_RADIO2                      1025
 #define IDC_STATIC_MAXHP                1050
 #define IDC_STATIC_EVASION              1051
 #define IDC_BUTTON1                     2000
@@ -42,6 +41,8 @@
 #define IDC_RADIO_NPC                   2030
 #define IDC_BUTTON_APPLY                2031
 #define IDC_BUTTON_DELETE               2032
+#define IDC_RADIO_PASS                  4024
+#define IDC_RADIO_BLOCK                 4025
 
 // Next default values for new objects
 // 
