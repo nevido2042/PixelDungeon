@@ -1,5 +1,3 @@
-Monster|NPC|0|0
-Monster|asd|1|11
-Player|Hero|123|123
-Player|Power|1|2
-Player|asd|12|12
+Monster|Monster|23|23
+Monster|Player|0|11
+NPC|Monster|1|1

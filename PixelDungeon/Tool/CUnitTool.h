@@ -118,4 +118,19 @@ public:
     afx_msg void OnLbnDblclkList3();
     afx_msg void OnStnClickedPicture();
     afx_msg CString Convert_RelativePath(const CString& fullPath);
+    CAnimateCtrl m_Animate_1;
+    afx_msg void OnAcnStartAnimate1();
+
+    private:
+
+        vector<CString> m_ImagePaths;    
+        size_t m_CurrentFrameIndex;         
+        UINT_PTR m_AnimationTimer;            
+public:
+    afx_msg void OnBnClickedDeleteImage2();
+    afx_msg void OnBnClickedPause();
+    afx_msg void OnStnClickedPicture2();
+
+  
+
 };

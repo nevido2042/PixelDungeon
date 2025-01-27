@@ -28,6 +28,8 @@ void CUnitTool::DoDataExchange(CDataExchange* pDX)
 
     DDX_Control(pDX, IDC_PICTURE, m_Picture);
 
+
+
     DDX_Text(pDX, IDC_EDIT5, m_strName);
     DDX_Text(pDX, IDC_EDIT3, m_iAttack);
     DDX_Text(pDX, IDC_EDIT4, m_iHp);
@@ -37,6 +39,8 @@ void CUnitTool::DoDataExchange(CDataExchange* pDX)
 
     DDX_Control(pDX, IDC_LIST3, m_ListBox3);
     DDX_Control(pDX, IDC_LIST2, m_ListBox2);
+
+  
 }
 BEGIN_MESSAGE_MAP(CUnitTool, CDialog)
     ON_BN_CLICKED(IDC_BUTTON7, &CUnitTool::OnSearch)
@@ -45,14 +49,18 @@ BEGIN_MESSAGE_MAP(CUnitTool, CDialog)
     ON_WM_TIMER()
     ON_WM_DROPFILES()
     ON_BN_CLICKED(IDC_BUTTON9, &CUnitTool::OnBnClickedButton9)
-    ON_BN_CLICKED(IDC_RADIO_PLAYER, &CUnitTool::OnBnClickedRadioPlayer)
-    ON_BN_CLICKED(IDC_RADIO_MONSTER, &CUnitTool::OnBnClickedRadioMonster)
-    ON_BN_CLICKED(IDC_RADIO_NPC, &CUnitTool::OnBnClickedRadioNpc)
-    ON_BN_CLICKED(IDC_BUTTON_APPLY, &CUnitTool::OnBnClickedButtonApply)
-    ON_BN_CLICKED(IDC_BUTTON_DELETE, &CUnitTool::OnBnClickedButtonDelete)
+    ON_BN_CLICKED(IDC_RADIO_PLAYER, &CUnitTool::OnBnClickedRadioPlayer) // 플레이어 꼬리표
+    ON_BN_CLICKED(IDC_RADIO_MONSTER, &CUnitTool::OnBnClickedRadioMonster) // 몬스터 꼬리표
+    ON_BN_CLICKED(IDC_RADIO_NPC, &CUnitTool::OnBnClickedRadioNpc) // NPC 꼬리표
+    ON_BN_CLICKED(IDC_BUTTON_APPLY, &CUnitTool::OnBnClickedButtonApply) // 객체생성 버튼
+    ON_BN_CLICKED(IDC_BUTTON_DELETE, &CUnitTool::OnBnClickedButtonDelete) //객체삭제 버튼
     ON_LBN_SELCHANGE(IDC_LIST2, &CUnitTool::OnLbnDblclkList2)
     ON_LBN_SELCHANGE(IDC_LIST3, &CUnitTool::OnLbnDblclkList3)
     ON_STN_CLICKED(IDC_PICTURE, &CUnitTool::OnStnClickedPicture)
+    ON_BN_CLICKED(IDC_BUTTON1, &CUnitTool::OnBnClickedPause) // 일시 정지 버튼
+    ON_BN_CLICKED(IDC_DELETE_IMAGE2, &CUnitTool::OnBnClickedDeleteImage2) // 이미지 삭제 버튼
+
+
 END_MESSAGE_MAP()
 
 
@@ -88,8 +96,7 @@ void CUnitTool::OnListBox()
     CString strKey;
     m_ListBox.GetText(iIndex, strKey);
 
-    // [FIX] "카테고리 : 유닛" → Replace(...) 제거.
-    //      이제는 리스트박스 자체가 "카테고리:유닛이름:파일명" 형태 키를 가지고 있음.
+    // 이제 strKey == "Monster:슬라임:Slime01.png" 로 들어옴
     auto it = m_mapPngImages.find(strKey);
     if (it == m_mapPngImages.end())
     {
@@ -100,7 +107,6 @@ void CUnitTool::OnListBox()
 
     UpdateData(FALSE);
 }
-
 // 드롭된 파일 처리
 void CUnitTool::OnDropFiles(HDROP hDropInfo)
 {
@@ -232,6 +238,8 @@ void CUnitTool::OnDestroy()
         delete kv.second;
     }
     m_mapUnitData.clear();
+
+    KillTimer(m_AnimationTimer);
 
     CDialog::OnDestroy();
 
@@ -392,12 +400,11 @@ void CUnitTool::LoadFileData(const CString& strFilePath)
 
     m_mapPngImages.clear();
     m_mapFilePaths.clear();
-    m_ListBox.ResetContent();
+    m_ListBox.ResetContent(); // 초기화만 유지
 
     CString strLine;
     while (file.ReadString(strLine))
     {
-        // 예: "Monster|슬라임|D:\Images\슬라임1.png"
         int pos1 = strLine.Find(_T("|"));
         if (pos1 == -1) continue;
 
@@ -408,12 +415,11 @@ void CUnitTool::LoadFileData(const CString& strFilePath)
         CString strName = strLine.Mid(pos1 + 1, pos2 - (pos1 + 1));
         CString strPath = strLine.Mid(pos2 + 1);
 
-        // 키는 "Category:UnitName:파일명"
         CString strFileName = PathFindFileName(strPath);
         CString strKey;
         strKey.Format(_T("%s:%s:%s"), strCategory, strName, strFileName);
 
-        // 이미지 로드 (절대 경로)
+        // 이미지 로드
         CImage* pImg = new CImage();
         if (FAILED(pImg->Load(strPath)))
         {
@@ -424,15 +430,16 @@ void CUnitTool::LoadFileData(const CString& strFilePath)
         m_mapPngImages[strKey] = pImg;
         m_mapFilePaths[strKey] = strPath;
 
-        // 카테고리용 맵에도 경로 등록
+        // 카테고리와 유닛 매핑
         m_mapCategory[strCategory][strName].push_back(strPath);
 
-        // 리스트박스에 추가
-        m_ListBox.AddString(strKey);
+        // [REMOVED] 리스트 박스에 추가하지 않음
+        // m_ListBox.AddString(strKey);
     }
 
     file.Close();
 }
+
 
 
 
@@ -507,11 +514,40 @@ void CUnitTool::StartAnimation()
 
 void CUnitTool::OnTimer(UINT_PTR nIDEvent)
 {
-    if (nIDEvent == 1 && !m_vecBitmaps.empty())
+    if (nIDEvent == 1 && !m_ImagePaths.empty())
     {
-        m_iCurrentFrame = (m_iCurrentFrame + 1) % m_vecBitmaps.size();
-        m_AnimationCtrl.SetBitmap(m_vecBitmaps[m_iCurrentFrame]);
+        CString currentImagePath = m_ImagePaths[m_CurrentFrameIndex];
+
+        CImage image;
+        if (FAILED(image.Load(currentImagePath)))
+        {
+            AfxMessageBox(_T("이미지 로드 실패: ") + currentImagePath);
+            KillTimer(m_AnimationTimer);
+            return;
+        }
+
+        CClientDC dc(&m_Picture);
+        CRect rect;
+        m_Picture.GetClientRect(&rect);
+
+        dc.FillSolidRect(rect, RGB(255, 255, 255));
+        image.Draw(dc, rect);
+
+        CString fileName = PathFindFileName(currentImagePath);
+        for (int i = 0; i < m_ListBox.GetCount(); ++i)
+        {
+            CString listItem;
+            m_ListBox.GetText(i, listItem);
+            if (listItem == fileName)
+            {
+                m_ListBox.SetCurSel(i);
+                break;
+            }
+        }
+
+        m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % m_ImagePaths.size();
     }
+
     CDialog::OnTimer(nIDEvent);
 }
 
@@ -591,14 +627,13 @@ void CUnitTool::OnBnClickedButtonApply()
 
     m_mapUnitData[strKey] = pData;
 
-    // m_mapCategory
+
     auto& mapUnitNameToImages = m_mapCategory[strCategory];
     if (mapUnitNameToImages.find(m_strName) == mapUnitNameToImages.end())
     {
         mapUnitNameToImages[m_strName] = vector<CString>();
     }
 
-    // 리스트3에서 선택된 타입이 현재 strCategory와 같다면, 리스트2 갱신
     CString strSelectedType;
     int iTypeIndex = m_ListBox3.GetCurSel();
     if (iTypeIndex != LB_ERR)
@@ -634,11 +669,10 @@ void CUnitTool::OnBnClickedButtonDelete()
         return;
     }
 
-    CString strKey;
+    CString strKey; 
     m_ListBox.GetText(iIndex, strKey);
 
-    // [FIX] 이미 리스트박스가 "카테고리:유닛이름:파일명" 형태의 key 이므로
-    // 그대로 find & 삭제
+    // 1) m_mapPngImages 에서 제거
     auto itImage = m_mapPngImages.find(strKey);
     if (itImage != m_mapPngImages.end())
     {
@@ -647,11 +681,33 @@ void CUnitTool::OnBnClickedButtonDelete()
         m_mapPngImages.erase(itImage);
     }
 
-    auto itData = m_mapUnitData.find(strKey);
-    if (itData != m_mapUnitData.end())
+    // 2) m_mapFilePaths 에서 제거
+    auto itPath = m_mapFilePaths.find(strKey);
+    if (itPath != m_mapFilePaths.end())
     {
-        delete itData->second;
-        m_mapUnitData.erase(itData);
+        m_mapFilePaths.erase(itPath);
+    }
+
+    CString strCategory, strUnit, strFilename;
+    {
+        int firstColon = strKey.Find(_T(':'));
+        int secondColon = strKey.Find(_T(':'), firstColon + 1);
+        strCategory = strKey.Left(firstColon);
+        strUnit = strKey.Mid(firstColon + 1, secondColon - (firstColon + 1));
+        strFilename = strKey.Mid(secondColon + 1);
+
+    
+        auto& vecPaths = m_mapCategory[strCategory][strUnit];
+        for (auto it = vecPaths.begin(); it != vecPaths.end(); ++it)
+        {
+            if (PathFindFileName(*it) == strFilename)
+            {
+                vecPaths.erase(it);
+                break;
+            }
+        }
+
+       
     }
 
     m_ListBox.DeleteString(iIndex);
@@ -673,16 +729,19 @@ BOOL CUnitTool::PreTranslateMessage(MSG* pMsg)
         }
     }
     return CDialog::PreTranslateMessage(pMsg);
+
 }
 
-// 리스트2(유닛 목록) 더블클릭 시 → 그 유닛의 모든 이미지 키를 리스트1에 표시
 void CUnitTool::OnLbnDblclkList2()
 {
     UpdateData(TRUE);
 
     int iIndex = m_ListBox2.GetCurSel();
     if (iIndex == LB_ERR)
+    {
+        // ...
         return;
+    }
 
     CString strSelectedUnit;
     m_ListBox2.GetText(iIndex, strSelectedUnit);
@@ -694,7 +753,9 @@ void CUnitTool::OnLbnDblclkList2()
     CString strSelectedType;
     m_ListBox3.GetText(iTypeIndex, strSelectedType);
 
+    m_ImagePaths.clear();
     m_ListBox.ResetContent();
+    m_CurrentFrameIndex = 0;
 
     auto itType = m_mapCategory.find(strSelectedType);
     if (itType != m_mapCategory.end())
@@ -702,21 +763,35 @@ void CUnitTool::OnLbnDblclkList2()
         auto itUnit = itType->second.find(strSelectedUnit);
         if (itUnit != itType->second.end())
         {
-            // 해당 유닛의 모든 이미지 경로 vector
             for (auto& imagePath : itUnit->second)
             {
-                // [FIX] 키를 만들어 리스트에 추가
-                CString strFileName = PathFindFileName(imagePath);
-                CString strKey;
-                strKey.Format(_T("%s:%s:%s"), strSelectedType, strSelectedUnit, strFileName);
+                // (1) fileName 만이 아니라 풀 키를 만들어서 저장하자
+                //     ex) "Monster:슬라임:Slime01.png"
+                CString fileName = PathFindFileName(imagePath);
 
-                m_ListBox.AddString(strKey);
+                CString fullKey;
+                fullKey.Format(_T("%s:%s:%s"), strSelectedType, strSelectedUnit, fileName);
+
+                // 리스트박스에는 풀키를 AddString
+                m_ListBox.AddString(fullKey);
+
+                // m_ImagePaths 는 필요하다면 유지, 
+                // 아니면 fullKey 대신 그냥 경로를 계속 저장
+                m_ImagePaths.push_back(imagePath);
             }
         }
     }
 
+    if (!m_ImagePaths.empty())
+    {
+        m_AnimationTimer = SetTimer(1, 100, NULL);
+    }
+
     UpdateData(FALSE);
 }
+
+
+
 
 void CUnitTool::OnLbnDblclkList3()
 {
@@ -743,7 +818,6 @@ void CUnitTool::OnLbnDblclkList3()
     UpdateData(FALSE);
 }
 
-
 void CUnitTool::OnStnClickedPicture()
 {
     
@@ -761,8 +835,113 @@ CString CUnitTool::Convert_RelativePath(const CString& fullPath)
     return relativePath;
 }
 
-///
 
-//
 
-//
+
+void CUnitTool::OnBnClickedDeleteImage2()
+{
+    int iSel = m_ListBox.GetCurSel();
+    if (iSel == LB_ERR)
+    {
+        AfxMessageBox(_T("삭제할 이미지를 선택하세요."));
+        return;
+    }
+
+    CString strKey;
+    m_ListBox.GetText(iSel, strKey); // "Monster:슬라임:Slime01.png" 식의 풀키라고 가정
+
+    // (1) m_mapPngImages 에서 제거
+    auto itImage = m_mapPngImages.find(strKey);
+    if (itImage != m_mapPngImages.end())
+    {
+        itImage->second->Destroy();
+        delete itImage->second;
+        m_mapPngImages.erase(itImage);
+    }
+
+    // (2) m_mapFilePaths 에서 제거
+    auto itPath = m_mapFilePaths.find(strKey);
+    if (itPath != m_mapFilePaths.end())
+        m_mapFilePaths.erase(itPath);
+
+    // (3) m_mapCategory
+    int firstColon = strKey.Find(_T(':'));
+    int secondColon = strKey.Find(_T(':'), firstColon + 1);
+    CString strCategory = strKey.Left(firstColon);
+    CString strUnit = strKey.Mid(firstColon + 1, secondColon - (firstColon + 1));
+    CString strFilename = strKey.Mid(secondColon + 1);
+
+    auto& vecPaths = m_mapCategory[strCategory][strUnit];
+    for (auto itVec = vecPaths.begin(); itVec != vecPaths.end(); ++itVec)
+    {
+        if (PathFindFileName(*itVec) == strFilename)
+        {
+            vecPaths.erase(itVec);
+            break;
+        }
+    }
+
+    // (4) 리스트박스에서 제거
+    m_ListBox.DeleteString(iSel);
+
+    // (5) m_ImagePaths에서도 제거 (이미 '이미지 재생' 목록을 갱신한다면)
+    auto itVec2 = std::find_if(m_ImagePaths.begin(), m_ImagePaths.end(), [&](const CString& path) {
+        return PathFindFileName(path) == strFilename;
+        });
+    if (itVec2 != m_ImagePaths.end())
+        m_ImagePaths.erase(itVec2);
+
+    // (6) 애니메이션 관련 처리 (필요시)
+    if (m_ImagePaths.empty())
+    {
+        KillTimer(m_AnimationTimer);
+        m_AnimationTimer = 0;
+        CClientDC dc(&m_Picture);
+        CRect rect;
+        m_Picture.GetClientRect(&rect);
+        dc.FillSolidRect(rect, RGB(255, 255, 255));
+    }
+
+    AfxMessageBox(_T("이미지가 삭제되었습니다."));
+}
+
+
+
+void CUnitTool::OnBnClickedPause()
+{
+    if (m_AnimationTimer != 0)
+    {
+        KillTimer(m_AnimationTimer); // 타이머 중지
+        m_AnimationTimer = 0; // 타이머 ID 초기화
+        AfxMessageBox(_T("애니메이션이 일시 정지되었습니다."));
+    }
+    else
+    {
+        // 현재 프레임을 기반으로 이미지를 다시 렌더링
+        if (!m_ImagePaths.empty())
+        {
+            CString currentImagePath = m_ImagePaths[m_CurrentFrameIndex];
+
+            CImage image;
+            if (FAILED(image.Load(currentImagePath)))
+            {
+                AfxMessageBox(_T("이미지를 로드할 수 없습니다."));
+                return;
+            }
+
+            CClientDC dc(&m_Picture);
+            CRect rect;
+            m_Picture.GetClientRect(&rect);
+
+            dc.FillSolidRect(rect, RGB(255, 255, 255));
+            image.Draw(dc, rect);
+        }
+     
+
+        m_AnimationTimer = SetTimer(1, 100, NULL); // 다시 타이머 시작
+        AfxMessageBox(_T("애니메이션이 재개되었습니다."));
+    }
+}
+
+
+

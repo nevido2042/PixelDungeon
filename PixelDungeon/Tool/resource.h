@@ -33,6 +33,8 @@
 #define IDC_BUTTON8                     2021
 #define IDC_PICTURE2                    2022
 #define IDC_BUTTON9                     2023
+#define IDC_BUTTON14                    2025
+#define IDC_DELETE_IMAGE2               2027
 #define IDC_BUTTON10                    2028
 #define IDC_RADIO_PLAYER                2028
 #define IDC_BUTTON11                    2029
@@ -50,7 +52,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        313
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1025
+#define _APS_NEXT_CONTROL_VALUE         1026
 #define _APS_NEXT_SYMED_VALUE           313
 #endif
 #endif
