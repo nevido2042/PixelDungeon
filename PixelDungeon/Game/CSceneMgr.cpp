@@ -3,6 +3,7 @@
 #include "Include.h"
 
 #include "CMyMenu.h"
+#include "CGameScene.h"
 
 CSceneMgr* CSceneMgr::m_pInstance = nullptr;
 
@@ -37,10 +38,10 @@ void CSceneMgr::Set_Scene(SCENEID eID)
 		/*case SC_EDIT:
 			m_pScene = new CMyEdit;
 			break;
-
-		case SC_STAGE:
-			m_pScene = new CStage;
-			break;*/
+			*/
+		case SC_GAME:
+			m_pScene = new CGameScene;
+			break;
 		}
 
 		m_pScene->Initialize();
