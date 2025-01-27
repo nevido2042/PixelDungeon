@@ -14,6 +14,7 @@ public:
 	void Render();
 	void Release();
 private:
-	void Load_Texture();
+	void	Load_Texture();
+	int		GetPngCount_InDirectory(const CString& directoryPath);
 };
 

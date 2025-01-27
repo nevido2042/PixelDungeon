@@ -5,6 +5,17 @@
 #include "CPlayer.h"
 #include "Include.h"
 #include "CGameTitle.h"
+#include "CKeyMgr.h"
+#include "CSceneMgr.h"
+
+CMyMenu::CMyMenu()
+{
+}
+
+CMyMenu::~CMyMenu()
+{
+    Release();
+}
 
 void CMyMenu::Initialize()
 {
@@ -20,6 +31,11 @@ void CMyMenu::Initialize()
 void CMyMenu::Update()
 {
     CObjMgr::Get_Instance()->Update();
+
+    if(CKeyMgr::Get_Instance()->Key_Down(VK_RETURN))
+    {
+        CSceneMgr::Get_Instance()->Set_Scene(SC_GAME);
+    }
 }
 
 void CMyMenu::Late_Update()

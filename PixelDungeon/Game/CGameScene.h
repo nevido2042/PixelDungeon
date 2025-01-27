@@ -1,11 +1,11 @@
 #pragma once
 #include "CScene.h"
-class CMyMenu :
+class CGameScene :
     public CScene
 {
 public:
-    CMyMenu();
-    virtual ~CMyMenu();
+    CGameScene();
+    virtual ~CGameScene();
 public:
     void Initialize() override;
     void Update() override;

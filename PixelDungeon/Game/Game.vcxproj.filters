@@ -52,11 +52,23 @@
     <Filter Include="01. Obj\01.UI">
       <UniqueIdentifier>{0c892c8c-fbef-47fd-ac0d-a369a1a671cc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="01. Obj\00.GameObject\00.Player">
-      <UniqueIdentifier>{eaeac929-0c65-4daf-adb5-991eb20341a8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="01. Obj\01.UI\GameTitle">
       <UniqueIdentifier>{28aa250a-54b8-4d94-af09-6b5b4c258a5a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02. Manager\03. SceneMgr\00. Scene\01. GameScene">
+      <UniqueIdentifier>{b595e220-7c8f-428f-ab64-df7c06bb8d0a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02. Manager\04. KeyMgr">
+      <UniqueIdentifier>{0bb5664c-2271-4c3a-8353-8322863063d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02. Manager\05. TileMgr">
+      <UniqueIdentifier>{18ca393c-636d-497f-ba59-06d0763f5ee6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01. Obj\00.GameObject\01. Tile">
+      <UniqueIdentifier>{863bb66c-f549-46b5-8711-f52306bca69b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01. Obj\00.GameObject\00. Player">
+      <UniqueIdentifier>{eaeac929-0c65-4daf-adb5-991eb20341a8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -88,7 +100,7 @@
       <Filter>02. Manager</Filter>
     </ClInclude>
     <ClInclude Include="CPlayer.h">
-      <Filter>01. Obj\00.GameObject\00.Player</Filter>
+      <Filter>01. Obj\00.GameObject\00. Player</Filter>
     </ClInclude>
     <ClInclude Include="CTexture.h">
       <Filter>헤더 파일</Filter>
@@ -123,6 +135,18 @@
     <ClInclude Include="CGameTitle.h">
       <Filter>01. Obj\01.UI\GameTitle</Filter>
     </ClInclude>
+    <ClInclude Include="CGameScene.h">
+      <Filter>02. Manager\03. SceneMgr\00. Scene\01. GameScene</Filter>
+    </ClInclude>
+    <ClInclude Include="CKeyMgr.h">
+      <Filter>02. Manager\04. KeyMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="CTileMgr.h">
+      <Filter>02. Manager\05. TileMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="CTile.h">
+      <Filter>01. Obj\00.GameObject\01. Tile</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp">
@@ -141,7 +165,7 @@
       <Filter>01. Obj</Filter>
     </ClCompile>
     <ClCompile Include="CPlayer.cpp">
-      <Filter>01. Obj\00.GameObject\00.Player</Filter>
+      <Filter>01. Obj\00.GameObject\00. Player</Filter>
     </ClCompile>
     <ClCompile Include="CTexture.cpp">
       <Filter>소스 파일</Filter>
@@ -175,6 +199,18 @@
     </ClCompile>
     <ClCompile Include="CGameTitle.cpp">
       <Filter>01. Obj\01.UI\GameTitle</Filter>
+    </ClCompile>
+    <ClCompile Include="CGameScene.cpp">
+      <Filter>02. Manager\03. SceneMgr\00. Scene\01. GameScene</Filter>
+    </ClCompile>
+    <ClCompile Include="CKeyMgr.cpp">
+      <Filter>02. Manager\04. KeyMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="CTileMgr.cpp">
+      <Filter>02. Manager\05. TileMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="CTile.cpp">
+      <Filter>01. Obj\00.GameObject\01. Tile</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
