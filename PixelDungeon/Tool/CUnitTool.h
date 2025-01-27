@@ -98,7 +98,6 @@ public:
     afx_msg void OnBnClickedButtonApply();
     afx_msg void OnBnClickedButtonDelete();
 
-    afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 
     afx_msg BOOL PreTranslateMessage(MSG* pMsg);
 

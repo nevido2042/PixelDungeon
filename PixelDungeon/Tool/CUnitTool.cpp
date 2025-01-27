@@ -64,7 +64,6 @@ BOOL CUnitTool::OnInitDialog()
     m_ListBox3.AddString(_T("Player"));
     m_ListBox3.AddString(_T("Monster"));
     m_ListBox3.AddString(_T("NPC"));
-
     // 이미지 리스트 불러오기
     LoadFileData(L"../Save/UnitToolFiles.txt");
 
@@ -73,8 +72,6 @@ BOOL CUnitTool::OnInitDialog()
 
     DragAcceptFiles(TRUE);
 
-    // 시작 시 파일 로드 (이미지 리스트 불러오기)
-    LoadFileData(L"../Save/UnitToolFiles.txt");
 
     return TRUE;
 }
@@ -215,8 +212,6 @@ void CUnitTool::OnSearch()
 // 대화 상자 파괴 시점
 void CUnitTool::OnDestroy()
 {
-    CDialog::OnDestroy();
-
     // 이미지 목록 저장
     SaveFileData(L"../Save/UnitToolFiles.txt");
 
@@ -237,6 +232,9 @@ void CUnitTool::OnDestroy()
         delete kv.second;
     }
     m_mapUnitData.clear();
+
+    CDialog::OnDestroy();
+
 }
 void CUnitTool::SaveUnitData(const CString& strFilePath)
 {
@@ -352,21 +350,25 @@ void CUnitTool::SaveFileData(const CString& strFilePath)
     // "카테고리|유닛이름|전체경로" 형태로 저장
     for (auto& pair : m_mapFilePaths)
     {
-        // pair.first 예) "Monster:슬라임:Slime01.png"
-        // pair.second 예) "D:\Images\Slime01.png"
+        // pair.first : "Monster:슬라임:Slime01.png"
+        // pair.second: "D:\\Images\\Slime01.png" (절대 경로)
         CString strKey = pair.first;
         CString strPath = pair.second;
 
         // 콜론(:)을 기준으로 파싱
         int firstColon = strKey.Find(_T(":"));
-        if (firstColon == -1) continue;
+        if (firstColon == -1)
+            continue;
         int secondColon = strKey.Find(_T(":"), firstColon + 1);
-        if (secondColon == -1) continue;
+        if (secondColon == -1)
+            continue;
 
         CString strCategory = strKey.Left(firstColon);
         CString strUnitName = strKey.Mid(firstColon + 1, secondColon - (firstColon + 1));
-        // 마지막 부분은 파일명
-        // 하지만 여기서는 파일명은 별로 안 중요, 어차피 전체경로는 strPath에 있음
+
+        // [절대 경로] 그대로 저장 (기존 Convert_RelativePath 제거)
+        // CString strRelativePath = Convert_RelativePath(strPath);
+        // strLine.Format(_T("%s|%s|%s\n"), strCategory, strUnitName, strRelativePath);
 
         CString strLine;
         strLine.Format(_T("%s|%s|%s\n"), strCategory, strUnitName, strPath);
@@ -376,7 +378,9 @@ void CUnitTool::SaveFileData(const CString& strFilePath)
     file.Close();
 }
 
-// 이미지 목록 불러오기
+// ----------------------------------------------------------------------
+// LoadFileData는 그대로 둡니다. 파일에서 읽어온 Path를 그대로 CImage 로드.
+//
 void CUnitTool::LoadFileData(const CString& strFilePath)
 {
     CStdioFile file;
@@ -404,12 +408,12 @@ void CUnitTool::LoadFileData(const CString& strFilePath)
         CString strName = strLine.Mid(pos1 + 1, pos2 - (pos1 + 1));
         CString strPath = strLine.Mid(pos2 + 1);
 
-        // [FIX] 맵에 저장할 때 "Category:UnitName:FileName" 사용
+        // 키는 "Category:UnitName:파일명"
         CString strFileName = PathFindFileName(strPath);
-
         CString strKey;
         strKey.Format(_T("%s:%s:%s"), strCategory, strName, strFileName);
 
+        // 이미지 로드 (절대 경로)
         CImage* pImg = new CImage();
         if (FAILED(pImg->Load(strPath)))
         {
@@ -420,15 +424,16 @@ void CUnitTool::LoadFileData(const CString& strFilePath)
         m_mapPngImages[strKey] = pImg;
         m_mapFilePaths[strKey] = strPath;
 
-        // m_mapCategory 에도 넣음
+        // 카테고리용 맵에도 경로 등록
         m_mapCategory[strCategory][strName].push_back(strPath);
 
-        // [FIX] 리스트박스에도 같은 키로 추가
+        // 리스트박스에 추가
         m_ListBox.AddString(strKey);
     }
 
     file.Close();
 }
+
 
 
 
@@ -713,7 +718,6 @@ void CUnitTool::OnLbnDblclkList2()
     UpdateData(FALSE);
 }
 
-// 리스트3(카테고리) 더블클릭 시 → 해당 카테고리에 속한 유닛 이름들을 리스트2에
 void CUnitTool::OnLbnDblclkList3()
 {
     UpdateData(TRUE);
@@ -742,7 +746,7 @@ void CUnitTool::OnLbnDblclkList3()
 
 void CUnitTool::OnStnClickedPicture()
 {
-    // TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+    
 }
 
 CString CUnitTool::Convert_RelativePath(const CString& fullPath)
@@ -756,3 +760,9 @@ CString CUnitTool::Convert_RelativePath(const CString& fullPath)
 
     return relativePath;
 }
+
+///
+
+//
+
+//
