@@ -81,15 +81,50 @@ void CTerrain::Render()
 			ID3DXLine* pLine;
 			if (SUCCEEDED(D3DXCreateLine(CDevice::Get_Instance()->Get_Device(), &pLine)))
 			{
+				// 행렬 초기화
+				D3DXMATRIX matWorld, matTrans;
+
+				// 화면 크기 비율 계산
+				RECT rc{};
+				GetClientRect(m_pMainView->m_hWnd, &rc);
+				float fX = WINCX / float(rc.right - rc.left);
+				float fY = WINCY / float(rc.bottom - rc.top);
+
+				// 줌 비율 가져오기
+				float fZoom = m_pMainView->Get_Zoom();
+
+				// 타일 위치 기준으로 변환 행렬 생성
+				D3DXMatrixTranslation(&matTrans,
+					pTile->vPos.x - m_pMainView->GetScrollPos(0),
+					pTile->vPos.y - m_pMainView->GetScrollPos(1),
+					0.f);
+
+				// 최종 월드 행렬
+				matWorld = matTrans;
+
+				// 비율 설정
+				Set_Ratio(&matWorld, fX * fZoom, fY * fZoom);
+
+				// 대각선 좌표 설정 (기본 타일 크기)
 				D3DXVECTOR2 vLines[4] =
 				{
-					{ pTile->vPos.x - TILECX * 0.5f - m_pMainView->GetScrollPos(0), pTile->vPos.y - TILECY * 0.5f -m_pMainView->GetScrollPos(1) },
-					{ pTile->vPos.x + TILECX * 0.5f - m_pMainView->GetScrollPos(0), pTile->vPos.y + TILECY * 0.5f -m_pMainView->GetScrollPos(1) },
-					{ pTile->vPos.x + TILECX * 0.5f - m_pMainView->GetScrollPos(0), pTile->vPos.y - TILECY * 0.5f -m_pMainView->GetScrollPos(1) },
-					{ pTile->vPos.x - TILECX * 0.5f - m_pMainView->GetScrollPos(0), pTile->vPos.y + TILECY * 0.5f -m_pMainView->GetScrollPos(1) }
+					{ -TILECX * 0.5f, -TILECY * 0.5f }, // 왼쪽 위
+					{  TILECX * 0.5f,  TILECY * 0.5f }, // 오른쪽 아래
+					{  TILECX * 0.5f, -TILECY * 0.5f }, // 오른쪽 위
+					{ -TILECX * 0.5f,  TILECY * 0.5f }  // 왼쪽 아래
 				};
 
-				pLine->SetWidth(2.0f); // 선 두께
+				// 월드 행렬로 변환
+				for (int i = 0; i < 4; ++i)
+				{
+					D3DXVec2TransformCoord(&vLines[i], &vLines[i], &matWorld);
+				}
+
+				// 선 두께 계산 (화면 크기와 줌 비율 반영)
+				float thickness = (fX + fY) / 2.f * fZoom;
+
+				// 선 스타일 설정 및 그리기
+				pLine->SetWidth(thickness); // 동적으로 계산된 두께 설정
 				pLine->Begin();
 				pLine->Draw(vLines, 2, D3DCOLOR_ARGB(255, 255, 0, 0)); // 첫 번째 대각선 (빨간색)
 				pLine->Draw(&vLines[2], 2, D3DCOLOR_ARGB(255, 255, 0, 0)); // 두 번째 대각선 (빨간색)
@@ -99,8 +134,7 @@ void CTerrain::Render()
 		}
 	}
 
-	// 스프라이트 다시 시작
-	CDevice::Get_Instance()->Get_Sprite()->Begin(D3DXSPRITE_ALPHABLEND);
+
 }
 
 void CTerrain::Release()
@@ -148,7 +182,7 @@ void CTerrain::Mini_Render()
 	}
 }
 
-void CTerrain::Tile_Change(const D3DXVECTOR3& vPos, const BYTE& byDrawID)
+void CTerrain::Tile_Change(const D3DXVECTOR3& vPos, const BYTE& byDrawID, const BYTE& byOption)
 {
 	int iIndex = Get_TileIdx(vPos);
 
@@ -161,7 +195,7 @@ void CTerrain::Tile_Change(const D3DXVECTOR3& vPos, const BYTE& byDrawID)
 
 
 	m_vecTile[iIndex]->byDrawID = byDrawID;
-	m_vecTile[iIndex]->byOption = 1;
+	m_vecTile[iIndex]->byOption = byOption;
 }
 
 void CTerrain::Set_Ratio(D3DXMATRIX* pOut, float _fX, float _fY)
