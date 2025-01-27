@@ -120,8 +120,11 @@ void CTerrain::Render()
 					D3DXVec2TransformCoord(&vLines[i], &vLines[i], &matWorld);
 				}
 
+				// 선 두께 계산 (화면 크기와 줌 비율 반영)
+				float thickness = (fX + fY) / 2.f * fZoom;
+
 				// 선 스타일 설정 및 그리기
-				pLine->SetWidth(2.0f * fZoom); // 줌 비율에 따라 선 두께 조정
+				pLine->SetWidth(thickness); // 동적으로 계산된 두께 설정
 				pLine->Begin();
 				pLine->Draw(vLines, 2, D3DCOLOR_ARGB(255, 255, 0, 0)); // 첫 번째 대각선 (빨간색)
 				pLine->Draw(&vLines[2], 2, D3DCOLOR_ARGB(255, 255, 0, 0)); // 두 번째 대각선 (빨간색)
