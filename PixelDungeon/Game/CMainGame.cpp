@@ -72,7 +72,7 @@ void CMainGame::Release()
 void CMainGame::Load_Texture()
 {
 	if (FAILED(CTextureMgr::Get_Instance()->Insert_Texture(
-		L"../Texture/Stage/Player/Stand/AKIHA_AKI00_000.png",
+		L"../Resources/Player/Warrior/warrior1.png",
 		TEX_SINGLE, L"Player")))
 	{
 		//AfxMessageBox(L"Terrain Texture Insert Failed");

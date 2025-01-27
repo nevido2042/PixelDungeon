@@ -1,4 +1,5 @@
 #pragma once
+#include "atlimage.h"
 
 typedef struct tagInfo
 {
@@ -68,7 +69,6 @@ typedef	struct tagFrame
 typedef struct tagImageInfo
 {
 	CImage*		pImage;
-
 	CString		strRelative; // 상대경로
 }IMAGE_INFO;
 
