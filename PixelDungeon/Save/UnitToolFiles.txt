@@ -1,0 +1,1 @@
+Player|Hero|C:\Users\user\Documents\GitHub\PixelDungeon\PixelDungeon\Resources\Player\Warrior\warrior1.png
