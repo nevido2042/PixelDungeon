@@ -2,6 +2,7 @@
 
 #include "CUnitTool.h"
 #include "CMapTool.h"
+#include "CItemTool.h"
 
 class CMyForm : public CFormView
 {
@@ -27,6 +28,7 @@ private:
 public:
 	CUnitTool	m_UnitTool;
 	CMapTool	m_MapTool;
+	CItemTool	m_ItemTool;
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 지원입니다.
@@ -36,6 +38,8 @@ public:
 	virtual void OnInitialUpdate();
 	afx_msg void OnUnitTool();
 	afx_msg void OnMapTool();
+//	afx_msg void OnBnClickedButton13();
+	afx_msg void OnItemTool();
 };
 
 

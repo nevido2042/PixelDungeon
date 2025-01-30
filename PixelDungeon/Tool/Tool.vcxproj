@@ -202,10 +202,12 @@
   <ItemGroup>
     <ClInclude Include="CDevice.h" />
     <ClInclude Include="CFileInfo.h" />
+    <ClInclude Include="CItemTool.h" />
     <ClInclude Include="CMapTool.h" />
     <ClInclude Include="CMiniView.h" />
     <ClInclude Include="CMultiTexture.h" />
     <ClInclude Include="CMyForm.h" />
+    <ClInclude Include="CPictureControl.h" />
     <ClInclude Include="CSingleTexture.h" />
     <ClInclude Include="CTerrain.h" />
     <ClInclude Include="CTexture.h" />
@@ -223,10 +225,12 @@
   <ItemGroup>
     <ClCompile Include="CDevice.cpp" />
     <ClCompile Include="CFileInfo.cpp" />
+    <ClCompile Include="CItemTool.cpp" />
     <ClCompile Include="CMapTool.cpp" />
     <ClCompile Include="CMiniView.cpp" />
     <ClCompile Include="CMultiTexture.cpp" />
     <ClCompile Include="CMyForm.cpp" />
+    <ClCompile Include="CPictureControl.cpp" />
     <ClCompile Include="CSingleTexture.cpp" />
     <ClCompile Include="CTerrain.cpp" />
     <ClCompile Include="CTexture.cpp" />
