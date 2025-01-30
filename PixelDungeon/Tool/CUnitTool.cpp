@@ -133,7 +133,7 @@ void CUnitTool::OnDropFiles(HDROP hDropInfo)
     CString strUnitName;
     m_ListBox2.GetText(iSel, strUnitName);
 
-    // 3) 드롭된 파일들 경로 취득
+    // 3) 드롭된 파일들 경로 취득 << 이거 절대경로로 
     TCHAR szFilePath[MAX_PATH] = L"";
     int iFileCnt = DragQueryFile(hDropInfo, 0xFFFFFFFF, nullptr, 0);
 
@@ -154,8 +154,8 @@ void CUnitTool::OnDropFiles(HDROP hDropInfo)
             AfxMessageBox(_T("[중복] 이미 존재하는 항목입니다: ") + strKey);
             continue;
         }
-
-        // 로딩
+      
+         // 로딩
         CImage* pImg = new CImage();
         if (FAILED(pImg->Load(strFullPath)))
         {
