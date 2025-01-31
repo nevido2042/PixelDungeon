@@ -17,6 +17,7 @@ CItemTool::CItemTool(CWnd* pParent /*=nullptr*/)
 	: CDialog(IDD_CItemTool, pParent)
 	, m_strItemName(_T(""))
 	, m_strItemDescription(_T(""))
+	, m_pImage(nullptr)
 {
 
 }
@@ -32,6 +33,7 @@ void CItemTool::DoDataExchange(CDataExchange* pDX)
 	m_Picture.DragAcceptFiles();
 	DDX_Text(pDX, IDC_ITEM_NAME, m_strItemName);
 	DDX_Text(pDX, IDC_ITEM_DESCRIPTION, m_strItemDescription);
+	DDX_Control(pDX, IDC_ITEM_LIST, m_ListBox);
 }
 
 BOOL CItemTool::OnInitDialog()
@@ -68,6 +70,31 @@ void CItemTool::OnDestroy()
 		});
 
 	m_mapPngImage.clear();
+
+	//하나의 이미지로 여러아이템을 쓰면 터짐, 어케하지 (같은 이미지라도 다시 할당 받는 방법을 써야하나)
+	//언오드셋으로 해결
+	std::unordered_set<void*> deletedPointers;
+
+	for_each(m_mapItemInfo.begin(), m_mapItemInfo.end(), [&](auto& MyPair)
+		{
+			IMAGE_INFO& tImgInfo = MyPair.second.tImgInfo;
+			if (tImgInfo.pImage)
+			{
+				// 이미 해제된 포인터인지 확인
+				if (deletedPointers.find(tImgInfo.pImage) == deletedPointers.end())
+				{
+					deletedPointers.insert(tImgInfo.pImage);
+					tImgInfo.pImage->Destroy();
+					Safe_Delete(tImgInfo.pImage); // 해제 후 nullptr
+				}
+				else
+				{
+					tImgInfo.pImage = nullptr; // 중복 참조된 포인터는 nullptr 설정
+				}
+			}
+		});
+
+	m_mapItemInfo.clear();
 }
 
 
@@ -96,8 +123,10 @@ void CItemTool::OnBnClickedAddItem()
 	ITEM_INFO tItemInfo;
 	tItemInfo.strName = m_strItemName;
 	tItemInfo.strDescription = m_strItemDescription;
-	tItemInfo.tImgInfo.pImage;
+	tItemInfo.tImgInfo.pImage = m_pImage;
 	tItemInfo.tImgInfo.strRelative;
 
 	m_mapItemInfo.insert({ m_strItemName, tItemInfo });
+
+	m_ListBox.AddString(m_strItemName);
 }
