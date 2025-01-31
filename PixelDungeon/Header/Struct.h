@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "atlimage.h"
 
 typedef struct tagInfo
@@ -16,9 +16,9 @@ typedef struct tagInfo
 
 typedef struct tagTexture
 {
-	LPDIRECT3DTEXTURE9		pTexture;   // ÄÄ °´Ã¼
+	LPDIRECT3DTEXTURE9		pTexture;   // ì»´ ê°ì²´
 
-	D3DXIMAGE_INFO			tImgInfo;	// ±¸Á¶Ã¼
+	D3DXIMAGE_INFO			tImgInfo;	// êµ¬ì¡°ì²´
 
 }TEXINFO;
 
@@ -32,23 +32,25 @@ typedef struct tagTile
 
 	}
 
-	D3DXVECTOR3	vPos;				// Å¸ÀÏÀÇ ÁßÁ¡ ÁÂÇ¥
-	D3DXVECTOR2 vSize;				// Å¸ÀÏÀÇ °¡·Î, ¼¼·Î »çÀÌÁî
+	D3DXVECTOR3	vPos;				// íƒ€ì¼ì˜ ì¤‘ì  ì¢Œí‘œ
+	D3DXVECTOR2 vSize;				// íƒ€ì¼ì˜ ê°€ë¡œ, ì„¸ë¡œ ì‚¬ì´ì¦ˆ
 
-	BYTE		byOption;			// 0, 1¹ø(Àå¾Ö¹°)
-	BYTE		byDrawID;			// ¸î ¹ø Å¸ÀÏ ÀÌ¹ÌÁö
+	BYTE		byOption;			// 0, 1ë²ˆ(ì¥ì• ë¬¼)
+	BYTE		byDrawID;			// ëª‡ ë²ˆ íƒ€ì¼ ì´ë¯¸ì§€
 
 }TILE;
 
-typedef	struct tagUnitData
+struct UNITDATA
 {
-	CString strName;
-	int		iHp;
-	int		iAttack;
-	BYTE	byJobIndex;
-	BYTE	byItem;
-
-}UNITDATA;
+	CString strName;  // ìœ ë‹› ì´ë¦„
+	int iAttack;      // ê³µê²©ë ¥
+	int iHp;          // ì²´ë ¥
+	int iLevel;       // ë ˆë²¨ â­ ì¶”ê°€
+	float fAttackSpeed; // ê³µê²© ì†ë„ â­ ì¶”ê°€
+	int iLuck;        // ìš´ â­ ì¶”ê°€
+	float fMoveSpeed; // ì´ë™ ì†ë„ â­ ì¶”ê°€
+	float fEvasion;   // íšŒí”¼ë ¥ â­ ì¶”ê°€
+};
 
 typedef struct tagTexturePath
 {
@@ -61,15 +63,15 @@ typedef struct tagTexturePath
 
 typedef	struct tagFrame
 {
-	float		fFrame; // ÇÁ·¹ÀÓÀ» ¼¼±â À§ÇÑ º¯¼ö
-	float		fMax;	// ÃÖ´ë ÀÌ¹ÌÁöÀÇ ÇÁ·¹ÀÓ ¼ö
+	float		fFrame; // í”„ë ˆì„ì„ ì„¸ê¸° ìœ„í•œ ë³€ìˆ˜
+	float		fMax;	// ìµœëŒ€ ì´ë¯¸ì§€ì˜ í”„ë ˆì„ ìˆ˜
 
 }FRAME;
 
 typedef struct tagImageInfo
 {
 	CImage*		pImage;
-	CString		strRelative; // »ó´ë°æ·Î
+	CString		strRelative; // ìƒëŒ€ê²½ë¡œ
 }IMAGE_INFO;
 
 

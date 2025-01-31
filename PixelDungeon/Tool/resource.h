@@ -11,10 +11,10 @@
 #define IDD_CMapTool                    312
 #define IDC_SPEED                       1021
 #define IDC_evasion                     1022
+#define IDC_ATTACK_SPEED                8001
 #define IDP_                            1023
 #define IDC_BTN_SAVE_MAP                1023
 #define IDC_RADIO1                      1024
-#define IDC_evasion2                    1024
 #define IDC_BUTTON2                     1027
 #define IDC_STATIC_MAXHP                1050
 #define IDC_STATIC_EVASION              1051
@@ -26,13 +26,14 @@
 #define IDC_EDIT4                       2005
 #define IDC_EDIT5                       2006
 #define IDC_EDIT7                       2007
+#define IDC_EDIT_MOVESPEED              2007
 #define IDC_LIST1                       2008
 #define IDC_EDIT8                       2009
 #define IDC_LIST2                       2010
 #define IDC_LIST3                       2011
-#define IDC_EDIT9                       2012
-#define IDC_EDIT10                      2013
-#define IDC_EDIT12                      2015
+#define IDC_EDIT_LEVEL                  2012
+#define IDC_EDIT_LUCK                   2013
+#define IDC_EDIT_ATTACKSPEED            2015
 #define IDC_EDIT6                       2019
 #define IDC_PICTURE                     2020
 #define IDC_BUTTON8                     2021
@@ -48,9 +49,9 @@
 #define IDC_RADIO_NPC                   2030
 #define IDC_BUTTON_APPLY                2031
 #define IDC_BUTTON_DELETE               2032
-#define IDC_BUTTON_DELETE2              2033
 #define IDC_RADIO_PASS                  4024
 #define IDC_RADIO_BLOCK                 4025
+#define IDC_EDIT_EVASION 9000
 
 // Next default values for new objects
 // 

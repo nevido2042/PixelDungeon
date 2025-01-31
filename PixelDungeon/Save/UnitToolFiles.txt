@@ -1,6 +1,10 @@
-Monster|Hero|C:\Users\user\Documents\GitHub\PixelDungeon\PixelDungeon\Resources\Player\Warrior\warrior4.png
-NPC|Monster|C:\Users\user\Documents\GitHub\PixelDungeon\PixelDungeon\Resources\Player\Warrior\warrior10.png
-NPC|Monster|C:\Users\user\Documents\GitHub\PixelDungeon\PixelDungeon\Resources\Player\Warrior\warrior11.png
-NPC|Monster|C:\Users\user\Documents\GitHub\PixelDungeon\PixelDungeon\Resources\Player\Warrior\warrior12.png
-NPC|Monster|C:\Users\user\Documents\GitHub\PixelDungeon\PixelDungeon\Resources\Player\Warrior\warrior13.png
-NPC|Monster|C:\Users\user\Documents\GitHub\PixelDungeon\PixelDungeon\Resources\Player\Warrior\warrior9.png
+Monster|Hong|C:\Users\user\Documents\GitHub\PixelDungeon\PixelDungeon\Resources\Player\Warrior\warrior140.png
+Monster|Hong|C:\Users\user\Documents\GitHub\PixelDungeon\PixelDungeon\Resources\Player\Warrior\warrior141.png
+Monster|Hong|C:\Users\user\Documents\GitHub\PixelDungeon\PixelDungeon\Resources\Player\Warrior\warrior142.png
+Monster|Hong|C:\Users\user\Documents\GitHub\PixelDungeon\PixelDungeon\Resources\Player\Warrior\warrior143.png
+Monster|Hong|C:\Users\user\Documents\GitHub\PixelDungeon\PixelDungeon\Resources\Player\Warrior\warrior144.png
+Player|asd|C:\Users\user\Documents\GitHub\PixelDungeon\PixelDungeon\Resources\Player\Warrior\warrior10.png
+Player|asd|C:\Users\user\Documents\GitHub\PixelDungeon\PixelDungeon\Resources\Player\Warrior\warrior11.png
+Player|asd|C:\Users\user\Documents\GitHub\PixelDungeon\PixelDungeon\Resources\Player\Warrior\warrior12.png
+Player|asd|C:\Users\user\Documents\GitHub\PixelDungeon\PixelDungeon\Resources\Player\Warrior\warrior13.png
+Player|asd|C:\Users\user\Documents\GitHub\PixelDungeon\PixelDungeon\Resources\Player\Warrior\warrior9.png
