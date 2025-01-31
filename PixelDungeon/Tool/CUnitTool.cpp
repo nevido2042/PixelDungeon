@@ -35,7 +35,6 @@ void CUnitTool::DoDataExchange(CDataExchange* pDX)
     DDX_Text(pDX, IDC_EDIT4, m_iHp);
 
     DDX_Control(pDX, IDC_LIST1, m_ListBox);
-    DDX_Text(pDX, IDC_EDIT6, m_strFindName);
 
     DDX_Control(pDX, IDC_LIST3, m_ListBox3);
     DDX_Control(pDX, IDC_LIST2, m_ListBox2);
@@ -43,7 +42,6 @@ void CUnitTool::DoDataExchange(CDataExchange* pDX)
   
 }
 BEGIN_MESSAGE_MAP(CUnitTool, CDialog)
-    ON_BN_CLICKED(IDC_BUTTON7, &CUnitTool::OnSearch)
     ON_LBN_SELCHANGE(IDC_LIST1, &CUnitTool::OnListBox)
     ON_WM_DESTROY()
     ON_WM_TIMER()
@@ -61,6 +59,10 @@ BEGIN_MESSAGE_MAP(CUnitTool, CDialog)
     ON_BN_CLICKED(IDC_DELETE_IMAGE2, &CUnitTool::OnBnClickedDeleteImage2) // 이미지 삭제 버튼
 
 
+    ON_BN_CLICKED(IDOK, &CUnitTool::OnBnClickedOk)
+  
+
+    ON_STN_CLICKED(IDC_evasion, &CUnitTool::OnStnClickedevasion)
 END_MESSAGE_MAP()
 
 
@@ -184,36 +186,7 @@ void CUnitTool::OnDropFiles(HDROP hDropInfo)
 
 
 
-// 검색
-void CUnitTool::OnSearch()
-{
-    UpdateData(TRUE);
 
-    if (m_strFindName.IsEmpty())
-    {
-        AfxMessageBox(_T("검색할 유닛 이름을 입력하세요."));
-        return;
-    }
-
-    auto it = m_mapUnitData.find(m_strFindName);
-    if (it == m_mapUnitData.end())
-    {
-        AfxMessageBox(_T("찾는 유닛이 없습니다."));
-        return;
-    }
-
-    for (int i = 0; i < m_ListBox.GetCount(); ++i)
-    {
-        CString strItem;
-        m_ListBox.GetText(i, strItem);
-        if (strItem == it->first)
-        {
-            m_ListBox.SetCurSel(i);
-            OnListBox();
-            break;
-        }
-    }
-}
 
 // 대화 상자 파괴 시점
 void CUnitTool::OnDestroy()
@@ -945,3 +918,20 @@ void CUnitTool::OnBnClickedPause()
 
 
 
+
+
+void CUnitTool::OnBnClickedOk()
+{
+    // TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+    CDialog::OnOK();
+}
+
+
+
+
+
+
+void CUnitTool::OnStnClickedevasion()
+{
+    // TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}

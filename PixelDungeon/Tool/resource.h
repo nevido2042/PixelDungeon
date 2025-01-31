@@ -14,6 +14,8 @@
 #define IDP_                            1023
 #define IDC_BTN_SAVE_MAP                1023
 #define IDC_RADIO1                      1024
+#define IDC_evasion2                    1024
+#define IDC_BUTTON2                     1027
 #define IDC_STATIC_MAXHP                1050
 #define IDC_STATIC_EVASION              1051
 #define IDC_BUTTON1                     2000
@@ -28,6 +30,9 @@
 #define IDC_EDIT8                       2009
 #define IDC_LIST2                       2010
 #define IDC_LIST3                       2011
+#define IDC_EDIT9                       2012
+#define IDC_EDIT10                      2013
+#define IDC_EDIT12                      2015
 #define IDC_EDIT6                       2019
 #define IDC_PICTURE                     2020
 #define IDC_BUTTON8                     2021
@@ -43,6 +48,7 @@
 #define IDC_RADIO_NPC                   2030
 #define IDC_BUTTON_APPLY                2031
 #define IDC_BUTTON_DELETE               2032
+#define IDC_BUTTON_DELETE2              2033
 #define IDC_RADIO_PASS                  4024
 #define IDC_RADIO_BLOCK                 4025
 
@@ -52,7 +58,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        313
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1026
+#define _APS_NEXT_CONTROL_VALUE         1028
 #define _APS_NEXT_SYMED_VALUE           313
 #endif
 #endif

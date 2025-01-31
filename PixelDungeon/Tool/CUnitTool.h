@@ -79,10 +79,11 @@ public:
     // 현재 선택된 라디오 버튼 인덱스 (0: Player, 1: Monster, 2: NPC)
     int m_iCategorySelect;
 
+
     // 이벤트 핸들러
     virtual BOOL OnInitDialog();
     afx_msg void OnDropFiles(HDROP hDropInfo);
-    afx_msg void OnSearch();
+;
     afx_msg void OnListBox();
     afx_msg void OnDestroy();
     void SaveUnitData(const CString& strFilePath);
@@ -119,7 +120,7 @@ public:
     afx_msg void OnStnClickedPicture();
     afx_msg CString Convert_RelativePath(const CString& fullPath);
     CAnimateCtrl m_Animate_1;
-    afx_msg void OnAcnStartAnimate1();
+
 
     private:
 
@@ -129,8 +130,12 @@ public:
 public:
     afx_msg void OnBnClickedDeleteImage2();
     afx_msg void OnBnClickedPause();
-    afx_msg void OnStnClickedPicture2();
+ 
 
   
 
+    afx_msg void OnBnClickedOk();
+
+  
+    afx_msg void OnStnClickedevasion();
 };
