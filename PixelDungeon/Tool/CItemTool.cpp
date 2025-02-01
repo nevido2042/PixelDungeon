@@ -34,6 +34,36 @@ void CItemTool::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_ITEM_NAME, m_strItemName);
 	DDX_Text(pDX, IDC_ITEM_DESCRIPTION, m_strItemDescription);
 	DDX_Control(pDX, IDC_ITEM_LIST, m_ListBox);
+	DDX_Control(pDX, IDC_ITEM_NAME, m_ItemName);
+	DDX_Control(pDX, IDC_ITEM_DESCRIPTION, m_ItemDescription);
+}
+
+BOOL CItemTool::PreTranslateMessage(MSG* pMsg)
+{
+	//if (pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_DELETE) {  // Delete 키 확인
+	//	if (GetFocus() == &m_ListBox) {  // 리스트 박스가 포커스를 가지고 있는지 확인
+	//		int iIndex = m_ListBox.GetCurSel();  // 선택된 항목 가져오기
+	//		if (iIndex != LB_ERR) {  // 유효한 항목인지 확인
+
+	//			CString strFindName;
+	//			m_ListBox.GetText(iIndex, strFindName);
+
+	//			auto iter = m_mapPngImage.find(strFindName);
+	//			if (iter != m_mapPngImage.end())
+	//			{
+	//				Safe_Delete((*iter).second.pImage);
+	//				m_mapPngImage.erase(iter);
+	//				Save_Tile();
+	//			}
+
+
+	//			m_ListBox.DeleteString(iIndex);  // 선택된 항목 삭제
+
+	//		}
+	//		return TRUE;  // 메시지 처리 완료
+	//	}
+	//}
+	return CDialog::PreTranslateMessage(pMsg);
 }
 
 BOOL CItemTool::OnInitDialog()
@@ -56,6 +86,7 @@ BEGIN_MESSAGE_MAP(CItemTool, CDialog)
 ON_EN_CHANGE(IDC_ITEM_NAME, &CItemTool::OnEnChangeItemName)
 ON_EN_CHANGE(IDC_ITEM_DESCRIPTION, &CItemTool::OnEnChangeItemDescription)
 ON_BN_CLICKED(IDC_ADD_ITEM, &CItemTool::OnBnClickedAddItem)
+ON_LBN_SELCHANGE(IDC_ITEM_LIST, &CItemTool::OnLbnSelchangeItemList)
 END_MESSAGE_MAP()
 // CItemTool 메시지 처리기
 
@@ -129,4 +160,37 @@ void CItemTool::OnBnClickedAddItem()
 	m_mapItemInfo.insert({ m_strItemName, tItemInfo });
 
 	m_ListBox.AddString(m_strItemName);
+}
+
+
+void CItemTool::OnLbnSelchangeItemList()
+{
+	int iIndex = m_ListBox.GetCurSel();
+	if (iIndex == LB_ERR)
+		return;
+
+	CString strFindName;
+	m_ListBox.GetText(iIndex, strFindName);
+
+	auto iter = m_mapItemInfo.find(strFindName);
+	if (iter == m_mapItemInfo.end())
+		return;
+
+	CImage* pImage = iter->second.tImgInfo.pImage;
+
+	if (!pImage)
+		return;
+
+	// CImage에서 HBITMAP 가져오기
+	HBITMAP hBitmap = (HBITMAP)pImage->Detach();
+
+	// CStatic에 이미지 설정
+	m_Picture.SetBitmap(hBitmap);
+
+	// 다시 CImage에 HBITMAP 연결
+	pImage->Attach(hBitmap);
+
+	// 이름과 설명 출력
+	m_ItemName.SetWindowTextW(iter->first.GetString());
+	m_ItemDescription.SetWindowTextW(iter->second.strDescription.GetString());
 }

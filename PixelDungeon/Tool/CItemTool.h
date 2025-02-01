@@ -20,7 +20,7 @@ public:
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 지원입니다.
-
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnDestroy();
@@ -42,10 +42,16 @@ private:
 	CString	m_strRelative;
 	//	이미지
 	CImage* m_pImage;
+	// 아이템 리스트 박스
+	CListBox m_ListBox;
+	// //아이템 이름
+	CEdit m_ItemName;
+	// // 아이템 설명란
+	CEdit m_ItemDescription;
+
 public:
 	afx_msg void OnEnChangeItemName();
 	afx_msg void OnEnChangeItemDescription();
 	afx_msg void OnBnClickedAddItem();
-	// 아이템 리스트 박스
-	CListBox m_ListBox;
+	afx_msg void OnLbnSelchangeItemList();
 };
