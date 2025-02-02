@@ -13,9 +13,11 @@
 #define IDD_CItemTool                   315
 #define IDC_SPEED                       1021
 #define IDC_evasion                     1022
+#define IDC_ATTACK_SPEED                8001
 #define IDP_                            1023
 #define IDC_BTN_SAVE_MAP                1023
 #define IDC_RADIO1                      1024
+#define IDC_BUTTON2                     1027
 #define IDC_ITEM_IMG                    1027
 #define IDC_ITEM_SAVE                   1028
 #define IDC_ITEM_LIST                   1029
@@ -35,10 +37,14 @@
 #define IDC_EDIT4                       2005
 #define IDC_EDIT5                       2006
 #define IDC_EDIT7                       2007
+#define IDC_EDIT_MOVESPEED              2007
 #define IDC_LIST1                       2008
 #define IDC_EDIT8                       2009
 #define IDC_LIST2                       2010
 #define IDC_LIST3                       2011
+#define IDC_EDIT_LEVEL                  2012
+#define IDC_EDIT_LUCK                   2013
+#define IDC_EDIT_ATTACKSPEED            2015
 #define IDC_EDIT6                       2019
 #define IDC_PICTURE                     2020
 #define IDC_BUTTON8                     2021
@@ -56,6 +62,7 @@
 #define IDC_BUTTON_DELETE               2032
 #define IDC_RADIO_PASS                  4024
 #define IDC_RADIO_BLOCK                 4025
+#define IDC_EDIT_EVASION 9000
 
 // Next default values for new objects
 // 
@@ -63,7 +70,8 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        317
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1031
+#define _APS_NEXT_CONTROL_VALUE         1028
+
 #define _APS_NEXT_SYMED_VALUE           313
 #endif
 #endif

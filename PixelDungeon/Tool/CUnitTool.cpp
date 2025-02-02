@@ -9,9 +9,9 @@ CUnitTool::CUnitTool(CWnd* pParent /*=nullptr*/)
     , m_strName(_T(""))
     , m_iAttack(0)
     , m_iHp(0)
-    , m_iMaxHp(0)
-    , m_iEvasion(0.0f)
-    , m_strFindName(_T(""))
+    , m_fEvasion(0.0f)
+    , m_iLuck(0)
+    ,m_fAttackSpeed(0.f)
     , m_iCurrentFrame(0)
     , m_iCategorySelect(0)
 {
@@ -33,9 +33,14 @@ void CUnitTool::DoDataExchange(CDataExchange* pDX)
     DDX_Text(pDX, IDC_EDIT5, m_strName);
     DDX_Text(pDX, IDC_EDIT3, m_iAttack);
     DDX_Text(pDX, IDC_EDIT4, m_iHp);
+    DDX_Text(pDX, IDC_EDIT_LEVEL, m_iLevel);
+    DDX_Text(pDX, IDC_EDIT_ATTACKSPEED, m_fAttackSpeed);
+    DDX_Text(pDX, IDC_EDIT_LUCK, m_iLuck);
+    DDX_Text(pDX, IDC_EDIT_MOVESPEED, m_fMoveSpeed);
+    DDX_Text(pDX, IDC_EDIT_EVASION, m_fEvasion);
+
 
     DDX_Control(pDX, IDC_LIST1, m_ListBox);
-    DDX_Text(pDX, IDC_EDIT6, m_strFindName);
 
     DDX_Control(pDX, IDC_LIST3, m_ListBox3);
     DDX_Control(pDX, IDC_LIST2, m_ListBox2);
@@ -43,7 +48,6 @@ void CUnitTool::DoDataExchange(CDataExchange* pDX)
   
 }
 BEGIN_MESSAGE_MAP(CUnitTool, CDialog)
-    ON_BN_CLICKED(IDC_BUTTON7, &CUnitTool::OnSearch)
     ON_LBN_SELCHANGE(IDC_LIST1, &CUnitTool::OnListBox)
     ON_WM_DESTROY()
     ON_WM_TIMER()
@@ -59,6 +63,7 @@ BEGIN_MESSAGE_MAP(CUnitTool, CDialog)
     ON_STN_CLICKED(IDC_PICTURE, &CUnitTool::OnStnClickedPicture)
     ON_BN_CLICKED(IDC_BUTTON1, &CUnitTool::OnBnClickedPause) // 일시 정지 버튼
     ON_BN_CLICKED(IDC_DELETE_IMAGE2, &CUnitTool::OnBnClickedDeleteImage2) // 이미지 삭제 버튼
+
 
 
 END_MESSAGE_MAP()
@@ -184,36 +189,7 @@ void CUnitTool::OnDropFiles(HDROP hDropInfo)
 
 
 
-// 검색
-void CUnitTool::OnSearch()
-{
-    UpdateData(TRUE);
 
-    if (m_strFindName.IsEmpty())
-    {
-        AfxMessageBox(_T("검색할 유닛 이름을 입력하세요."));
-        return;
-    }
-
-    auto it = m_mapUnitData.find(m_strFindName);
-    if (it == m_mapUnitData.end())
-    {
-        AfxMessageBox(_T("찾는 유닛이 없습니다."));
-        return;
-    }
-
-    for (int i = 0; i < m_ListBox.GetCount(); ++i)
-    {
-        CString strItem;
-        m_ListBox.GetText(i, strItem);
-        if (strItem == it->first)
-        {
-            m_ListBox.SetCurSel(i);
-            OnListBox();
-            break;
-        }
-    }
-}
 
 // 대화 상자 파괴 시점
 void CUnitTool::OnDestroy()
@@ -246,7 +222,6 @@ void CUnitTool::OnDestroy()
 }
 void CUnitTool::SaveUnitData(const CString& strFilePath)
 {
-    // (1) 파일 열기
     CStdioFile file;
     if (!file.Open(strFilePath, CFile::modeCreate | CFile::modeWrite | CFile::typeText))
     {
@@ -254,89 +229,82 @@ void CUnitTool::SaveUnitData(const CString& strFilePath)
         return;
     }
 
-    // (2) m_mapUnitData 순회하며 한 줄씩 저장
-    //     key 형태가 "Category:UnitName" 이라고 가정
     for (auto& kv : m_mapUnitData)
     {
-        const CString& strFullKey = kv.first;   // "Player:Hero" 등
+        const CString& strFullKey = kv.first;
         UNITDATA* pData = kv.second;
         if (pData == nullptr)
             continue;
 
-        // 먼저 Category, UnitName 분리
         int posColon = strFullKey.Find(_T(":"));
         if (posColon == -1)
-            continue; // 잘못된 키라면 패스
+            continue;
 
         CString strCategory = strFullKey.Left(posColon);
         CString strUnitName = strFullKey.Mid(posColon + 1);
 
-        // 필요하다면 pData->iMaxHp, m_iEvasion 등도 같이 저장 가능
-        // 여기서는 예시로 iAttack, iHp 두 가지만 저장
+        // 모든 데이터를 저장
         CString strLine;
-        strLine.Format(_T("%s|%s|%d|%d\n"),
-            strCategory,
-            strUnitName,
-            pData->iAttack,
-            pData->iHp);
+        strLine.Format(_T("%s|%s|%d|%d|%d|%.2f|%d|%.2f|%.2f\n"),
+            strCategory, pData->strName, pData->iAttack, pData->iHp,
+            pData->iLevel, pData->fAttackSpeed, pData->iLuck,
+            pData->fMoveSpeed, pData->fEvasion);
 
         file.WriteString(strLine);
     }
 
     file.Close();
 }
+
 //////////
 void CUnitTool::LoadUnitData(const CString& strFilePath)
 {
-    // (1) 파일 열기
     CStdioFile file;
     if (!file.Open(strFilePath, CFile::modeRead | CFile::typeText))
     {
-        // 없으면 없는 대로 패스(또는 메시지 박스)
-        // AfxMessageBox(_T("유닛 데이터 파일을 열 수 없습니다!"));
         return;
     }
 
-    // (2) 기존 데이터 날리거나(또는 append) 필요에 따라 정리
-    //     여기서는 중복 방지를 위해 싹 날린다고 가정
     for (auto& kv : m_mapUnitData)
     {
         delete kv.second;
     }
     m_mapUnitData.clear();
 
-    // (3) 파일에서 한 줄씩 읽어서 파싱
     CString strLine;
     while (file.ReadString(strLine))
     {
-        // 예) "Monster|슬라임|25|100"
-        //     [카테고리]|[유닛이름]|[공격력]|[HP]
         if (strLine.IsEmpty())
             continue;
 
-        // 구분자(|) 찾아 분리
-        int pos1 = strLine.Find(_T("|"));
-        if (pos1 == -1) continue;
-        int pos2 = strLine.Find(_T("|"), pos1 + 1);
-        if (pos2 == -1) continue;
-        int pos3 = strLine.Find(_T("|"), pos2 + 1);
-        if (pos3 == -1) continue;
+        int pos[8]; 
+        pos[0] = strLine.Find(_T("|"));
+        for (int i = 1; i < 8; i++)
+        {
+            pos[i] = strLine.Find(_T("|"), pos[i - 1] + 1);
+            if (pos[i] == -1) continue;
+        }
 
-        CString strCategory = strLine.Left(pos1);
-        CString strUnitName = strLine.Mid(pos1 + 1, pos2 - (pos1 + 1));
-        CString strAttack = strLine.Mid(pos2 + 1, pos3 - (pos2 + 1));
-        CString strHp = strLine.Mid(pos3 + 1);
+        CString strCategory = strLine.Left(pos[0]);
+        CString strUnitName = strLine.Mid(pos[0] + 1, pos[1] - (pos[0] + 1));
+        int iAttack = _ttoi(strLine.Mid(pos[1] + 1, pos[2] - (pos[1] + 1)));
+        int iHp = _ttoi(strLine.Mid(pos[2] + 1, pos[3] - (pos[2] + 1)));
+        int iLevel = _ttoi(strLine.Mid(pos[3] + 1, pos[4] - (pos[3] + 1)));
+        float fAttackSpeed = (float)_ttof(strLine.Mid(pos[4] + 1, pos[5] - (pos[4] + 1)));
+        int iLuck = _ttoi(strLine.Mid(pos[5] + 1, pos[6] - (pos[5] + 1)));
+        float fMoveSpeed = (float)_ttof(strLine.Mid(pos[6] + 1, pos[7] - (pos[6] + 1)));
+        float fEvasion = (float)_ttof(strLine.Mid(pos[7] + 1));
 
-        int iAttack = _ttoi(strAttack);
-        int iHp = _ttoi(strHp);
-
-        // (4) UNITDATA 동적 할당, 맵에 삽입
         UNITDATA* pData = new UNITDATA;
         pData->strName = strUnitName;
         pData->iAttack = iAttack;
         pData->iHp = iHp;
+        pData->iLevel = iLevel;
+        pData->fAttackSpeed = fAttackSpeed;
+        pData->iLuck = iLuck;
+        pData->fMoveSpeed = fMoveSpeed;
+        pData->fEvasion = fEvasion;
 
-        // key: "Category:UnitName"
         CString strKey;
         strKey.Format(_T("%s:%s"), strCategory, strUnitName);
 
@@ -345,6 +313,7 @@ void CUnitTool::LoadUnitData(const CString& strFilePath)
 
     file.Close();
 }
+
 
 void CUnitTool::SaveFileData(const CString& strFilePath)
 {
@@ -942,6 +911,7 @@ void CUnitTool::OnBnClickedPause()
         AfxMessageBox(_T("애니메이션이 재개되었습니다."));
     }
 }
+
 
 
 
