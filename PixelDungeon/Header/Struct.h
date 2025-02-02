@@ -74,4 +74,11 @@ typedef struct tagImageInfo
 	CString		strRelative; // 상대경로
 }IMAGE_INFO;
 
+typedef struct tagItemInfo
+{
+	IMAGE_INFO	tImgInfo;
+	CString		strName;
+	CString		strDescription;
+}ITEM_INFO;
+
 

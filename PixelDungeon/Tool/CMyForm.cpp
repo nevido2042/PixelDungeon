@@ -28,6 +28,8 @@ void CMyForm::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CMyForm, CFormView)
 	ON_BN_CLICKED(IDC_BUTTON1, &CMyForm::OnUnitTool)
 	ON_BN_CLICKED(IDC_BUTTON7, &CMyForm::OnMapTool)
+//	ON_BN_CLICKED(IDC_BUTTON13, &CMyForm::OnBnClickedButton13)
+ON_BN_CLICKED(IDC_BUTTON13, &CMyForm::OnItemTool)
 END_MESSAGE_MAP()
 
 
@@ -57,10 +59,11 @@ void CMyForm::OnInitialUpdate()
 
 	// TODO: 여기에 특수화된 코드를 추가 및/또는 기본 클래스를 호출합니다.
 
-	m_Font.CreatePointFont(180, L"궁서");
+	m_Font.CreatePointFont(180, L"나눔체");
 
 	GetDlgItem(IDC_BUTTON1)->SetFont(&m_Font);
 	GetDlgItem(IDC_BUTTON7)->SetFont(&m_Font);
+	GetDlgItem(IDC_BUTTON13)->SetFont(&m_Font);
 }
 
 
@@ -81,4 +84,13 @@ void CMyForm::OnMapTool()
 
 	m_MapTool.ShowWindow(SW_SHOW);
 
+}
+
+
+void CMyForm::OnItemTool()
+{
+	if (nullptr == m_ItemTool.GetSafeHwnd())
+		m_ItemTool.Create(IDD_CItemTool);	// 해당 id에 맞는 다이얼로그 생성
+
+	m_ItemTool.ShowWindow(SW_SHOW);
 }

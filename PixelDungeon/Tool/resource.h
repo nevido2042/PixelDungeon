@@ -9,6 +9,8 @@
 #define IDD_CMyForm                     310
 #define IDD_CUnitTool                   311
 #define IDD_CMapTool                    312
+#define IDD_DIALOG1                     315
+#define IDD_CItemTool                   315
 #define IDC_SPEED                       1021
 #define IDC_evasion                     1022
 #define IDC_ATTACK_SPEED                8001
@@ -16,12 +18,21 @@
 #define IDC_BTN_SAVE_MAP                1023
 #define IDC_RADIO1                      1024
 #define IDC_BUTTON2                     1027
+#define IDC_ITEM_IMG                    1027
+#define IDC_ITEM_SAVE                   1028
+#define IDC_ITEM_LIST                   1029
+#define IDC_ADD_ITEM                    1030
 #define IDC_STATIC_MAXHP                1050
 #define IDC_STATIC_EVASION              1051
+#define IDC_NAME                        1051
+#define IDC_NAME2                       1053
 #define IDC_BUTTON1                     2000
 #define IDC_EDIT1                       2001
 #define IDC_BUTTON7                     2001
+#define IDC_ITEM_NAME                   2001
 #define IDC_EDIT2                       2002
+#define IDC_BUTTON13                    2002
+#define IDC_ITEM_DESCRIPTION            2002
 #define IDC_EDIT3                       2004
 #define IDC_EDIT4                       2005
 #define IDC_EDIT5                       2006
@@ -57,9 +68,10 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        313
+#define _APS_NEXT_RESOURCE_VALUE        317
 #define _APS_NEXT_COMMAND_VALUE         32771
 #define _APS_NEXT_CONTROL_VALUE         1028
+
 #define _APS_NEXT_SYMED_VALUE           313
 #endif
 #endif

@@ -185,3 +185,4 @@ BOOL CToolApp::OnIdle(LONG lCount)
 
 	return CWinApp::OnIdle(lCount);
 }
+
