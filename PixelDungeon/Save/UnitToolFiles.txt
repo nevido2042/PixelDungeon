@@ -1,6 +1,0 @@
-Monster|Hero|C:\Users\user\Documents\GitHub\PixelDungeon\PixelDungeon\Resources\Player\Warrior\warrior4.png
-NPC|Monster|C:\Users\user\Documents\GitHub\PixelDungeon\PixelDungeon\Resources\Player\Warrior\warrior10.png
-NPC|Monster|C:\Users\user\Documents\GitHub\PixelDungeon\PixelDungeon\Resources\Player\Warrior\warrior11.png
-NPC|Monster|C:\Users\user\Documents\GitHub\PixelDungeon\PixelDungeon\Resources\Player\Warrior\warrior12.png
-NPC|Monster|C:\Users\user\Documents\GitHub\PixelDungeon\PixelDungeon\Resources\Player\Warrior\warrior13.png
-NPC|Monster|C:\Users\user\Documents\GitHub\PixelDungeon\PixelDungeon\Resources\Player\Warrior\warrior9.png

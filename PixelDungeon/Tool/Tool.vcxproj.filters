@@ -64,6 +64,12 @@
     <Filter Include="04. Etc\04. FileInfo">
       <UniqueIdentifier>{f7394afc-9cc8-40f0-82b1-4ba2722b682e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="04. Etc\03. Dialog\04. ItemTool">
+      <UniqueIdentifier>{6e18901e-e913-437b-bf8a-4439efd365fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="04. Etc\03. Dialog\04. ItemTool\00. PictureControl">
+      <UniqueIdentifier>{63e982ba-86bb-4d2c-8933-ea361c62faa2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Tool.h">
@@ -123,6 +129,12 @@
     <ClInclude Include="CFileInfo.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="CItemTool.h">
+      <Filter>04. Etc\03. Dialog\04. ItemTool</Filter>
+    </ClInclude>
+    <ClInclude Include="CPictureControl.h">
+      <Filter>04. Etc\03. Dialog\04. ItemTool\00. PictureControl</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Tool.cpp">
@@ -172,6 +184,12 @@
     </ClCompile>
     <ClCompile Include="CFileInfo.cpp">
       <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CItemTool.cpp">
+      <Filter>04. Etc\03. Dialog\04. ItemTool</Filter>
+    </ClCompile>
+    <ClCompile Include="CPictureControl.cpp">
+      <Filter>04. Etc\03. Dialog\04. ItemTool\00. PictureControl</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
