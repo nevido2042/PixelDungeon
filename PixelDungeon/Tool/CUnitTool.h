@@ -42,19 +42,19 @@ public:
     CString m_strName;  // 유닛 이름
     int m_iAttack;      // 공격력
     int m_iHp;          // 체력
-    int m_iLevel;       // 레벨 ⭐ 추가
-    float m_fAttackSpeed; // 공격 속도 ⭐ 추가
-    int m_iLuck;        // 운 ⭐ 추가
-    float m_fMoveSpeed; // 이동 속도 ⭐ 추가
-    float m_fEvasion;   // 회피력 ⭐ 추가
+    int m_iLevel;       // 레벨 
+    float m_fAttackSpeed; // 공격 속도 
+    int m_iLuck;        // 운 
+    float m_fMoveSpeed; // 이동 속도 
+    float m_fEvasion;   // 회피력 
 
 
     CListBox  m_ListBox;     // 리스트박스 ( 이미지 출력하는곳 )
     CListBox m_ListBox2;     // 리스트박스2 ( 객체들 출력하는곳 )
     CListBox m_ListBox3;     // 리스트박스3 ( 무슨 객체를 출력할지 선택하는곳)
     CButton   m_Radio[3];    // 플레이어/몬스터/NPC 라디오 버튼
-    CButton   m_Check[3];    // 체크박스 예시 (쓰신다면)
-    CButton   m_Bitmap;      // 비트맵 버튼 (사용하신다면)
+    CButton   m_Check[3];   
+ 
 
     CStatic   m_AnimationCtrl; // 애니메이션용 Static
     CStatic   m_Picture;       // Picture Control
@@ -65,8 +65,6 @@ public:
     // 현재 선택된 라디오 버튼 인덱스 (0: Player, 1: Monster, 2: NPC)
     int m_iCategorySelect;
 
-
-    // 이벤트 핸들러
     virtual BOOL OnInitDialog();
     afx_msg void OnDropFiles(HDROP hDropInfo);
 ;
@@ -90,27 +88,21 @@ public:
     //캐릭터 정보
     void SaveUnitData(const CString& strFilePath);
     void LoadUnitData(const CString& strFilePath);
-    // 이미지 입출력
+
+    //이미지 불러오깅
     void SaveFileData(const CString& strFilePath);
     void LoadFileData(const CString& strFilePath);
 
-    //이미지 관련
-    void DisplayImage(const CString& strName);
-
-
     // 애니메이션
+    void DisplayImage(const CString& strName);
     void StartAnimation();
 
 
+    
+    afx_msg void OnLbnDblclkList2(); // 생성된 유닛들
+    afx_msg void OnLbnDblclkList3(); // 유닛들 타입 모아놓는곳
 
-    afx_msg void OnLbnDblclkList2();
-    afx_msg void OnLbnDblclkList3();
-    afx_msg void OnStnClickedPicture();
-    afx_msg CString Convert_RelativePath(const CString& fullPath);
-    CAnimateCtrl m_Animate_1;
-
-
-    private:
+  private:
 
         vector<CString> m_ImagePaths;    
         size_t m_CurrentFrameIndex;         
@@ -118,6 +110,10 @@ public:
 public:
     afx_msg void OnBnClickedDeleteImage2();
     afx_msg void OnBnClickedPause();
+
+    CString ConvertToRelativePath(const CString& fullPath);
+
+    CString ConvertToAbsolutePath(const CString& relativePath);
  
 
 
