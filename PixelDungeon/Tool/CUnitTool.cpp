@@ -60,7 +60,7 @@ BEGIN_MESSAGE_MAP(CUnitTool, CDialog)
     ON_BN_CLICKED(IDC_BUTTON_DELETE, &CUnitTool::OnBnClickedButtonDelete) //객체삭제 버튼
     ON_LBN_SELCHANGE(IDC_LIST2, &CUnitTool::OnLbnDblclkList2)
     ON_LBN_SELCHANGE(IDC_LIST3, &CUnitTool::OnLbnDblclkList3)
-    ON_STN_CLICKED(IDC_PICTURE, &CUnitTool::OnStnClickedPicture)
+ 
     ON_BN_CLICKED(IDC_BUTTON1, &CUnitTool::OnBnClickedPause) // 일시 정지 버튼
     ON_BN_CLICKED(IDC_DELETE_IMAGE2, &CUnitTool::OnBnClickedDeleteImage2) // 이미지 삭제 버튼
 
@@ -77,14 +77,12 @@ BOOL CUnitTool::OnInitDialog()
     m_ListBox3.AddString(_T("Player"));
     m_ListBox3.AddString(_T("Monster"));
     m_ListBox3.AddString(_T("NPC"));
-    // 이미지 리스트 불러오기
-    LoadFileData(L"../Save/UnitToolFiles.txt");
 
-    // 유닛 데이터 불러오기
-    LoadUnitData(L"../Save/UnitData.txt");
+ 
+    LoadFileData(L"../Save/UnitToolFiles.txt"); // 이미지 먼저
+    LoadUnitData(L"../Save/UnitData.txt");      // 그 다음 유닛
 
     DragAcceptFiles(TRUE);
-
 
     return TRUE;
 }
@@ -222,10 +220,14 @@ void CUnitTool::OnDestroy()
 }
 void CUnitTool::SaveUnitData(const CString& strFilePath)
 {
+    CString strAbsolutePath = ConvertToAbsolutePath(strFilePath); // 상대경로 → 절대경로 변환
+
     CStdioFile file;
-    if (!file.Open(strFilePath, CFile::modeCreate | CFile::modeWrite | CFile::typeText))
+    if (!file.Open(strAbsolutePath, CFile::modeCreate | CFile::modeWrite | CFile::typeText))
     {
-        AfxMessageBox(_T("유닛 데이터 파일을 열 수 없습니다!"));
+        CString errorMsg;
+        errorMsg.Format(_T("⚠ 유닛 데이터 파일을 저장할 수 없습니다! 경로를 확인하세요.\n경로: %s"), strAbsolutePath);
+        AfxMessageBox(errorMsg);
         return;
     }
 
@@ -243,7 +245,8 @@ void CUnitTool::SaveUnitData(const CString& strFilePath)
         CString strCategory = strFullKey.Left(posColon);
         CString strUnitName = strFullKey.Mid(posColon + 1);
 
-        // 모든 데이터를 저장
+
+        // 파일에 저장 (상대경로 변환 후)
         CString strLine;
         strLine.Format(_T("%s|%s|%d|%d|%d|%.2f|%d|%.2f|%.2f\n"),
             strCategory, pData->strName, pData->iAttack, pData->iHp,
@@ -256,28 +259,37 @@ void CUnitTool::SaveUnitData(const CString& strFilePath)
     file.Close();
 }
 
+
 //////////
 void CUnitTool::LoadUnitData(const CString& strFilePath)
 {
+    CString strAbsolutePath = ConvertToAbsolutePath(strFilePath);
+
     CStdioFile file;
-    if (!file.Open(strFilePath, CFile::modeRead | CFile::typeText))
+    if (!file.Open(strAbsolutePath, CFile::modeRead | CFile::typeText))
     {
+        CString errorMsg;
+        errorMsg.Format(_T("⚠ 유닛 데이터 파일을 불러올 수 없습니다!\n경로: %s"), strAbsolutePath);
+        AfxMessageBox(errorMsg);
         return;
     }
 
+    // 기존 데이터 삭제
     for (auto& kv : m_mapUnitData)
     {
         delete kv.second;
     }
     m_mapUnitData.clear();
+ 
 
     CString strLine;
     while (file.ReadString(strLine))
     {
-        if (strLine.IsEmpty())
-            continue;
+        if (strLine.IsEmpty()) continue;
 
-        int pos[8]; 
+        TRACE(_T("불러온 유닛 데이터: %s\n"), strLine);
+
+        int pos[8];
         pos[0] = strLine.Find(_T("|"));
         for (int i = 1; i < 8; i++)
         {
@@ -285,8 +297,9 @@ void CUnitTool::LoadUnitData(const CString& strFilePath)
             if (pos[i] == -1) continue;
         }
 
-        CString strCategory = strLine.Left(pos[0]);
+        CString strCategory = strLine.Left(pos[0]); // Player, Monster, NPC
         CString strUnitName = strLine.Mid(pos[0] + 1, pos[1] - (pos[0] + 1));
+
         int iAttack = _ttoi(strLine.Mid(pos[1] + 1, pos[2] - (pos[1] + 1)));
         int iHp = _ttoi(strLine.Mid(pos[2] + 1, pos[3] - (pos[2] + 1)));
         int iLevel = _ttoi(strLine.Mid(pos[3] + 1, pos[4] - (pos[3] + 1)));
@@ -308,11 +321,23 @@ void CUnitTool::LoadUnitData(const CString& strFilePath)
         CString strKey;
         strKey.Format(_T("%s:%s"), strCategory, strUnitName);
 
+        TRACE(_T("저장된 유닛: %s (공격력: %d, 체력: %d)\n"), strKey, iAttack, iHp);
+
         m_mapUnitData[strKey] = pData;
+
+        if (m_mapCategory[strCategory].find(strUnitName) == m_mapCategory[strCategory].end())
+        {
+            // 이 유닛 이름으로 이미지 벡터가 아직 없다면, 일단 빈 벡터를 만들긴 할껀디..
+            // (만약 LoadFileData()에서 이미 push_back 해줬다면, 아래 코드가 실행 안 됨)
+            m_mapCategory[strCategory][strUnitName] = vector<CString>();
+        }
     }
 
     file.Close();
 }
+
+
+
 
 
 void CUnitTool::SaveFileData(const CString& strFilePath)
@@ -324,40 +349,22 @@ void CUnitTool::SaveFileData(const CString& strFilePath)
         return;
     }
 
-    // "카테고리|유닛이름|전체경로" 형태로 저장
     for (auto& pair : m_mapFilePaths)
     {
-        // pair.first : "Monster:슬라임:Slime01.png"
-        // pair.second: "D:\\Images\\Slime01.png" (절대 경로)
         CString strKey = pair.first;
-        CString strPath = pair.second;
+        CString strPath = ConvertToRelativePath(pair.second); // 상대 경로 변환
 
-        // 콜론(:)을 기준으로 파싱
-        int firstColon = strKey.Find(_T(":"));
-        if (firstColon == -1)
-            continue;
-        int secondColon = strKey.Find(_T(":"), firstColon + 1);
-        if (secondColon == -1)
-            continue;
-
-        CString strCategory = strKey.Left(firstColon);
-        CString strUnitName = strKey.Mid(firstColon + 1, secondColon - (firstColon + 1));
-
-        // [절대 경로] 그대로 저장 (기존 Convert_RelativePath 제거)
-        // CString strRelativePath = Convert_RelativePath(strPath);
-        // strLine.Format(_T("%s|%s|%s\n"), strCategory, strUnitName, strRelativePath);
+  
 
         CString strLine;
-        strLine.Format(_T("%s|%s|%s\n"), strCategory, strUnitName, strPath);
+        strLine.Format(_T("%s|%s\n"), strKey, strPath);
         file.WriteString(strLine);
     }
 
     file.Close();
 }
 
-// ----------------------------------------------------------------------
-// LoadFileData는 그대로 둡니다. 파일에서 읽어온 Path를 그대로 CImage 로드.
-//
+
 void CUnitTool::LoadFileData(const CString& strFilePath)
 {
     CStdioFile file;
@@ -367,60 +374,53 @@ void CUnitTool::LoadFileData(const CString& strFilePath)
         return;
     }
 
+    // 기존 데이터 초기화
     m_mapPngImages.clear();
     m_mapFilePaths.clear();
-    m_ListBox.ResetContent(); // 초기화만 유지
+    m_mapCategory.clear();
+    m_ListBox.ResetContent();
 
     CString strLine;
     while (file.ReadString(strLine))
     {
-        int pos1 = strLine.Find(_T("|"));
-        if (pos1 == -1) continue;
+        int pos = strLine.Find(_T("|"));
+        if (pos == -1) continue;
 
-        int pos2 = strLine.Find(_T("|"), pos1 + 1);
-        if (pos2 == -1) continue;
+        CString strKey = strLine.Left(pos);
+        CString strRelPath = strLine.Mid(pos + 1);
+        CString strFullPath = ConvertToAbsolutePath(strRelPath);
 
-        CString strCategory = strLine.Left(pos1);
-        CString strName = strLine.Mid(pos1 + 1, pos2 - (pos1 + 1));
-        CString strPath = strLine.Mid(pos2 + 1);
-
-        CString strFileName = PathFindFileName(strPath);
-        CString strKey;
-        strKey.Format(_T("%s:%s:%s"), strCategory, strName, strFileName);
-
-        // 이미지 로드
-        CImage* pImg = new CImage();
-        if (FAILED(pImg->Load(strPath)))
+        if (GetFileAttributes(strFullPath) == INVALID_FILE_ATTRIBUTES)
         {
-            AfxMessageBox(_T("이미지 로드 실패: ") + strPath);
+            continue;
+        }
+
+        // CImage 로드
+        CImage* pImg = new CImage();
+        if (FAILED(pImg->Load(strFullPath)))
+        {
             delete pImg;
             continue;
         }
+
+        // 맵에 저장
         m_mapPngImages[strKey] = pImg;
-        m_mapFilePaths[strKey] = strPath;
+        m_mapFilePaths[strKey] = strFullPath;
 
-        // 카테고리와 유닛 매핑
-        m_mapCategory[strCategory][strName].push_back(strPath);
+        // [FIX] 🔥 카테고리-유닛-이미지 경로 저장
+        int firstColon = strKey.Find(_T(':'));
+        int secondColon = strKey.Find(_T(':'), firstColon + 1);
+        if (firstColon == -1 || secondColon == -1) continue;
 
-        // [REMOVED] 리스트 박스에 추가하지 않음
-        // m_ListBox.AddString(strKey);
+        CString strCategory = strKey.Left(firstColon);
+        CString strUnit = strKey.Mid(firstColon + 1, secondColon - (firstColon + 1));
+
+        // 카테고리, 유닛별 이미지 목록 저장
+        m_mapCategory[strCategory][strUnit].push_back(strFullPath);
     }
 
     file.Close();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // PNG 표시
 void CUnitTool::DisplayImage(const CString& strKey)
@@ -451,24 +451,6 @@ void CUnitTool::DisplayImage(const CString& strKey)
 //pImage->Draw(dc, rect); // 이미지를 넣는 부분
 //
 //UpdateData(FALSE);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 void CUnitTool::StartAnimation()
@@ -707,10 +689,7 @@ void CUnitTool::OnLbnDblclkList2()
 
     int iIndex = m_ListBox2.GetCurSel();
     if (iIndex == LB_ERR)
-    {
-        // ...
         return;
-    }
 
     CString strSelectedUnit;
     m_ListBox2.GetText(iIndex, strSelectedUnit);
@@ -722,8 +701,11 @@ void CUnitTool::OnLbnDblclkList2()
     CString strSelectedType;
     m_ListBox3.GetText(iTypeIndex, strSelectedType);
 
-    m_ImagePaths.clear();
+    // 리스트박스1 초기화
     m_ListBox.ResetContent();
+
+    // [!!] 애니메이션용 벡터도 새로 클리어
+    m_ImagePaths.clear();
     m_CurrentFrameIndex = 0;
 
     auto itType = m_mapCategory.find(strSelectedType);
@@ -732,32 +714,26 @@ void CUnitTool::OnLbnDblclkList2()
         auto itUnit = itType->second.find(strSelectedUnit);
         if (itUnit != itType->second.end())
         {
+            // 해당 유닛의 이미지 목록
             for (auto& imagePath : itUnit->second)
             {
-                // (1) fileName 만이 아니라 풀 키를 만들어서 저장하자
-                //     ex) "Monster:슬라임:Slime01.png"
                 CString fileName = PathFindFileName(imagePath);
-
                 CString fullKey;
                 fullKey.Format(_T("%s:%s:%s"), strSelectedType, strSelectedUnit, fileName);
 
-                // 리스트박스에는 풀키를 AddString
+                //  리스트박스1에 추가
                 m_ListBox.AddString(fullKey);
 
-                // m_ImagePaths 는 필요하다면 유지, 
-                // 아니면 fullKey 대신 그냥 경로를 계속 저장
+                //  애니메이션 재생을 위해 m_ImagePaths에도 넣어준다
                 m_ImagePaths.push_back(imagePath);
             }
         }
     }
 
-    if (!m_ImagePaths.empty())
-    {
-        m_AnimationTimer = SetTimer(1, 100, NULL);
-    }
-
     UpdateData(FALSE);
 }
+
+
 
 
 
@@ -775,11 +751,13 @@ void CUnitTool::OnLbnDblclkList3()
 
     m_ListBox2.ResetContent();
 
+    //  선택한 카테고리의 유닛만 추가
     auto itType = m_mapCategory.find(strSelectedType);
     if (itType != m_mapCategory.end())
     {
         for (auto& unitPair : itType->second)
         {
+            TRACE(_T("리스트2에 추가: %s\n"), unitPair.first);
             m_ListBox2.AddString(unitPair.first);
         }
     }
@@ -787,22 +765,7 @@ void CUnitTool::OnLbnDblclkList3()
     UpdateData(FALSE);
 }
 
-void CUnitTool::OnStnClickedPicture()
-{
-    
-}
 
-CString CUnitTool::Convert_RelativePath(const CString& fullPath)
-{
-    TCHAR currentDir[MAX_PATH];
-    GetCurrentDirectory(MAX_PATH, currentDir);
-
-    CString relativePath = fullPath;
-    PathRelativePathTo(relativePath.GetBuffer(MAX_PATH), currentDir, FILE_ATTRIBUTE_DIRECTORY, fullPath, FILE_ATTRIBUTE_NORMAL);
-    relativePath.ReleaseBuffer();
-
-    return relativePath;
-}
 
 
 
@@ -812,14 +775,14 @@ void CUnitTool::OnBnClickedDeleteImage2()
     int iSel = m_ListBox.GetCurSel();
     if (iSel == LB_ERR)
     {
-        AfxMessageBox(_T("삭제할 이미지를 선택하세요."));
+        AfxMessageBox(_T("이미지 선택하고 삭제 버튼 눌러야돼"));
         return;
     }
 
     CString strKey;
-    m_ListBox.GetText(iSel, strKey); // "Monster:슬라임:Slime01.png" 식의 풀키라고 가정
+    m_ListBox.GetText(iSel, strKey); // "Monster:신승훈:Sin01.png" 식의 키라고 가정
 
-    // (1) m_mapPngImages 에서 제거
+    //  m_mapPngImages 에서 제거
     auto itImage = m_mapPngImages.find(strKey);
     if (itImage != m_mapPngImages.end())
     {
@@ -828,12 +791,12 @@ void CUnitTool::OnBnClickedDeleteImage2()
         m_mapPngImages.erase(itImage);
     }
 
-    // (2) m_mapFilePaths 에서 제거
+    //  m_mapFilePaths 에서 제거
     auto itPath = m_mapFilePaths.find(strKey);
     if (itPath != m_mapFilePaths.end())
         m_mapFilePaths.erase(itPath);
 
-    // (3) m_mapCategory
+    //  m_mapCategory
     int firstColon = strKey.Find(_T(':'));
     int secondColon = strKey.Find(_T(':'), firstColon + 1);
     CString strCategory = strKey.Left(firstColon);
@@ -850,17 +813,17 @@ void CUnitTool::OnBnClickedDeleteImage2()
         }
     }
 
-    // (4) 리스트박스에서 제거
+    // (리스트박스에서 제거
     m_ListBox.DeleteString(iSel);
 
-    // (5) m_ImagePaths에서도 제거 (이미 '이미지 재생' 목록을 갱신한다면)
+    //  m_ImagePaths에서도 제거 ( '이미지 재생' 목록을 갱신한다면)
     auto itVec2 = std::find_if(m_ImagePaths.begin(), m_ImagePaths.end(), [&](const CString& path) {
         return PathFindFileName(path) == strFilename;
         });
     if (itVec2 != m_ImagePaths.end())
         m_ImagePaths.erase(itVec2);
 
-    // (6) 애니메이션 관련 처리 (필요시)
+    //  애니메이션 관련 처리 
     if (m_ImagePaths.empty())
     {
         KillTimer(m_AnimationTimer);
@@ -871,7 +834,7 @@ void CUnitTool::OnBnClickedDeleteImage2()
         dc.FillSolidRect(rect, RGB(255, 255, 255));
     }
 
-    AfxMessageBox(_T("이미지가 삭제되었습니다."));
+    AfxMessageBox(_T("이미지 삭제 완료!!!!!!!!!!"));
 }
 
 
@@ -880,38 +843,57 @@ void CUnitTool::OnBnClickedPause()
 {
     if (m_AnimationTimer != 0)
     {
-        KillTimer(m_AnimationTimer); // 타이머 중지
-        m_AnimationTimer = 0; // 타이머 ID 초기화
-        AfxMessageBox(_T("애니메이션이 일시 정지되었습니다."));
+        // 이미 타이머가 켜져 있으면 -> 끄기 (일시 정지)
+        KillTimer(m_AnimationTimer);
+        m_AnimationTimer = 0;
+        AfxMessageBox(_T("애니메이션 스탑!!!"));
     }
     else
     {
-        // 현재 프레임을 기반으로 이미지를 다시 렌더링
-        if (!m_ImagePaths.empty())
+        // 타이머가 꺼져있으면 -> 켜기 
+
+        // [!!] 만약 m_ImagePaths가 비었다면 재생할 수 없으니 체크
+        if (m_ImagePaths.empty())
         {
-            CString currentImagePath = m_ImagePaths[m_CurrentFrameIndex];
-
-            CImage image;
-            if (FAILED(image.Load(currentImagePath)))
-            {
-                AfxMessageBox(_T("이미지를 로드할 수 없습니다."));
-                return;
-            }
-
-            CClientDC dc(&m_Picture);
-            CRect rect;
-            m_Picture.GetClientRect(&rect);
-
-            dc.FillSolidRect(rect, RGB(255, 255, 255));
-            image.Draw(dc, rect);
+            AfxMessageBox(_T("재생할 이미지가 없음!!! 리스트박스에 이미지 추가해주세용"));
+            return;
         }
-     
 
-        m_AnimationTimer = SetTimer(1, 100, NULL); // 다시 타이머 시작
-        AfxMessageBox(_T("애니메이션이 재개되었습니다."));
+        // 첫 프레임부터 다시 그릴 수 있도록 
+        m_CurrentFrameIndex = 0;
+
+        // 타이머 시작
+        m_AnimationTimer = SetTimer(1, 100, NULL);
+        AfxMessageBox(_T("애니메이션 시작!!"));
     }
+}
+
+CString CUnitTool::ConvertToRelativePath(const CString& fullPath)
+{
+    TCHAR currentDir[MAX_PATH];
+    GetCurrentDirectory(MAX_PATH, currentDir);
+
+    TCHAR relativePath[MAX_PATH];
+    if (PathRelativePathTo(relativePath, currentDir, FILE_ATTRIBUTE_DIRECTORY, fullPath, FILE_ATTRIBUTE_NORMAL))
+    {
+        return CString(relativePath);
+    }
+
+    // 변환 실패 시 원래 절대 경로 반환 (안전 장치)
+    return fullPath;
 }
 
 
 
 
+CString CUnitTool::ConvertToAbsolutePath(const CString& relativePath)
+{
+    TCHAR absolutePath[MAX_PATH];
+    if (GetFullPathName(relativePath, MAX_PATH, absolutePath, nullptr))
+    {
+        return CString(absolutePath);
+    }
+
+    // 변환 실패 시 원래 상대 경로 반환 (안전 장치)
+    return relativePath;
+}
