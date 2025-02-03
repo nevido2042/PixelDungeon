@@ -13,7 +13,6 @@
 #define IDD_CItemTool                   315
 #define IDC_SPEED                       1021
 #define IDC_evasion                     1022
-#define IDC_ATTACK_SPEED                8001
 #define IDP_                            1023
 #define IDC_BTN_SAVE_MAP                1023
 #define IDC_RADIO1                      1024
@@ -62,7 +61,8 @@
 #define IDC_BUTTON_DELETE               2032
 #define IDC_RADIO_PASS                  4024
 #define IDC_RADIO_BLOCK                 4025
-#define IDC_EDIT_EVASION 9000
+#define IDC_ATTACK_SPEED                8001
+#define IDC_EDIT_EVASION                9000
 
 // Next default values for new objects
 // 
@@ -71,7 +71,6 @@
 #define _APS_NEXT_RESOURCE_VALUE        317
 #define _APS_NEXT_COMMAND_VALUE         32771
 #define _APS_NEXT_CONTROL_VALUE         1028
-
 #define _APS_NEXT_SYMED_VALUE           313
 #endif
 #endif

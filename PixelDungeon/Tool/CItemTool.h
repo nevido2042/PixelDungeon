@@ -54,4 +54,5 @@ public:
 	afx_msg void OnEnChangeItemDescription();
 	afx_msg void OnBnClickedAddItem();
 	afx_msg void OnLbnSelchangeItemList();
+	afx_msg void OnBnClickedItemSave();
 };
