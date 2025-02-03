@@ -1,4 +1,4 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "CMultiTexture.h"
 #include "CDevice.h"
 
@@ -26,13 +26,13 @@ const TEXINFO* CMultiTexture::Get_Texture(const TCHAR* pStateKey,
         return nullptr;
   
 
-    return iter->second[iCnt];
+      return iter->second[iCnt];
 }
 
 HRESULT CMultiTexture::Insert_Texture(const TCHAR* pFilePath, const TCHAR* pStateKey, const int& iCnt)
 {
 
-    // °æ·Î¸¦ ÀÇ¹Ì´Â ±æÀÌ´Â Àı´ë 520byte¸¦ ³Ñ¾î¼­¸é ¾ÈµÈ´Ù.
+    // ê²½ë¡œë¥¼ ì˜ë¯¸ëŠ” ê¸¸ì´ëŠ” ì ˆëŒ€ 520byteë¥¼ ë„˜ì–´ì„œë©´ ì•ˆëœë‹¤.
     TCHAR       szFullPath[MAX_PATH] = L"";
 
 
@@ -43,7 +43,7 @@ HRESULT CMultiTexture::Insert_Texture(const TCHAR* pFilePath, const TCHAR* pStat
         TEXINFO* pTexInfo = new TEXINFO;
         ZeroMemory(pTexInfo, sizeof(TEXINFO));
 
-        // D3DXGetImageInfoFromFile : ÁöÁ¤ÇÑ ÀÌ¹ÌÁö ÆÄÀÏ¿¡ °üÇÑ Á¤º¸¸¦ ¾ò¾î¿Í ±¸Á¶Ã¼¿¡ ±â·ÏÇÏ´Â ÇÔ¼ö
+        // D3DXGetImageInfoFromFile : ì§€ì •í•œ ì´ë¯¸ì§€ íŒŒì¼ì— ê´€í•œ ì •ë³´ë¥¼ ì–»ì–´ì™€ êµ¬ì¡°ì²´ì— ê¸°ë¡í•˜ëŠ” í•¨ìˆ˜
         if (FAILED(D3DXGetImageInfoFromFile(szFullPath, &(pTexInfo->tImgInfo))))
         {
             Safe_Delete(pTexInfo);
@@ -56,14 +56,14 @@ HRESULT CMultiTexture::Insert_Texture(const TCHAR* pFilePath, const TCHAR* pStat
             pTexInfo->tImgInfo.Width,
             pTexInfo->tImgInfo.Height,
             pTexInfo->tImgInfo.MipLevels,
-            0,  // USAGE : ÅØ½ºÃ³ÀÇ »ç¿ë ¹æ½Ä(0 ÀÏ¹İÀûÀÎ ÅØ½ºÃ³, D3DUSAGE_RENDERTARGET : È­¸é ±×¸®±â ÅØ½ºÃ³)
+            0,  // USAGE : í…ìŠ¤ì²˜ì˜ ì‚¬ìš© ë°©ì‹(0 ì¼ë°˜ì ì¸ í…ìŠ¤ì²˜, D3DUSAGE_RENDERTARGET : í™”ë©´ ê·¸ë¦¬ê¸° í…ìŠ¤ì²˜)
             pTexInfo->tImgInfo.Format,
             D3DPOOL_MANAGED,
             D3DX_DEFAULT,
             D3DX_DEFAULT,
-            0,              // 0À» ³Ö¾îÁÖ¸é ÄÃ·¯Å° ¹«È¿È­
-            nullptr,        // ÀÌ¹ÌÁö Á¤º¸ ±â·Ï
-            nullptr,        // ÆÈ·¹Æ® ÀÌ¹ÌÁö¿¡ ´ëÇÑ Ã³¸®
+            0,              // 0ì„ ë„£ì–´ì£¼ë©´ ì»¬ëŸ¬í‚¤ ë¬´íš¨í™”
+            nullptr,        // ì´ë¯¸ì§€ ì •ë³´ ê¸°ë¡
+            nullptr,        // íŒ”ë ˆíŠ¸ ì´ë¯¸ì§€ì— ëŒ€í•œ ì²˜ë¦¬
             &(pTexInfo->pTexture))))
         {
             Safe_Delete(pTexInfo);
@@ -78,6 +78,16 @@ HRESULT CMultiTexture::Insert_Texture(const TCHAR* pFilePath, const TCHAR* pStat
     return S_OK;
 }
 
+int CMultiTexture::Get_TextureCount(const TCHAR* pStateKey)
+{
+    auto iter = m_MapMultiTex.find(pStateKey);
+    if (iter == m_MapMultiTex.end())
+        return 0;
+
+    return iter->second.size();  // âœ… í•´ë‹¹ ì• ë‹ˆë©”ì´ì…˜ì˜ í”„ë ˆì„ ê°œìˆ˜ ë°˜í™˜
+}
+
+
 void CMultiTexture::Release()
 {
     for_each(m_MapMultiTex.begin(), m_MapMultiTex.end(), [](auto& MyPair)
@@ -85,8 +95,8 @@ void CMultiTexture::Release()
             for_each(MyPair.second.begin(), MyPair.second.end(),
                 [](TEXINFO* pTexInfo) {
                     if (pTexInfo) {
-                        Safe_Release(pTexInfo->pTexture); // ÅØ½ºÃ³ ¸±¸®Áî
-                        Safe_Delete(pTexInfo);           // ¸Ş¸ğ¸® »èÁ¦
+                        Safe_Release(pTexInfo->pTexture); // í…ìŠ¤ì²˜ ë¦´ë¦¬ì¦ˆ
+                        Safe_Delete(pTexInfo);           // ë©”ëª¨ë¦¬ ì‚­ì œ
                     }
                 });
 

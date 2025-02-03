@@ -2,6 +2,9 @@
 #include "CGameScene.h"
 #include "CObjMgr.h"
 #include "CTileMgr.h"
+#include "AbstractFactory.h"
+#include "CPlayer.h"
+
 
 CGameScene::CGameScene()
 {
@@ -14,6 +17,12 @@ CGameScene::~CGameScene()
 
 void CGameScene::Initialize()
 {
+	CObj* pObj(nullptr);
+
+	pObj = CAbstractFactory<CPlayer>::Create();
+	CObjMgr::Get_Instance()->Add_Object(OBJ_PLAYER, pObj);
+
+
 	CTileMgr::Get_Instance()->Initialize();
 }
 

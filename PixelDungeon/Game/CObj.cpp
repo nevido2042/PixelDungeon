@@ -19,6 +19,7 @@ int CObj::Update()
 		return OBJ_DEAD;
 	}
 
+
 	UpdateWorldMatrix();
 
 	return OBJ_NOEVENT;

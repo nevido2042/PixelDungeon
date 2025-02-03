@@ -26,5 +26,7 @@ protected:
 	INFO				m_tInfo;
 	const TEXINFO*		m_tTexInfo;
 
+	float m_fSpeed;
+
 };
 

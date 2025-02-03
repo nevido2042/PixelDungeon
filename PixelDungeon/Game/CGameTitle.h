@@ -11,5 +11,8 @@ public:
     void Late_Update() override;
     void Render() override;
     void Release() override;
+
+     void OnLoad();
+     void OnAdd();
 };
 

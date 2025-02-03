@@ -17,5 +17,7 @@ public:
 private:
     BYTE    m_byDrawID;
     BYTE    m_byOption;
+
+    
 };
 
