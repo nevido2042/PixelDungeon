@@ -25,6 +25,8 @@ void CTile::Late_Update()
 
 void CTile::Render()
 {
+	CDevice::Get_Instance()->Get_Sprite()->SetTransform(&m_tInfo.matWorld);
+
 	float	fCenterX = m_tTexInfo->tImgInfo.Width / 2.f;
 	float	fCenterY = m_tTexInfo->tImgInfo.Height / 2.f;
 

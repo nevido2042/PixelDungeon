@@ -70,6 +70,9 @@
     <Filter Include="01. Obj\00.GameObject\00. Player">
       <UniqueIdentifier>{eaeac929-0c65-4daf-adb5-991eb20341a8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02. Manager\06. Camera">
+      <UniqueIdentifier>{af813213-2f61-48d0-aaf5-2153c11f5509}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -147,6 +150,9 @@
     <ClInclude Include="CTile.h">
       <Filter>01. Obj\00.GameObject\01. Tile</Filter>
     </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>02. Manager\06. Camera</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp">
@@ -211,6 +217,9 @@
     </ClCompile>
     <ClCompile Include="CTile.cpp">
       <Filter>01. Obj\00.GameObject\01. Tile</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>02. Manager\06. Camera</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

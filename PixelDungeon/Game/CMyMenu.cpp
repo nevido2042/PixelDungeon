@@ -7,6 +7,7 @@
 #include "CGameTitle.h"
 #include "CKeyMgr.h"
 #include "CSceneMgr.h"
+#include "Camera.h"
 
 CMyMenu::CMyMenu()
 {
@@ -19,6 +20,8 @@ CMyMenu::~CMyMenu()
 
 void CMyMenu::Initialize()
 {
+    CCamera::Get_Instance()->Initialize();
+
     CObj* pObj(nullptr);
 
     pObj = CAbstractFactory<CPlayer>::Create();
