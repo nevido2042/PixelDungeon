@@ -1,4 +1,4 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "CPlayer.h"
 #include "CDevice.h"
 #include "CTextureMgr.h"
@@ -9,55 +9,139 @@ CPlayer::CPlayer()
 
 CPlayer::~CPlayer()
 {
-	Release();
+    Release();
 }
 
 void CPlayer::Initialize()
 {
-	m_tTexInfo = CTextureMgr::Get_Instance()->Get_Texture(L"Player");
+   
+    m_eCurState = IDLE;
+    m_iFrame = 0;
+    m_tInfo.vPos = { 0.f, 0.f, 0.f };
+    m_fSpeed = 2.f;
+    m_tInfo.vLook = { 1.f, 0.f, 0.f };
+
+    //if (FAILED(CTextureMgr::Get_Instance()->Insert_Texture(
+    //    L"../Resources/Player/Warrior/warrior%d.png",  // íŒŒì¼ íŒ¨í„´
+    //    TEX_MULTI,
+    //    L"Player",    
+    //    L"IDLE",      
+    //    2)))          
+    //{
+    //    ERR_MSG(L"Player Idle Texture Insert Failed");
+    //    return;
+    //}
+
+  
+    if (FAILED(CTextureMgr::Get_Instance()->Insert_Texture(
+        L"../Resources/Player/Warrior/warrior%d.png",
+        TEX_MULTI,
+        L"Player",
+        L"WALK",
+        6)))    
+        
+    {
+        ERR_MSG(L"Player Walk Texture Insert Failed");
+        return;
+    }
 }
 
 int CPlayer::Update()
 {
-	m_tInfo.vPos.x += 1.f;
-	m_tInfo.vPos.y += 1.f;
+   
+    /*
+D3DXMATRIX	matWorld, matScale, matTrans;
 
-	return CObj::Update();
+    D3DXMatrixIdentity(&matWorld);
+    D3DXMatrixScaling(&matScale, 3.f, 3.f, 3.f);
+    D3DXMatrixTranslation(&matTrans,
+        m_tInfo.vPos.x,
+        m_tInfo.vPos.y,
+        m_tInfo.vPos.z);
+
+    m_tInfo.matWorld = matScale * matTrans;
+
+    CDevice::Get_Instance()->Get_Sprite()->SetTransform(&m_tInfo.matWorld);*/
+    if (GetAsyncKeyState(VK_LBUTTON) & 0x8000)
+    {
+        Set_State(WALK);
+        Mouse_Update(); 
+    }
+    else
+    {
+       // Set_State(IDLE);
+    }
+
+
+    return CObj::Update();
 }
 
 void CPlayer::Late_Update()
 {
+    
 }
 
 void CPlayer::Render()
 {
-		TCHAR	szBuf[MIN_STR] = L"";
+   
+    const TEXINFO* pTexInfo = nullptr;
 
-		//const TEXINFO* pTexInfo = CTextureMgr::Get_Instance()->Get_Texture(L"Player");
+    if (m_eCurState == IDLE)
+    {
+       
+       // pTexInfo = CTextureMgr::Get_Instance()->Get_Texture(L"Player", L"IDLE", m_iFrame);
+    }
+    else if (m_eCurState == WALK)
+    {
+      
+        pTexInfo = CTextureMgr::Get_Instance()->Get_Texture(L"Player", L"WALK", m_iFrame);
+    }
 
-		float	fCenterX = m_tTexInfo->tImgInfo.Width / 2.f;
-		float	fCenterY = m_tTexInfo->tImgInfo.Height / 2.f;
+    if (!pTexInfo)
+        return;
 
-		D3DXVECTOR3	vTemp{ fCenterX, fCenterY, 0.f };
 
-		CDevice::Get_Instance()->Get_Sprite()->Draw(m_tTexInfo->pTexture, //Ãâ·ÂÇÒ ÅØ½ºÃ³ ÄÄ°´Ã¼
-			nullptr,		// Ãâ·ÂÇÒ ÀÌ¹ÌÁö ¿µ¿ª¿¡ ´ëÇÑ Rect ÁÖ¼Ò, nullÀÎ °æ¿ì ÀÌ¹ÌÁöÀÇ 0, 0±âÁØÀ¸·Î Ãâ·Â
-			&vTemp,		// Ãâ·ÂÇÒ ÀÌ¹ÌÁöÀÇ Áß½É ÁÂÇ¥ vec3 ÁÖ¼Ò, nullÀÎ °æ¿ì 0, 0 ÀÌ¹ÌÁö Áß½É
-			&m_tInfo.vPos,		// À§Ä¡ ÁÂÇ¥¿¡ ´ëÇÑ vec3 ÁÖ¼Ò, nullÀÎ °æ¿ì ½ºÅ©¸° »ó 0, 0 ÁÂÇ¥ Ãâ·Â	
-			D3DCOLOR_ARGB(255, 255, 255, 255)); // Ãâ·ÂÇÒ ÀÌ¹ÌÁö¿Í ¼¯À» »ö»ó °ª, 0xffffffff¸¦ ³Ñ°ÜÁÖ¸é ¼¯Áö ¾Ê°í ¿øº» »ö»ó À¯Áö
+    float fCenterX = pTexInfo->tImgInfo.Width / 2.f;
+    float fCenterY = pTexInfo->tImgInfo.Height / 2.f;
+    D3DXVECTOR3 vCenter(fCenterX, fCenterY, 0.f);
 
-		swprintf_s(szBuf, L"Player");
-		RECT tRect{ (long)m_tInfo.vPos.x, (long)m_tInfo.vPos.y, (long)m_tInfo.vPos.x + 100, (long)m_tInfo.vPos.x + 100 };
-		CDevice::Get_Instance()->Get_Font()->DrawTextW(CDevice::Get_Instance()->Get_Sprite(),
-			szBuf,		// Ãâ·ÂÇÒ ¹®ÀÚ¿­
-			lstrlen(szBuf),  // ¹®ÀÚ¿­ ¹öÆÛÀÇ Å©±â
-			&tRect,	// Ãâ·ÂÇÒ ·ºÆ® À§Ä¡
-			0,			// Á¤·Ä ±âÁØ(¿É¼Ç)
-			D3DCOLOR_ARGB(255, 255, 255, 255));
+    CDevice::Get_Instance()->Get_Sprite()->Draw(
+        pTexInfo->pTexture,
+        nullptr,
+        &vCenter,
+        &m_tInfo.vPos,
+        D3DCOLOR_ARGB(255, 255, 255, 255));
+
+   
+    
 }
 
 void CPlayer::Release()
 {
+    
 }
 
+
+
+
+void CPlayer::Mouse_Update()
+{
+    if (GetAsyncKeyState(VK_LBUTTON) & 0x8000)
+    {
+        m_tInfo.vDir = Get_Mouse() - m_tInfo.vPos;
+        D3DXVec3Normalize(&m_tInfo.vDir, &m_tInfo.vDir);
+
+        m_tInfo.vPos += m_tInfo.vDir * m_fSpeed;
+
+        // í˜„ìž¬ ìƒíƒœì˜ ìµœëŒ€ í”„ë ˆìž„ ê°œìˆ˜ë¥¼ ê°€ì ¸ì˜´
+        int iMaxFrame = CTextureMgr::Get_Instance()->Get_TextureCount(L"Player", L"WALK");
+
+        if (iMaxFrame > 0)  // ë²¡í„°ê°€ ë¹„ì–´ìžˆì§€ ì•Šì€ ê²½ìš°ì—ë§Œ í”„ë ˆìž„ ì¦ê°€
+        {
+            m_iFrame++;
+            if (m_iFrame >= iMaxFrame)
+                m_iFrame = 0;  // ìµœëŒ€ í”„ë ˆìž„ ê°œìˆ˜ë¥¼ ì´ˆê³¼í•˜ë©´ ë‹¤ì‹œ 0ìœ¼ë¡œ
+        }
+    }
+}
 

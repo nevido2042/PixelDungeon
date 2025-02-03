@@ -42,3 +42,11 @@ void CGameTitle::Render()
 void CGameTitle::Release()
 {
 }
+
+void CGameTitle::OnLoad()
+{	
+}
+
+void CGameTitle::OnAdd()
+{
+}

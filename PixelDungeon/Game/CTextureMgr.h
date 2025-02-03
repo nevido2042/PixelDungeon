@@ -23,6 +23,9 @@ public:
 								const TCHAR* pStateKey = L"",
 								const int& iCnt = 0);
 
+	int Get_TextureCount(const TCHAR* pObjKey, const TCHAR* pStateKey);
+	
+	
 	 void		Release();
 
 

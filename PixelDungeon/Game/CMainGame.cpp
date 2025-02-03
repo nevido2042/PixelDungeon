@@ -71,13 +71,13 @@ void CMainGame::Release()
 
 void CMainGame::Load_Texture()
 {
-	if (FAILED(CTextureMgr::Get_Instance()->Insert_Texture(
-		L"../Resources/Player/Warrior/warrior1.png",
-		TEX_SINGLE, L"Player")))
-	{
-		//AfxMessageBox(L"Terrain Texture Insert Failed");
-		return;
-	}
+	//if (FAILED(CTextureMgr::Get_Instance()->Insert_Texture(
+	//	L"../Resources/Player/Warrior/warrior1.png",
+	//	TEX_SINGLE, L"Player")))
+	//{
+	//	//AfxMessageBox(L"Terrain Texture Insert Failed");
+	//	return;
+	//}
 
 	if (FAILED(CTextureMgr::Get_Instance()->Insert_Texture(
 		L"../Resources/Logo/banners.png",
