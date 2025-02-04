@@ -4,6 +4,9 @@
 
 IMPLEMENT_DYNAMIC(CUnitTool, CDialog)
 
+
+CUnitTool* g_pUnitTool = nullptr;
+
 CUnitTool::CUnitTool(CWnd* pParent /*=nullptr*/)
     : CDialog(IDD_CUnitTool, pParent)
     , m_strName(_T(""))
@@ -13,8 +16,9 @@ CUnitTool::CUnitTool(CWnd* pParent /*=nullptr*/)
     , m_iLuck(0)
     ,m_fAttackSpeed(0.f)
     , m_iCurrentFrame(0)
-    , m_iCategorySelect(0)
+    , m_iCategorySelect(0) 
 {
+   g_pUnitTool = this;
 }
 
 CUnitTool::~CUnitTool()
@@ -83,6 +87,9 @@ BOOL CUnitTool::OnInitDialog()
     LoadUnitData(L"../Save/UnitData.txt");      // 그 다음 유닛
 
     DragAcceptFiles(TRUE);
+
+  
+
 
     return TRUE;
 }
@@ -693,27 +700,29 @@ void CUnitTool::OnLbnDblclkList2()
     if (iIndex == LB_ERR)
         return;
 
-    CString strSelectedUnit;
-    m_ListBox2.GetText(iIndex, strSelectedUnit);
+    // 선택한 유닛 이름을 저장!
+    m_ListBox2.GetText(iIndex, m_strSelectedUnit);
 
     int iTypeIndex = m_ListBox3.GetCurSel();
     if (iTypeIndex == LB_ERR)
         return;
 
-    CString strSelectedType;
-    m_ListBox3.GetText(iTypeIndex, strSelectedType);
+    // 선택한 카테고리를 저장!
+    m_ListBox3.GetText(iTypeIndex, m_strSelectedCategory);
+
+    TRACE(_T("[디버깅] 선택된 유닛: %s, 선택된 카테고리: %s\n"), m_strSelectedUnit, m_strSelectedCategory);
 
     // 리스트박스1 초기화
     m_ListBox.ResetContent();
 
-    //  애니메이션용 벡터도 새로 클리어
+    // 애니메이션용 벡터 초기화
     m_ImagePaths.clear();
     m_CurrentFrameIndex = 0;
 
-    auto itType = m_mapCategory.find(strSelectedType);
+    auto itType = m_mapCategory.find(m_strSelectedCategory);
     if (itType != m_mapCategory.end())
     {
-        auto itUnit = itType->second.find(strSelectedUnit);
+        auto itUnit = itType->second.find(m_strSelectedUnit);
         if (itUnit != itType->second.end())
         {
             // 해당 유닛의 이미지 목록
@@ -721,19 +730,21 @@ void CUnitTool::OnLbnDblclkList2()
             {
                 CString fileName = PathFindFileName(imagePath);
                 CString fullKey;
-                fullKey.Format(_T("%s:%s:%s"), strSelectedType, strSelectedUnit, fileName);
+                fullKey.Format(_T("%s:%s:%s"), m_strSelectedCategory, m_strSelectedUnit, fileName);
 
-                //  리스트박스1에 추가
+                // 리스트박스1에 추가
                 m_ListBox.AddString(fullKey);
 
-                //  애니메이션 재생을 위해 m_ImagePaths에도 넣어준다
+                // 애니메이션 재생을 위해 m_ImagePaths에도 추가
                 m_ImagePaths.push_back(imagePath);
             }
         }
     }
 
+    OnLbnSelchangeList2();
     UpdateData(FALSE);
 }
+
 
 
 
@@ -885,9 +896,6 @@ CString CUnitTool::ConvertToRelativePath(const CString& fullPath)
     return fullPath;
 }
 
-
-
-
 CString CUnitTool::ConvertToAbsolutePath(const CString& relativePath)
 {
     TCHAR absolutePath[MAX_PATH];
@@ -898,4 +906,52 @@ CString CUnitTool::ConvertToAbsolutePath(const CString& relativePath)
 
     // 변환 실패 시 원래 상대 경로 반환 (안전 장치)
     return relativePath;
+}
+
+// CUnitTool.cpp
+void CUnitTool::OnLbnSelchangeList2()
+{
+    UpdateData(TRUE);
+
+    int iIndex = m_ListBox2.GetCurSel();
+    if (iIndex != LB_ERR)
+    {
+        CString strUnitName;
+        m_ListBox2.GetText(iIndex, strUnitName);
+
+        int iTypeIndex = m_ListBox3.GetCurSel();
+        if (iTypeIndex != LB_ERR)
+        {
+            CString strCategory;
+            m_ListBox3.GetText(iTypeIndex, strCategory);
+
+            // 선택된 유닛의 첫 번째 이미지 경로 찾기
+            auto& vecImages = m_mapCategory[strCategory][strUnitName];
+            if (!vecImages.empty())
+            {
+                CString strFileName = PathFindFileName(vecImages[0]);
+                CString strKey;
+                strKey.Format(_T("%s:%s:%s"), strCategory, strUnitName, strFileName);
+
+           
+                if (m_pToolView)
+                {
+                    CToolView* pToolView = (CToolView*)m_pToolView;
+                    pToolView->DisplayImage(strKey);
+                }
+            }
+        }
+    }
+
+    UpdateData(FALSE);
+}
+
+CString CUnitTool::GetUnitImagePath(const CString& strKey)
+{
+    auto it = m_mapFilePaths.find(strKey);
+    if (it == m_mapFilePaths.end())
+    {
+        return _T("");
+    }
+    return it->second;
 }

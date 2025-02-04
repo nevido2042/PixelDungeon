@@ -45,8 +45,11 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	virtual void OnInitialUpdate();
+	void DisplayImage(const CString& strKey);
 	afx_msg void OnDestroy();
-	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
+	afx_msg void OnRButtonDown(UINT nFlags, CPoint point);
+	void CreateUnit(const CString& strCategory, const CString& strUnitName, CPoint point);
+	//CString GetUnitImagePath(const CString& strCategory, const CString& strUnitName);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 public:
@@ -65,9 +68,24 @@ private:
 	BYTE		m_byDrawID;
 	BYTE		m_byOption;
 
+	//afx_msg DROPEFFECT OnDragEnter(COleDataObject* pDataObject, DWORD dwKeyState, CPoint point);
+	//afx_msg DROPEFFECT OnDragOver(COleDataObject* pDataObject, DWORD dwKeyState, CPoint point);
+protected:
+
+	
+
 public:
 //	afx_msg void OnMouseHWheel(UINT nFlags, short zDelta, CPoint pt);
 	afx_msg BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
+
+	struct UnitInfo
+	{
+		CString strCategory;
+		CString strUnitName;
+		CPoint position;
+	};
+
+	vector<UnitInfo> m_vecUnits;
 };
 
 #ifndef _DEBUG  // ToolView.cpp의 디버그 버전

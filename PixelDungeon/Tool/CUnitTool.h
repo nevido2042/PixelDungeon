@@ -2,6 +2,7 @@
 
 #include "afxdialogex.h"
 #include "Include.h"
+#include "ToolView.h"
 
 #define RUBY        0x01
 #define DIAMOND     0x02
@@ -13,6 +14,11 @@ struct IMAGE_ITEM
     CString strName;     // 실제 파일 이름(확장자 제외)
     CImage* pImage;
 };
+
+class CUnitTool;
+
+extern CUnitTool* g_pUnitTool;
+
 class CUnitTool : public CDialog
 {
     DECLARE_DYNAMIC(CUnitTool)
@@ -114,7 +120,38 @@ public:
     CString ConvertToRelativePath(const CString& fullPath);
 
     CString ConvertToAbsolutePath(const CString& relativePath);
- 
 
+   void OnLbnSelchangeList2();
+
+   CString GetUnitImagePath(const CString& strKey);
+
+    CString m_strSelectedImagePath;  // 선택된 유닛의 이미지 저장용!!
+ 
+    public:
+        CString m_strSelectedUnit; // 현재 선택된 유닛 이름
+        CString m_strSelectedCategory; // 현재 선택된 카테고리 (Player, Monster, NPC)
+        void SetToolView(CView* pView) { m_pToolView = pView; }
+public:
+        CString GetSelectedUnit() const { return m_strSelectedUnit; }
+        CString GetSelectedCategory() const { return m_strSelectedCategory;  }
+       private:
+            CView* m_pToolView;
+  public:
+            CString CUnitTool::GetUnitImagePath(const CString& strCategory, const CString& strUnitName)
+            {
+                auto itCategory = m_mapCategory.find(strCategory);
+                if (itCategory != m_mapCategory.end())
+                {
+                    auto itUnit = itCategory->second.find(strUnitName);
+                    if (itUnit != itCategory->second.end() && !itUnit->second.empty())
+                    {
+                        return itUnit->second[0]; // 첫 번째 이미지 경로 반환
+                    }
+                }
+                return _T("");
+            }
+
+            
+           
 
 };
