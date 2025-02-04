@@ -232,12 +232,10 @@ void CToolView::OnDraw(CDC* /*pDC*/)
 	if (!pDoc)
 		return;
 
-	// 타일 렌더링
 	m_pDevice->Render_Begin();
 	m_pTerrain->Render();
 	m_pDevice->Render_End();
 
-	// 유닛 렌더링 (타일과 같은 방식으로)
 	CClientDC dc(this);
 	for (const auto& unit : m_vecUnits)
 	{
@@ -263,10 +261,10 @@ void CToolView::OnDraw(CDC* /*pDC*/)
 					(unit.position.y - GetScrollPos(1)) * fZoom,
 					0.f);
 
-				// 최종 월드 행렬
+			
 				matWorld = matScale * matTrans;
 
-				// **GDI 렌더링 (크기 반영)**
+			
 				int iWidth = int(image.GetWidth() * fZoom);
 				int iHeight = int(image.GetHeight() * fZoom);
 
