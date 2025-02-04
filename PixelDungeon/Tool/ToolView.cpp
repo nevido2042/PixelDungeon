@@ -124,6 +124,11 @@ void CToolView::OnInitialUpdate()
 
 	m_pTerrain->Set_MainView(this);
 
+	if (FAILED(CTextureMgr::Get_Instance()->Read_ImgPath(L"../Data/ImgPath.txt")))
+	{
+		ERR_MSG(L"ImgPath Read Failed");
+	}
+
 }
 
 void CToolView::OnLButtonDown(UINT nFlags, CPoint point)

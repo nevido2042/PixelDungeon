@@ -28,7 +28,7 @@ public:
 	virtual BOOL OnInitDialog();
 private:
 	CPictureControl				m_Picture;
-	map<CString, IMAGE_INFO>	m_mapPngImage;
+	map<CString, IMAGE_INFO>	m_mapPngImage; //삭제할 것
 	map<CString, ITEM_INFO>		m_mapItemInfo;
 public:
 	void Set_Image(CImage* pImage) { m_pImage = pImage; }

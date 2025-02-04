@@ -27,7 +27,7 @@ private:
 	bool	Picking_Dot(const D3DXVECTOR3& vPos, const int& iIndex);
 	int		Get_TileIdx(const D3DXVECTOR3& vPos);
 	int		GetPngCount_InDirectory(const CString& directoryPath);
-	void	Import_TilePng();
+	void	Import_TilePng(); //¾È¾¸
 	void	Create_TileMap();
 	bool	Load_Terrain();
 

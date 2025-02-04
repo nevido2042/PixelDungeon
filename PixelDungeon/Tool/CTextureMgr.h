@@ -28,7 +28,10 @@ public:
 								const TCHAR* pObjKey,
 								const TCHAR* pStateKey);
 
-	int			Find_MultiTex_Index(wstring _strObjKey, int _iDrawID);
+	HRESULT CTextureMgr::Read_ImgPath(const wstring& wstrPath);
+
+
+	int			Find_MultiTex_Index(wstring _strObjKey, int _iDrawID); //¾È¾µ µí
 
 	 void		Release();
 

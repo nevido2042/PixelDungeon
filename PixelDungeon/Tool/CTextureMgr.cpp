@@ -113,6 +113,41 @@ HRESULT CTextureMgr::Insert_Texture(const std::vector<CString>& vecFilePaths, TE
 	return S_OK;
 }
 
+HRESULT CTextureMgr::Read_ImgPath(const wstring& wstrPath)
+{
+	wifstream		fin;
+
+	fin.open(wstrPath, ios::in);
+
+	if (!fin.fail())
+	{
+		TCHAR		szObjKey[MAX_STR] = L"";
+		TCHAR		szStateKey[MAX_STR] = L"";
+		TCHAR		szCount[MAX_STR] = L"";
+		TCHAR		szPath[MAX_PATH] = L"";
+
+		while (true)
+		{
+			fin.getline(szObjKey, MAX_STR, '|');
+			fin.getline(szStateKey, MAX_STR, '|');
+			fin.getline(szCount, MAX_STR, '|');
+			fin.getline(szPath, MAX_PATH);
+
+			if (fin.eof())
+				break;
+
+			int	iCount = _ttoi(szCount);
+
+			if (FAILED(Insert_Texture(szPath, TEX_MULTI, szObjKey, szStateKey, iCount)))
+				return E_FAIL;
+		}
+
+		fin.close();
+	}
+
+	return S_OK;
+}
+
 int CTextureMgr::Find_MultiTex_Index(wstring _strObjKey, int _iDrawID)
 {
 	auto iter = m_mapTex.find(_strObjKey);
