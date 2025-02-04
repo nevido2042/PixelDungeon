@@ -207,6 +207,7 @@
     <ClInclude Include="CMiniView.h" />
     <ClInclude Include="CMultiTexture.h" />
     <ClInclude Include="CMyForm.h" />
+    <ClInclude Include="CPathFind.h" />
     <ClInclude Include="CPictureControl.h" />
     <ClInclude Include="CSingleTexture.h" />
     <ClInclude Include="CTerrain.h" />
@@ -230,6 +231,7 @@
     <ClCompile Include="CMiniView.cpp" />
     <ClCompile Include="CMultiTexture.cpp" />
     <ClCompile Include="CMyForm.cpp" />
+    <ClCompile Include="CPathFind.cpp" />
     <ClCompile Include="CPictureControl.cpp" />
     <ClCompile Include="CSingleTexture.cpp" />
     <ClCompile Include="CTerrain.cpp" />

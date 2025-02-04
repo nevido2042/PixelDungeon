@@ -9,6 +9,7 @@
 #define IDD_CMyForm                     310
 #define IDD_CUnitTool                   311
 #define IDD_CMapTool                    312
+#define IDD_CPathFind                   313
 #define IDD_DIALOG1                     315
 #define IDD_CItemTool                   315
 #define IDC_SPEED                       1021
@@ -68,9 +69,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        317
+#define _APS_NEXT_RESOURCE_VALUE        318
 #define _APS_NEXT_COMMAND_VALUE         32771
 #define _APS_NEXT_CONTROL_VALUE         1028
-#define _APS_NEXT_SYMED_VALUE           313
+#define _APS_NEXT_SYMED_VALUE           314
 #endif
 #endif

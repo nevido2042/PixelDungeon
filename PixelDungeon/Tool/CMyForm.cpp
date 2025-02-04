@@ -30,6 +30,7 @@ BEGIN_MESSAGE_MAP(CMyForm, CFormView)
 	ON_BN_CLICKED(IDC_BUTTON7, &CMyForm::OnMapTool)
 //	ON_BN_CLICKED(IDC_BUTTON13, &CMyForm::OnBnClickedButton13)
 ON_BN_CLICKED(IDC_BUTTON13, &CMyForm::OnItemTool)
+ON_BN_CLICKED(IDC_BUTTON2, &CMyForm::OnPathFinder)
 END_MESSAGE_MAP()
 
 
@@ -93,4 +94,13 @@ void CMyForm::OnItemTool()
 		m_ItemTool.Create(IDD_CItemTool);	// 해당 id에 맞는 다이얼로그 생성
 
 	m_ItemTool.ShowWindow(SW_SHOW);
+}
+
+
+void CMyForm::OnPathFinder()
+{
+	if (nullptr == m_PathFind.GetSafeHwnd())
+		m_PathFind.Create(IDD_CPathFind);	// 해당 id에 맞는 다이얼로그 생성
+
+	m_PathFind.ShowWindow(SW_SHOW);
 }

@@ -3,6 +3,7 @@
 #include "CUnitTool.h"
 #include "CMapTool.h"
 #include "CItemTool.h"
+#include "CPathFind.h"
 
 class CMyForm : public CFormView
 {
@@ -29,6 +30,7 @@ public:
 	CUnitTool	m_UnitTool;
 	CMapTool	m_MapTool;
 	CItemTool	m_ItemTool;
+	CPathFind	m_PathFind;
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 지원입니다.
@@ -40,6 +42,7 @@ public:
 	afx_msg void OnMapTool();
 //	afx_msg void OnBnClickedButton13();
 	afx_msg void OnItemTool();
+	afx_msg void OnPathFinder();
 };
 
 

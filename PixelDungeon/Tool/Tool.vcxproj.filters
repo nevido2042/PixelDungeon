@@ -70,6 +70,9 @@
     <Filter Include="04. Etc\03. Dialog\04. ItemTool\00. PictureControl">
       <UniqueIdentifier>{63e982ba-86bb-4d2c-8933-ea361c62faa2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="04. Etc\03. Dialog\05. PathFinder">
+      <UniqueIdentifier>{549b18c6-0ed5-41f0-a7c9-dcd4d4ef27ed}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Tool.h">
@@ -126,14 +129,17 @@
     <ClInclude Include="CMapTool.h">
       <Filter>04. Etc\03. Dialog\03. MapTool</Filter>
     </ClInclude>
-    <ClInclude Include="CFileInfo.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="CItemTool.h">
       <Filter>04. Etc\03. Dialog\04. ItemTool</Filter>
     </ClInclude>
     <ClInclude Include="CPictureControl.h">
       <Filter>04. Etc\03. Dialog\04. ItemTool\00. PictureControl</Filter>
+    </ClInclude>
+    <ClInclude Include="CPathFind.h">
+      <Filter>04. Etc\03. Dialog\05. PathFinder</Filter>
+    </ClInclude>
+    <ClInclude Include="CFileInfo.h">
+      <Filter>04. Etc\04. FileInfo</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -182,14 +188,17 @@
     <ClCompile Include="CMapTool.cpp">
       <Filter>04. Etc\03. Dialog\03. MapTool</Filter>
     </ClCompile>
-    <ClCompile Include="CFileInfo.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="CItemTool.cpp">
       <Filter>04. Etc\03. Dialog\04. ItemTool</Filter>
     </ClCompile>
     <ClCompile Include="CPictureControl.cpp">
       <Filter>04. Etc\03. Dialog\04. ItemTool\00. PictureControl</Filter>
+    </ClCompile>
+    <ClCompile Include="CPathFind.cpp">
+      <Filter>04. Etc\03. Dialog\05. PathFinder</Filter>
+    </ClCompile>
+    <ClCompile Include="CFileInfo.cpp">
+      <Filter>04. Etc\04. FileInfo</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
