@@ -77,6 +77,15 @@ protected:
 public:
 //	afx_msg void OnMouseHWheel(UINT nFlags, short zDelta, CPoint pt);
 	afx_msg BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
+
+	struct UnitInfo
+	{
+		CString strCategory;
+		CString strUnitName;
+		CPoint position;
+	};
+
+	vector<UnitInfo> m_vecUnits;
 };
 
 #ifndef _DEBUG  // ToolView.cpp의 디버그 버전

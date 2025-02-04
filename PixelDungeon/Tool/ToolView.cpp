@@ -200,16 +200,15 @@ void CToolView::CreateUnit(const CString& strCategory, const CString& strUnitNam
 
 	if (!strImagePath.IsEmpty())
 	{
-		
-		CImage image;
-		if (SUCCEEDED(image.Load(strImagePath)))
-		{
-			// 툴뷰에 이미지 그리기
-			CClientDC dc(this);
-			image.Draw(dc, point.x, point.y);
-		}
+		// 벡터에 유닛 정보 저장 (다시 그릴 때 필요)
+		m_vecUnits.push_back({ strCategory, strUnitName, point });
+
+		// 화면 다시 그리기 요청
+		Invalidate(FALSE);
 	}
 }
+
+
 
 
 
@@ -233,14 +232,55 @@ void CToolView::OnDraw(CDC* /*pDC*/)
 	if (!pDoc)
 		return;
 
+	// 타일 렌더링
 	m_pDevice->Render_Begin();
-
 	m_pTerrain->Render();
-
 	m_pDevice->Render_End();
 
+	// 유닛 렌더링 (타일과 같은 방식으로)
+	CClientDC dc(this);
+	for (const auto& unit : m_vecUnits)
+	{
+		CString strImagePath = g_pUnitTool->GetUnitImagePath(unit.strCategory, unit.strUnitName);
 
+		if (!strImagePath.IsEmpty())
+		{
+			CImage image;
+			if (SUCCEEDED(image.Load(strImagePath)))
+			{
+				D3DXMATRIX matWorld, matScale, matTrans;
+
+				
+				D3DXMatrixIdentity(&matWorld);
+
+			
+				float fZoom = m_fZoom;
+				D3DXMatrixScaling(&matScale, fZoom, fZoom, 1.f);
+
+			
+				D3DXMatrixTranslation(&matTrans,
+					(unit.position.x - GetScrollPos(0)) * fZoom,  // 스크롤 반영 + 줌 적용
+					(unit.position.y - GetScrollPos(1)) * fZoom,
+					0.f);
+
+				// 최종 월드 행렬
+				matWorld = matScale * matTrans;
+
+				// **GDI 렌더링 (크기 반영)**
+				int iWidth = int(image.GetWidth() * fZoom);
+				int iHeight = int(image.GetHeight() * fZoom);
+
+				CRect rect(int(unit.position.x * fZoom), int(unit.position.y * fZoom),
+					int(unit.position.x * fZoom + iWidth), int(unit.position.y * fZoom + iHeight));
+
+				image.StretchBlt(dc, rect, SRCCOPY);
+			}
+		}
+	}
 }
+
+
+
 
 void CToolView::OnDestroy()
 {
