@@ -99,7 +99,7 @@ void CUnitTool::OnListBox()
     CString strKey;
     m_ListBox.GetText(iIndex, strKey);
 
-    // 이제 strKey == "Monster:슬라임:Slime01.png" 로 들어옴
+    // 이제 strKey == "Monster:신승훈:신승훈01.png" 으로 들어옴
     auto it = m_mapPngImages.find(strKey);
     if (it == m_mapPngImages.end())
     {
@@ -110,7 +110,9 @@ void CUnitTool::OnListBox()
 
     UpdateData(FALSE);
 }
-// 드롭된 파일 처리
+
+
+// 드롭된 파일 처리 함수
 void CUnitTool::OnDropFiles(HDROP hDropInfo)
 {
     UpdateData(TRUE);
@@ -145,7 +147,7 @@ void CUnitTool::OnDropFiles(HDROP hDropInfo)
         DragQueryFile(hDropInfo, i, szFilePath, MAX_PATH);
         CString strFullPath = szFilePath;
 
-        // [FIX] 키는 "Category:UnitName:FileName" 으로 통일
+
         CString strFileName = PathFindFileName(strFullPath);
 
         CString strKey;
@@ -220,7 +222,7 @@ void CUnitTool::OnDestroy()
 }
 void CUnitTool::SaveUnitData(const CString& strFilePath)
 {
-    CString strAbsolutePath = ConvertToAbsolutePath(strFilePath); // 상대경로 → 절대경로 변환
+    CString strAbsolutePath = ConvertToAbsolutePath(strFilePath); // 상대경로 -> 절대경로 변환
 
     CStdioFile file;
     if (!file.Open(strAbsolutePath, CFile::modeCreate | CFile::modeWrite | CFile::typeText))
@@ -395,7 +397,7 @@ void CUnitTool::LoadFileData(const CString& strFilePath)
             continue;
         }
 
-        // CImage 로드
+       
         CImage* pImg = new CImage();
         if (FAILED(pImg->Load(strFullPath)))
         {
@@ -704,7 +706,7 @@ void CUnitTool::OnLbnDblclkList2()
     // 리스트박스1 초기화
     m_ListBox.ResetContent();
 
-    // [!!] 애니메이션용 벡터도 새로 클리어
+    //  애니메이션용 벡터도 새로 클리어
     m_ImagePaths.clear();
     m_CurrentFrameIndex = 0;
 
@@ -780,7 +782,7 @@ void CUnitTool::OnBnClickedDeleteImage2()
     }
 
     CString strKey;
-    m_ListBox.GetText(iSel, strKey); // "Monster:신승훈:Sin01.png" 식의 키라고 가정
+    m_ListBox.GetText(iSel, strKey); // "Monster:신승훈:신승훈01.png" 식의 키라고 가정
 
     //  m_mapPngImages 에서 제거
     auto itImage = m_mapPngImages.find(strKey);
@@ -816,14 +818,14 @@ void CUnitTool::OnBnClickedDeleteImage2()
     // (리스트박스에서 제거
     m_ListBox.DeleteString(iSel);
 
-    //  m_ImagePaths에서도 제거 ( '이미지 재생' 목록을 갱신한다면)
+
     auto itVec2 = std::find_if(m_ImagePaths.begin(), m_ImagePaths.end(), [&](const CString& path) {
         return PathFindFileName(path) == strFilename;
         });
     if (itVec2 != m_ImagePaths.end())
         m_ImagePaths.erase(itVec2);
 
-    //  애니메이션 관련 처리 
+    //  애니메이션 관련 !! 
     if (m_ImagePaths.empty())
     {
         KillTimer(m_AnimationTimer);
@@ -852,7 +854,7 @@ void CUnitTool::OnBnClickedPause()
     {
         // 타이머가 꺼져있으면 -> 켜기 
 
-        // [!!] 만약 m_ImagePaths가 비었다면 재생할 수 없으니 체크
+        //  만약 m_ImagePaths가 비었다면 재생할 수 없으니 체크
         if (m_ImagePaths.empty())
         {
             AfxMessageBox(_T("재생할 이미지가 없음!!! 리스트박스에 이미지 추가해주세용"));
