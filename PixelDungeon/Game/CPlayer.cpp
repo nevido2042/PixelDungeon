@@ -4,6 +4,7 @@
 #include "CTextureMgr.h"
 
 CPlayer::CPlayer()
+    :m_eCurState(END), m_iFrame(0), m_fSpeed(0.f)
 {
 }
 
@@ -105,11 +106,13 @@ void CPlayer::Render()
     float fCenterY = pTexInfo->tImgInfo.Height / 2.f;
     D3DXVECTOR3 vCenter(fCenterX, fCenterY, 0.f);
 
+    CDevice::Get_Instance()->Get_Sprite()->SetTransform(&m_tInfo.matWorld);
+
     CDevice::Get_Instance()->Get_Sprite()->Draw(
         pTexInfo->pTexture,
         nullptr,
         &vCenter,
-        &m_tInfo.vPos,
+        nullptr,
         D3DCOLOR_ARGB(255, 255, 255, 255));
 
    

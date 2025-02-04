@@ -4,6 +4,7 @@
 #include "CTileMgr.h"
 #include "AbstractFactory.h"
 #include "CPlayer.h"
+#include "Camera.h"
 
 
 CGameScene::CGameScene()
@@ -17,6 +18,8 @@ CGameScene::~CGameScene()
 
 void CGameScene::Initialize()
 {
+	CCamera::Get_Instance()->Initialize();
+
 	CObj* pObj(nullptr);
 
 	pObj = CAbstractFactory<CPlayer>::Create();
@@ -29,6 +32,7 @@ void CGameScene::Initialize()
 void CGameScene::Update()
 {
 	CObjMgr::Get_Instance()->Update();
+	CCamera::Get_Instance()->Update();
 }
 
 void CGameScene::Late_Update()
@@ -39,6 +43,7 @@ void CGameScene::Late_Update()
 void CGameScene::Render()
 {
 	CObjMgr::Get_Instance()->Render();
+	CCamera::Get_Instance()->Render();
 }
 
 void CGameScene::Release()

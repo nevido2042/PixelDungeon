@@ -537,6 +537,7 @@
   <ItemGroup>
     <ClInclude Include="..\Tool\CDevice.h" />
     <ClInclude Include="AbstractFactory.h" />
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="CGameObject.h" />
     <ClInclude Include="CGameScene.h" />
     <ClInclude Include="CGameTitle.h" />
@@ -563,6 +564,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Tool\CDevice.cpp" />
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CGameObject.cpp" />
     <ClCompile Include="CGameScene.cpp" />
     <ClCompile Include="CGameTitle.cpp" />
