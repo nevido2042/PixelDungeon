@@ -16,7 +16,13 @@ CTerrain::~CTerrain()
 
 HRESULT CTerrain::Initialize()
 {
-	Import_TilePng();
+	//if (FAILED(CTextureMgr::Get_Instance()->Read_ImgPath(L"../Data/ImgPath.txt")))
+	//{
+	//	ERR_MSG(L"ImgPath Read Failed");
+	//	return E_FAIL;
+	//}
+
+	//Import_TilePng();
 	Create_TileMap();
 
 	return S_OK;

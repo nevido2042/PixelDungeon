@@ -23,28 +23,21 @@ protected:
 
 	DECLARE_MESSAGE_MAP()
 public:
+	afx_msg void OnBnClickedRadioPass();
+	afx_msg void OnBnClickedRadioBlock();
 	afx_msg void OnListBox();
-	afx_msg void OnDropFiles(HDROP hDropInfo);
 	afx_msg void OnDestroy();
 	afx_msg void OnBnClickedBtnSaveMap();
 
 public:
 	virtual BOOL OnInitDialog();
-	virtual BOOL PreTranslateMessage(MSG* pMsg);
-public:
+private:
+	CToolView* Get_ToolView();
 	void	Horizontal_Scroll();
+	void	Load_FromTileFile();
+private:
 	CListBox					m_ListBox;
-	map<CString, IMAGE_INFO>	m_mapPngImage;
+	map<CString, CImage*>		m_mapPngImage;
 	CStatic						m_Picture;
 
-private:
-	void		Load_FileData(const CString& strFilePath);
-	CToolView*	Get_ToolView();
-	void		Save_Tile();
-	void		Setting_ListBox();
-	// 특정 경로에서 파일 이름을 리스트 박스에 추가하는 함수
-	void		Add_FilesToListBox(const CString& relativeFolderPath, const CString& fileFilter);
-public:
-	afx_msg void OnBnClickedRadioPass();
-	afx_msg void OnBnClickedRadioBlock();
 };
