@@ -83,7 +83,8 @@ HRESULT CDevice::Init_Device()
 		return E_FAIL;
 	}
 
-
+	// √ ±‚»≠
+	D3DXCreateLine(m_pDevice, &m_pLine);
 
 	return S_OK;
 }
@@ -125,6 +126,7 @@ void CDevice::Release()
 	Safe_Release(m_pSprite);
 	Safe_Release(m_pDevice);
 	Safe_Release(m_pSDK);
+	Safe_Release(m_pLine);
 }
 
 void CDevice::Set_Parameters(D3DPRESENT_PARAMETERS& d3dpp)

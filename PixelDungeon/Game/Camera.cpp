@@ -2,11 +2,12 @@
 #include "Camera.h"
 #include "CObjMgr.h"
 #include "CKeyMgr.h"
+#include "CDevice.h"
 
 CCamera* CCamera::m_pInstance = nullptr;
 
 CCamera::CCamera()
-    :m_fHeight(0.f), m_fWidth(0.f), m_fX(0.f), m_fY(0.f), m_fZoom(0.f),
+    :m_fHeight(0.f), m_fWidth(0.f), m_fZoom(0.f),
     m_fViewHeight(0.f), m_fViewWidth(0.f), m_fMoveX(0.f), m_fMoveY(0.f), m_bMoveLerp(false),
     m_bIsShaking(false), m_fShakeDuration(0.f), m_fShakeIntensity(0.f), m_fShakeTimer(0.f)
 {
@@ -29,8 +30,8 @@ void CCamera::Initialize()
     m_fWidth = WINCX;
     m_fHeight = WINCY;
 
-    m_fX = m_fWidth * 0.5f;
-    m_fY = m_fHeight * 0.5f;
+    m_tInfo.vPos.x = m_fWidth * 0.5f;
+    m_tInfo.vPos.y = m_fHeight * 0.5f;
 
     m_fZoom = 1.f;
 }
@@ -41,22 +42,22 @@ void CCamera::Update()
     if (CKeyMgr::Get_Instance()->Key_Pressing('A'))
     {
         m_bMoveLerp = false;
-        m_fX -= fSpeed;
+        m_tInfo.vPos.x -= fSpeed;
     }
     if (CKeyMgr::Get_Instance()->Key_Pressing('D'))
     {
         m_bMoveLerp = false;
-        m_fX += fSpeed;
+        m_tInfo.vPos.x += fSpeed;
     }
     if (CKeyMgr::Get_Instance()->Key_Pressing('W'))
     {
         m_bMoveLerp = false;
-        m_fY -= fSpeed;
+        m_tInfo.vPos.y -= fSpeed;
     }
     if (CKeyMgr::Get_Instance()->Key_Pressing('S'))
     {
         m_bMoveLerp = false;
-        m_fY += fSpeed;
+        m_tInfo.vPos.y += fSpeed;
     }
 
     // 화면 크기
@@ -86,8 +87,8 @@ void CCamera::Update()
     // 쉐이킹 처리
     if (m_bIsShaking)
     {
-        float finalX = m_fX;
-        float finalY = m_fY;
+        float finalX = m_tInfo.vPos.x;
+        float finalY = m_tInfo.vPos.y;
 
         //m_fShakeTimer += GAMESPEED;
 
@@ -109,8 +110,8 @@ void CCamera::Update()
         }
 
         // 카메라 최종 위치 적용
-        m_fX = finalX;
-        m_fY = finalY;
+        m_tInfo.vPos.x = finalX;
+        m_tInfo.vPos.y = finalY;
     }
 
 }
@@ -151,10 +152,10 @@ void CCamera::Late_Update()
 
 bool CCamera::IsInCameraView(float _fX, float _fY)
 {
-    float fLeft = m_fX - (m_fWidth * 0.5f / m_fZoom);
-    float fRight = m_fX + (m_fWidth * 0.5f / m_fZoom);
-    float fTop = m_fY - (m_fHeight * 0.5f / m_fZoom);
-    float fBottom = m_fY + (m_fHeight * 0.5f / m_fZoom);
+    float fLeft = m_tInfo.vPos.x - (m_fWidth * 0.5f / m_fZoom);
+    float fRight = m_tInfo.vPos.x + (m_fWidth * 0.5f / m_fZoom);
+    float fTop = m_tInfo.vPos.y - (m_fHeight * 0.5f / m_fZoom);
+    float fBottom = m_tInfo.vPos.y + (m_fHeight * 0.5f / m_fZoom);
 
     m_fViewWidth = abs(fLeft - fRight);
     m_fViewHeight = abs(fTop - fBottom);
@@ -163,45 +164,68 @@ bool CCamera::IsInCameraView(float _fX, float _fY)
     return !(_fX < fLeft || _fX > fRight || _fY < fTop || _fY > fBottom);
 }
 
-void CCamera::Render(HDC hDC)
+void CCamera::Render()
 {
-    // 변수 값을 유니코드 문자열로 변환
-    //wchar_t buffer[50];
-    //wsprintf(buffer, L"m_iCurFrame: %d", m_iCurFrame);
-    //// 문자열 출력 (유니코드)
-    //TextOutW(hDC, 0, 0, buffer, lstrlenW(buffer));
-
-    //마우스 위치
-    POINT	ptMouse{};
+    // 마우스 위치
+    POINT ptMouse{};
     GetCursorPos(&ptMouse);
     ScreenToClient(g_hWnd, &ptMouse);
 
-    wchar_t buffer[256];
-    swprintf(buffer, sizeof(buffer) / sizeof(wchar_t), L"Mouse Screen: %.2f, %.2f", (double)ptMouse.x, (double)ptMouse.y);
-    // 문자열 출력 (유니코드)
-    TextOutW(hDC, 0, 20, buffer, lstrlenW(buffer));
+    // 마우스 좌표를 문자열로 변환
+    wchar_t szBuf[MAX_STR];
+    swprintf(szBuf, 100, L"마우스 스크린 좌표:(%d, %d)", ptMouse.x, ptMouse.y);
 
-    POINT tWorldPoint = ScreenToWorld((int)ptMouse.x, (int)ptMouse.y);
+    // 폰트로 마우스 좌표 출력
+    D3DXMATRIX matIdentity;
+    D3DXMatrixIdentity(&matIdentity);
+    CDevice::Get_Instance()->Get_Sprite()->SetTransform(&matIdentity);
 
-    swprintf(buffer, sizeof(buffer) / sizeof(wchar_t), L"Mouse World: %.2f, %.2f", (double)tWorldPoint.x, (double)tWorldPoint.y);
-    // 문자열 출력 (유니코드)
-    TextOutW(hDC, 0, 40, buffer, lstrlenW(buffer));
+    CDevice::Get_Instance()->Get_Font()->DrawTextW(
+        CDevice::Get_Instance()->Get_Sprite(),
+        szBuf,
+        lstrlenW(szBuf),
+        nullptr,
+        0,
+        D3DCOLOR_ARGB(255, 255, 255, 255)
+    );
 
-    swprintf(buffer, sizeof(buffer) / sizeof(wchar_t), L"Camera W/H: %.2f, %.2f", (double)m_fWidth, (double)m_fHeight);
-    // 문자열 출력 (유니코드)
-    TextOutW(hDC, 0, 60, buffer, lstrlenW(buffer));
+    // 카메라 크기에 맞는 사각형 테두리 선 그리기
+    DrawCameraBorder();
+}
 
-    swprintf(buffer, sizeof(buffer) / sizeof(wchar_t), L"Camera X/Y: %.2f, %.2f", (double)m_fX, (double)m_fY);
-    // 문자열 출력 (유니코드)
-    TextOutW(hDC, 0, 80, buffer, lstrlenW(buffer));
+void CCamera::DrawCameraBorder()
+{
+    // 카메라의 크기와 위치를 가져옵니다.
+    float camWidth = m_fViewWidth/2;  // 카메라의 너비
+    float camHeight = m_fViewHeight/2; // 카메라의 높이
+    float camX = m_tInfo.vPos.x;          // 카메라의 X 좌표
+    float camY = m_tInfo.vPos.y;          // 카메라의 Y 좌표
 
-    swprintf(buffer, sizeof(buffer) / sizeof(wchar_t), L"Camera Zoom: %.2f", (double)m_fZoom);
-    // 문자열 출력 (유니코드)
-    TextOutW(hDC, 0, 100, buffer, lstrlenW(buffer));
+    // 사각형의 네 꼭짓점 좌표 계산
+    D3DXVECTOR2 topLeft = D3DXVECTOR2(camX - camWidth, camY - camHeight);
+    D3DXVECTOR2 topRight = D3DXVECTOR2(camX + camWidth, camY - camHeight);
+    D3DXVECTOR2 bottomLeft = D3DXVECTOR2(camX - camWidth, camY + camHeight);
+    D3DXVECTOR2 bottomRight = D3DXVECTOR2(camX + camWidth, camY + camHeight);
 
-    swprintf(buffer, sizeof(buffer) / sizeof(wchar_t), L"View W/H: %.2f, %.2f", (double)m_fViewWidth, (double)m_fViewHeight);
-    // 문자열 출력 (유니코드)
-    TextOutW(hDC, 0, 120, buffer, lstrlenW(buffer));
+    // 선 색상 (흰색)
+    D3DCOLOR lineColor = D3DCOLOR_ARGB(255, 255, 255, 255);
+
+    // 선 그리기
+    CDevice::Get_Instance()->Get_Line()->SetWidth(2.0f); // 선 두께 설정
+    CDevice::Get_Instance()->Get_Line()->Begin();
+
+    // 사각형 테두리 선 그리기
+    D3DXVECTOR2 lines[] = {
+        topLeft, topRight,
+        topRight, bottomRight,
+        bottomRight, bottomLeft,
+        bottomLeft, topLeft
+    };
+
+    CDevice::Get_Instance()->Get_Line()->Draw(lines, 8
+        , lineColor);
+
+    CDevice::Get_Instance()->Get_Line()->End();
 }
 
 void CCamera::Start_Shake(float intensity, float duration)

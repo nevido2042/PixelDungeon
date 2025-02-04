@@ -32,6 +32,7 @@ void CGameScene::Initialize()
 void CGameScene::Update()
 {
 	CObjMgr::Get_Instance()->Update();
+	CCamera::Get_Instance()->Update();
 }
 
 void CGameScene::Late_Update()
@@ -42,6 +43,7 @@ void CGameScene::Late_Update()
 void CGameScene::Render()
 {
 	CObjMgr::Get_Instance()->Render();
+	CCamera::Get_Instance()->Render();
 }
 
 void CGameScene::Release()

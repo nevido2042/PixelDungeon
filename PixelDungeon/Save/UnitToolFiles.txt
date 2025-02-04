@@ -6,6 +6,3 @@ Monster:Hero:warrior9.png|..\Resources\Player\Warrior\warrior9.png
 Player:Hong:warrior3.png|..\Resources\Player\Warrior\warrior3.png
 Player:Hong:warrior4.png|..\Resources\Player\Warrior\warrior4.png
 Player:Hong:warrior5.png|..\Resources\Player\Warrior\warrior5.png
-Player:Hong:warrior6.png|..\Resources\Player\Warrior\warrior6.png
-Player:Hong:warrior7.png|..\Resources\Player\Warrior\warrior7.png
-Player:Hong:warrior8.png|..\Resources\Player\Warrior\warrior8.png

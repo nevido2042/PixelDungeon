@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Include.h"
+
 #define ZOOM_MAX 3.f
 #define ZOOM_MIN 0.2f
 
@@ -12,16 +14,16 @@ public:
 	POINT WorldToScreen(float worldX, float worldY)
 	{
 		POINT screenPoint;
-		screenPoint.x = int((worldX - m_fX) * m_fZoom + m_fWidth / 2);
-		screenPoint.y = int((worldY - m_fY) * m_fZoom + m_fHeight / 2);
+		screenPoint.x = int((worldX - m_tInfo.vPos.x) * m_fZoom + m_fWidth / 2);
+		screenPoint.y = int((worldY - m_tInfo.vPos.y) * m_fZoom + m_fHeight / 2);
 		return screenPoint;
 	}
 
 	POINT ScreenToWorld(int screenX, int screenY)
 	{
 		POINT worldPoint;
-		worldPoint.x = int((screenX - m_fWidth / 2) / m_fZoom + m_fX);
-		worldPoint.y = int((screenY - m_fHeight / 2) / m_fZoom + m_fY);
+		worldPoint.x = int((screenX - m_fWidth / 2) / m_fZoom + m_tInfo.vPos.x);
+		worldPoint.y = int((screenY - m_fHeight / 2) / m_fZoom + m_tInfo.vPos.y);
 		return worldPoint;
 	}
 	void Move_To_Lerp(float _fX, float _fY);
@@ -29,14 +31,14 @@ public:
 	void Initialize();
 	void Update();
 	void Late_Update();
-	void Render(HDC hDC);
+	void Render();
 public:
 	void Start_Shake(float intensity, float duration);
 	//void ApplyPosition(float x, float y);
 public:
-	float	Get_X() { return m_fX; }
-	float	Get_Y() { return m_fY; }
-	void	Set_Pos(float _fX, float _fY) { m_fX = _fX, m_fY = _fY; }
+	float	Get_X() { return m_tInfo.vPos.x; }
+	float	Get_Y() { return m_tInfo.vPos.y; }
+	void	Set_Pos(float _fX, float _fY) { m_tInfo.vPos.x = _fX, m_tInfo.vPos.y = _fY; }
 	float	Get_Zoom() { return m_fZoom; }
 	void	Set_Zoom(float _fZoom) { m_fZoom = _fZoom; }
 	bool	IsInCameraView(float _fX, float _fY);
@@ -57,12 +59,16 @@ public:
 			m_pInstance = nullptr;
 		}
 	}
+private:
+	void DrawCameraBorder();
 
 private:
 	static CCamera* m_pInstance;
 
-	float	m_fX;
-	float	m_fY;
+	INFO	m_tInfo;
+
+	//float	m_fX;
+	//float	m_fY;
 
 	float	m_fWidth;
 	float	m_fHeight;
