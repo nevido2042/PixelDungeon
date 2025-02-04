@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "CObj.h"
+#include "Camera.h"
 
 CObj::CObj()
 	:m_tTexInfo(nullptr)
@@ -33,8 +34,10 @@ void CObj::UpdateWorldMatrix()
 {
 	D3DXMATRIX	matWorld, matScale, matTrans;
 
+	float fZoom = CCamera::Get_Instance()->Get_Zoom();
+
 	D3DXMatrixIdentity(&matWorld);
-	D3DXMatrixScaling(&matScale, 1.f, 1.f, 1.f);
+	D3DXMatrixScaling(&matScale, fZoom, fZoom, fZoom);
 	D3DXMatrixTranslation(&matTrans,
 		m_tInfo.vPos.x,
 		m_tInfo.vPos.y,

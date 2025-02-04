@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Include.h"
 #include "CObjMgr.h"
+#include "Camera.h"
 
 CObjMgr* CObjMgr::m_pInstance = nullptr;
 
@@ -57,7 +58,12 @@ void CObjMgr::Render()
 	for (size_t i = 0; i < OBJ_END; ++i)
 	{
 		for (auto& pObj : m_ObjList[i])
-			pObj->Render();
+		{
+			if (CCamera::Get_Instance()->IsInCameraView(pObj->Get_Info().vPos.x, pObj->Get_Info().vPos.y))
+			{
+				pObj->Render();
+			}
+		}
 	}
 }
 

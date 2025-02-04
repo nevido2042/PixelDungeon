@@ -13,7 +13,9 @@ public:
 public:
 	LPDIRECT3DDEVICE9			Get_Device() { return m_pDevice; }
 	LPD3DXSPRITE				Get_Sprite() { return m_pSprite; }
-	LPD3DXFONT					Get_Font()	 { return m_pFont;  }
+	LPD3DXFONT					Get_Font() { return m_pFont; }
+	LPD3DXLINE					Get_Line() { return m_pLine; }	// 라인
+
 public:
 	HRESULT		Init_Device();
 
@@ -31,5 +33,6 @@ private:
 
 	LPD3DXSPRITE		m_pSprite;	// 2d 이미지를 출력하기 위한 용도
 	LPD3DXFONT			m_pFont;
+	LPD3DXLINE			m_pLine;	// 라인
 };
 

@@ -1,7 +1,7 @@
 #pragma once
 #include "CGameObject.h"
 
-enum PLAYER_STATE { IDLE, WALK };
+enum PLAYER_STATE { IDLE, WALK, END };
 
 class CPlayer :
     public CGameObject
@@ -15,7 +15,6 @@ public:
     void Late_Update() override;
     void Render() override;
     void Release() override;
-
     void Mouse_Update();
 public:
     void Set_State(PLAYER_STATE eState)
@@ -26,13 +25,10 @@ public:
          
         }
     }
-
-
+private:
     PLAYER_STATE m_eCurState;
     int m_iFrame;
-
-
     D3DXVECTOR3 m_vMouse;
-    
+    float m_fSpeed;
 };
 
