@@ -28,7 +28,6 @@ void CFileInfo::DirInfoExtraction(const wstring& wstrPath, list<IMGPATH*>& rPath
     CFileFind       Find;
 
     wstring     wstrFilePath = wstrPath + L"\\*.*";
-    // FindFile : 매개 변수로 전달된 경로에 파일의 유무를 확인하는 함수
 
     BOOL    bContinue = Find.FindFile(wstrFilePath.c_str());
 

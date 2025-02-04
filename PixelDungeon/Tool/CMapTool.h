@@ -31,11 +31,13 @@ public:
 
 public:
 	virtual BOOL OnInitDialog();
-public:
+private:
+	CToolView* Get_ToolView();
 	void	Horizontal_Scroll();
+	void	Load_FromTileFile();
+private:
 	CListBox					m_ListBox;
+	map<CString, CImage*>		m_mapPngImage;
 	CStatic						m_Picture;
 
-private:
-	CToolView*	Get_ToolView();
 };

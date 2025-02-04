@@ -8,6 +8,7 @@
 #include "CFileInfo.h"
 #include "MainFrm.h"
 #include "CTerrain.h"
+#include "CTextureMgr.h"
 
 // CMapTool 대화 상자
 
@@ -49,14 +50,14 @@ void CMapTool::OnListBox()
 {
 	//UpdateData(TRUE);
 
-	//CString	strFindName;
+	CString	strFindName;
 
-	//// GetCurSel : 커서가 선택한 셀의 인덱스 값을 반환
-	//int	iIndex = m_ListBox.GetCurSel();
-	//if (iIndex == -1)
-	//{
-	//	return; //아무것도 클릭 안했을 시 리턴
-	//}
+	// GetCurSel : 커서가 선택한 셀의 인덱스 값을 반환
+	int	iIndex = m_ListBox.GetCurSel();
+	if (iIndex == -1)
+	{
+		return; //아무것도 클릭 안했을 시 리턴
+	}
 
 	///*
 	//	1. 박스 리스트 클릭
@@ -73,14 +74,14 @@ void CMapTool::OnListBox()
 	//*/
 
 	////임시방편으로 박스리스트 인덱스 값으로 선택 타일 변경
-	////Get_ToolView()->Set_DrawID(iIndex);
+	Get_ToolView()->Set_DrawID(iIndex);
 
-	//m_ListBox.GetText(iIndex, strFindName);
+	m_ListBox.GetText(iIndex, strFindName);
 
-	//auto	iter = m_mapPngImage.find(strFindName);
+	auto	iter = m_mapPngImage.find(strFindName);
 
-	//if (iter == m_mapPngImage.end())
-	//	return;
+	if (iter == m_mapPngImage.end())
+		return;
 
 	//// 첫 번째, 두 번째, 세 번째 문자 추출
 	//TCHAR firstChar = strFindName.GetAt(0);
@@ -108,25 +109,21 @@ void CMapTool::OnListBox()
 	//	AfxMessageBox(_T("fileN (N = 정수 세 자리 까지 가능) 형식을 지켜라"));
 	//}
 
-	//// 툴뷰의 드로우 아이디 변경
-	//if (combinedIndex != -1)
-	//{
-	//	Get_ToolView()->Set_DrawID(combinedIndex);
-	//}
+	// 툴뷰의 드로우 아이디 변경
+	Get_ToolView()->Set_DrawID(iIndex);
 
-
-	////이미지를 가져온다
-	//CImage* pImage = iter->second.pImage;
-	////픽쳐 디시를 가져온다.
-	//CClientDC dc(&m_Picture);
-	////렉트
-	//CRect rect;
-	////픽쳐의 렉트를 가져온다.
-	//m_Picture.GetClientRect(&rect);
-	////픽쳐를 렉트만큼 배경(파랑)으로 채운다.
-	//dc.FillSolidRect(rect, RGB(0, 0, 255));
-	////이미지를 픽쳐에 렉트만큼 그린다.
-	//pImage->Draw(dc, rect);
+	//이미지를 가져온다
+	CImage* pImage = iter->second;
+	//픽쳐 디시를 가져온다.
+	CClientDC dc(&m_Picture);
+	//렉트
+	CRect rect;
+	//픽쳐의 렉트를 가져온다.
+	m_Picture.GetClientRect(&rect);
+	//픽쳐를 렉트만큼 배경(파랑)으로 채운다.
+	dc.FillSolidRect(rect, RGB(0, 0, 255));
+	//이미지를 픽쳐에 렉트만큼 그린다.
+	pImage->Draw(dc, rect);
 
 	////m_Picture.SetBitmap(*(iter->second.pImage));
 
@@ -217,24 +214,120 @@ void CMapTool::Horizontal_Scroll()
 
 }
 
+void CMapTool::Load_FromTileFile()
+{
+	//Texture->Terrain->File로 가서 파일 모두의 이름을 리스트에 등록
+	
+	// CFileFind : mfc 에서 제공하는 파일 및 경로 제어 관련 클래스
+	CFileFind       Find;
+
+	TCHAR szTilePath[MAX_PATH]; // 현재 디렉토리를 저장할 버퍼
+
+	// GetCurrentDirectory 함수 호출
+	GetCurrentDirectory(MAX_PATH, szTilePath);
+	//L"D:\\Fork_Git\\PixelDungeon\\PixelDungeon\\Tool"
+
+	PathRemoveFileSpec(szTilePath);
+	//L"D:\\Fork_Git\\PixelDungeon\\PixelDungeon
+
+	lstrcat(szTilePath, L"\\Texture\\Terrain\\Tile\\*.*");
+	//L"D:\\Fork_Git\\PixelDungeon\\PixelDungeon\\Texture\\Terrain\\Tile\\*.*"
+	// FindFile : 매개 변수로 전달된 경로에 파일의 유무를 확인하는 함수
+
+	BOOL    bContinue = Find.FindFile(szTilePath);
+
+	while (bContinue)
+	{
+		// FindNextFile : 동일 경로 안에서 다음 파일을 찾는 함수, 찾을 게 없을 경우 또는 마지막 대상을 찾았을 경우 0을 반환
+
+		bContinue = Find.FindNextFile();
+
+		if (Find.IsDots())
+			continue;
+
+		if (Find.IsSystem())
+			continue;
+
+		// 1. 파일의 이름만 얻어오자
+		// GetFileTitle : 파일 이름만 얻어오는 함수
+		wstring     wstrTextureName = Find.GetFileTitle().GetString();
+
+		m_ListBox.AddString(wstrTextureName.c_str());
+	}
+
+	// png 저장
+	PathRemoveFileSpec(szTilePath);
+
+	// 검색할 디렉터리와 파일 패턴 지정
+	CString strDirectory = szTilePath;
+	CString strSearchPath = strDirectory + L"\\*.png";
+
+	// CFileFind 객체를 사용하여 파일 탐색
+	CFileFind finder;
+	BOOL bWorking = finder.FindFile(strSearchPath);
+
+	while (bWorking)
+	{
+		bWorking = finder.FindNextFile();
+
+		// 디렉터리인지 확인 (파일만 처리)
+		if (finder.IsDots() || finder.IsDirectory())
+			continue;
+
+		// 전체 파일 경로 가져오기
+		CString strFullPath = finder.GetFilePath();
+
+		// 파일 이름만 추출
+		CString strFileName = PathFindFileName(strFullPath);
+
+		// 확장자 제거
+		TCHAR szFileName[MAX_PATH] = { 0 };
+		lstrcpy(szFileName, strFileName.GetString());
+		PathRemoveExtension(szFileName);
+
+		// 확장자가 제거된 파일 이름으로 map에 추가
+		auto iter = m_mapPngImage.find(szFileName);
+		if (iter == m_mapPngImage.end())
+		{
+			// 이미지 로드
+			CImage* pPngImage = new CImage;
+			if (SUCCEEDED(pPngImage->Load(strFullPath)))
+			{
+				// 맵에 삽입
+				m_mapPngImage.insert({ szFileName, pPngImage });
+
+				// ListBox에 추가
+				//m_ListBox.AddString(szFileName);
+			}
+			else
+			{
+				// 이미지 로드 실패 시 메모리 해제
+				delete pPngImage;
+			}
+		}
+	}
+			
+}
 
 void CMapTool::OnDestroy()
 {
 	CDialog::OnDestroy();
 
-	/*for_each(m_mapPngImage.begin(), m_mapPngImage.end(), [](auto& MyPair)
+	for_each(m_mapPngImage.begin(), m_mapPngImage.end(), [](auto& MyPair)
 		{
-			(MyPair.second).pImage->Destroy();
-			Safe_Delete((MyPair.second).pImage);
+			(MyPair.second)->Destroy();
+			Safe_Delete(MyPair.second);
 		});
 
-	m_mapPngImage.clear();*/
+	m_mapPngImage.clear();
 }
 
 
 BOOL CMapTool::OnInitDialog()
 {
 	CDialog::OnInitDialog();
+
+	Load_FromTileFile();
 
 	//Setting_ListBox();
 
