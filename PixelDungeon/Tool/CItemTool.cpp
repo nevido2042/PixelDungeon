@@ -87,6 +87,7 @@ ON_EN_CHANGE(IDC_ITEM_NAME, &CItemTool::OnEnChangeItemName)
 ON_EN_CHANGE(IDC_ITEM_DESCRIPTION, &CItemTool::OnEnChangeItemDescription)
 ON_BN_CLICKED(IDC_ADD_ITEM, &CItemTool::OnBnClickedAddItem)
 ON_LBN_SELCHANGE(IDC_ITEM_LIST, &CItemTool::OnLbnSelchangeItemList)
+ON_BN_CLICKED(IDC_ITEM_SAVE, &CItemTool::OnBnClickedItemSave)
 END_MESSAGE_MAP()
 // CItemTool 메시지 처리기
 
@@ -151,6 +152,11 @@ void CItemTool::OnEnChangeItemDescription()
 
 void CItemTool::OnBnClickedAddItem()
 {
+	if (m_strItemName.IsEmpty())
+	{
+		return;
+	}
+
 	ITEM_INFO tItemInfo;
 	tItemInfo.strName = m_strItemName;
 	tItemInfo.strDescription = m_strItemDescription;
@@ -193,4 +199,53 @@ void CItemTool::OnLbnSelchangeItemList()
 	// 이름과 설명 출력
 	m_ItemName.SetWindowTextW(iter->first.GetString());
 	m_ItemDescription.SetWindowTextW(iter->second.strDescription.GetString());
+}
+
+
+void CItemTool::OnBnClickedItemSave()
+{
+	CFileDialog		Dlg(FALSE,		// TRUE(불러오기), FALSE(다른 이름으로 저장) 모드 지정
+		L"dat",		// default 확장자명
+		L"*.dat",	// 대화 상자에 표시될 최초 파일명
+		OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,	// 읽기 전용 체크 박스 숨김 | 중복된 이름으로 파일 저장 시 경고 메세지 띄움
+		L"Data Files(*.dat) | *.dat ||", // 대화 상자에 표시될 파일 형식
+		this);	// 부모 윈도우 주소
+
+	TCHAR	szPath[MAX_PATH] = L"";
+
+	GetCurrentDirectory(MAX_PATH, szPath);
+
+	PathRemoveFileSpec(szPath);
+
+	lstrcat(szPath, L"\\Save");
+
+	Dlg.m_ofn.lpstrInitialDir = szPath;
+
+	if (IDOK == Dlg.DoModal())
+	{
+		CString	str = Dlg.GetPathName().GetString();
+		const TCHAR* pGetPath = str.GetString();
+
+		HANDLE hFile = CreateFile(pGetPath,
+			GENERIC_WRITE,
+			0, 0,
+			CREATE_ALWAYS,
+			FILE_ATTRIBUTE_NORMAL,
+			0);
+
+		if (INVALID_HANDLE_VALUE == hFile)
+			return;
+
+		if (m_mapItemInfo.empty())
+			return;
+
+		DWORD dwByte(0);
+
+		for (auto& ItemInfo : m_mapItemInfo)
+		{
+			WriteFile(hFile, &ItemInfo, sizeof(ITEM_INFO), &dwByte, nullptr);
+		}
+
+		CloseHandle(hFile);
+	}
 }
