@@ -34,7 +34,7 @@ BEGIN_MESSAGE_MAP(CToolView, CScrollView)
 	ON_COMMAND(ID_FILE_PRINT_DIRECT, &CScrollView::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &CScrollView::OnFilePrintPreview)
 	ON_WM_DESTROY()
-	ON_WM_LBUTTONDOWN()
+	ON_WM_RBUTTONDOWN()
 	ON_WM_MOUSEMOVE()
 	ON_WM_KEYDOWN()
 //	ON_WM_MOUSEHWHEEL()
@@ -75,7 +75,14 @@ void CToolView::OnInitialUpdate()
 	// AfxGetMainWnd : 현재 메인 윈도우의 값을 반환하는 전역함수
 
 	CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
-
+	if (pMainFrm)
+	{
+		CUnitTool* pUnitTool = (CUnitTool*)pMainFrm->GetDlgItem(IDD_CUnitTool);
+		if (pUnitTool)
+		{
+			pUnitTool->SetToolView(this);
+		}
+	}
 	RECT rcWnd{};
 
 	// GetWindowRect : 현재 윈도우(창)의 rect 정보를 얻어오는 함수
@@ -126,14 +133,86 @@ void CToolView::OnInitialUpdate()
 
 }
 
-void CToolView::OnLButtonDown(UINT nFlags, CPoint point)
+void CToolView::DisplayImage(const CString& strKey)
 {
-	// point.x, point.y
+	CUnitTool* pUnitTool = (CUnitTool*)AfxGetMainWnd()->GetDlgItem(IDD_CUnitTool);
+	if (!pUnitTool)
+	{
+		AfxMessageBox(_T("CUnitTool을 찾을 수 없습니다!"));
+		return;
+	}
 
-	CScrollView::OnLButtonDown(nFlags, point);
+	CString strImagePath = pUnitTool->GetUnitImagePath(strKey);
+	if (strImagePath.IsEmpty())
+	{
+		AfxMessageBox(_T("이미지 경로를 찾을 수 없습니다: ") + strKey);
+		return;
+	}
 
-	Change_Tile(point);
+	CImage image;
+	if (FAILED(image.Load(strImagePath)))
+	{
+		AfxMessageBox(_T("이미지 로드 실패: ") + strImagePath);
+		return;
+	}
+
+	CClientDC dc(this);
+	CRect rect(10, 10, 10 + image.GetWidth(), 10 + image.GetHeight());
+	dc.FillSolidRect(rect, RGB(255, 255, 255)); // 배경 초기화
+
+	image.Draw(dc, rect);
 }
+
+
+void CToolView::OnRButtonDown(UINT nFlags, CPoint point)
+{
+	if (g_pUnitTool)
+	{
+		CString strSelectedUnit = g_pUnitTool->GetSelectedUnit();
+		CString strSelectedCategory = g_pUnitTool->GetSelectedCategory();
+
+		TRACE(_T("[디버깅] 선택된 유닛: %s, 선택된 카테고리: %s\n"), strSelectedUnit, strSelectedCategory);
+
+		if (!strSelectedUnit.IsEmpty() && !strSelectedCategory.IsEmpty())
+		{
+			TRACE(_T("[디버깅] CreateUnit() 호출됨!\n"));
+			CreateUnit(strSelectedCategory, strSelectedUnit, point);
+		}
+		else
+		{
+			AfxMessageBox(_T("선택된 유닛이나 카테고리가 없습니다!"));
+		}
+	}
+	else
+	{
+		AfxMessageBox(_T("CUnitTool이 존재하지 않습니다!"));
+	}
+
+	CView::OnRButtonDown(nFlags, point);
+}
+
+
+
+void CToolView::CreateUnit(const CString& strCategory, const CString& strUnitName, CPoint point)
+{
+	// CUnitTool을 통해 유닛의 이미지 경로를 가져옴
+	CString strImagePath = g_pUnitTool->GetUnitImagePath(strCategory, strUnitName);
+
+	if (!strImagePath.IsEmpty())
+	{
+		
+		CImage image;
+		if (SUCCEEDED(image.Load(strImagePath)))
+		{
+			// 툴뷰에 이미지 그리기
+			CClientDC dc(this);
+			image.Draw(dc, point.x, point.y);
+		}
+	}
+}
+
+
+
 
 void CToolView::OnMouseMove(UINT nFlags, CPoint point)
 {
@@ -227,14 +306,6 @@ CToolDoc* CToolView::GetDocument() const // 디버그되지 않은 버전은 인
 // CToolView 메시지 처리기
 
 #pragma endregion
-
-
-
-
-
-
-
-
 
 
 void CToolView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
