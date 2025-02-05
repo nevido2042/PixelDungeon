@@ -36,6 +36,7 @@ void CItemTool::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_ITEM_LIST, m_ListBox);
 	DDX_Control(pDX, IDC_ITEM_NAME, m_ItemName);
 	DDX_Control(pDX, IDC_ITEM_DESCRIPTION, m_ItemDescription);
+	DDX_Control(pDX, IDC_LIST1, m_ImgListBox);
 }
 
 BOOL CItemTool::PreTranslateMessage(MSG* pMsg)
@@ -72,10 +73,107 @@ BOOL CItemTool::OnInitDialog()
 
 	m_Picture.DragAcceptFiles();
 
+	Load_FromTileFile();
+
 	// 드래그 앤 드랍 활성화
 	//DragAcceptFiles(TRUE);
 
 	return TRUE;
+}
+
+void CItemTool::Load_FromTileFile()
+{
+	//Texture->Terrain->File로 가서 파일 모두의 이름을 리스트에 등록
+
+	// CFileFind : mfc 에서 제공하는 파일 및 경로 제어 관련 클래스
+	CFileFind       Find;
+
+	TCHAR szTilePath[MAX_PATH]; // 현재 디렉토리를 저장할 버퍼
+
+	// GetCurrentDirectory 함수 호출
+	GetCurrentDirectory(MAX_PATH, szTilePath);
+	//L"D:\\Fork_Git\\PixelDungeon\\PixelDungeon\\Tool"
+
+	PathRemoveFileSpec(szTilePath);
+	//L"D:\\Fork_Git\\PixelDungeon\\PixelDungeon
+
+	lstrcat(szTilePath, L"\\Texture\\Item\\Item\\*.*");
+	//L"D:\\Fork_Git\\PixelDungeon\\PixelDungeon\\Texture\\Terrain\\Tile\\*.*"
+	// FindFile : 매개 변수로 전달된 경로에 파일의 유무를 확인하는 함수
+
+	BOOL    bContinue = Find.FindFile(szTilePath);
+
+	while (bContinue)
+	{
+		// FindNextFile : 동일 경로 안에서 다음 파일을 찾는 함수, 찾을 게 없을 경우 또는 마지막 대상을 찾았을 경우 0을 반환
+
+		bContinue = Find.FindNextFile();
+
+		if (Find.IsDots())
+			continue;
+
+		if (Find.IsSystem())
+			continue;
+
+		// 1. 파일의 이름만 얻어오자
+		// GetFileTitle : 파일 이름만 얻어오는 함수
+		wstring     wstrTextureName = Find.GetFileTitle().GetString();
+
+		m_ImgListBox.AddString(wstrTextureName.c_str());
+	}
+
+	// png 저장
+	PathRemoveFileSpec(szTilePath);
+
+	// 검색할 디렉터리와 파일 패턴 지정
+	CString strDirectory = szTilePath;
+	CString strSearchPath = strDirectory + L"\\*.png";
+
+	// CFileFind 객체를 사용하여 파일 탐색
+	CFileFind finder;
+	BOOL bWorking = finder.FindFile(strSearchPath);
+
+	while (bWorking)
+	{
+		bWorking = finder.FindNextFile();
+
+		// 디렉터리인지 확인 (파일만 처리)
+		if (finder.IsDots() || finder.IsDirectory())
+			continue;
+
+		// 전체 파일 경로 가져오기
+		CString strFullPath = finder.GetFilePath();
+
+		// 파일 이름만 추출
+		CString strFileName = PathFindFileName(strFullPath);
+
+		// 확장자 제거
+		TCHAR szFileName[MAX_PATH] = { 0 };
+		lstrcpy(szFileName, strFileName.GetString());
+		PathRemoveExtension(szFileName);
+
+		// 확장자가 제거된 파일 이름으로 map에 추가
+		auto iter = m_mapPngImage.find(szFileName);
+		if (iter == m_mapPngImage.end())
+		{
+			// 이미지 로드
+			CImage* pPngImage = new CImage;
+			if (SUCCEEDED(pPngImage->Load(strFullPath)))
+			{
+				// 맵에 삽입
+				m_mapPngImage.insert({ szFileName, pPngImage });
+
+				// ListBox에 추가
+				//m_ListBox.AddString(szFileName);
+			}
+			else
+			{
+				// 이미지 로드 실패 시 메모리 해제
+				delete pPngImage;
+			}
+		}
+	}
+
 }
 
 
@@ -89,6 +187,7 @@ ON_BN_CLICKED(IDC_ADD_ITEM, &CItemTool::OnBnClickedAddItem)
 ON_LBN_SELCHANGE(IDC_ITEM_LIST, &CItemTool::OnLbnSelchangeItemList)
 ON_BN_CLICKED(IDC_ITEM_SAVE, &CItemTool::OnBnClickedItemSave)
 //ON_STN_CLICKED(IDC_ITEM_IMG, &CItemTool::OnStnClickedItemImg)
+ON_LBN_SELCHANGE(IDC_LIST1, &CItemTool::OnImgListBox)
 END_MESSAGE_MAP()
 // CItemTool 메시지 처리기
 
@@ -96,13 +195,13 @@ void CItemTool::OnDestroy()
 {
 	CDialog::OnDestroy();
 
-	/*for_each(m_mapPngImage.begin(), m_mapPngImage.end(), [](auto& MyPair)
+	for_each(m_mapPngImage.begin(), m_mapPngImage.end(), [](auto& MyPair)
 		{
-			(MyPair.second).pImage->Destroy();
-			Safe_Delete((MyPair.second).pImage);
+			MyPair.second->Destroy();
+			Safe_Delete(MyPair.second);
 		});
 
-	m_mapPngImage.clear();*/
+	m_mapPngImage.clear();
 
 	//하나의 이미지로 여러아이템을 쓰면 터짐, 어케하지 (같은 이미지라도 다시 할당 받는 방법을 써야하나)
 	//언오드셋으로 해결
@@ -159,10 +258,9 @@ void CItemTool::OnBnClickedAddItem()
 	}
 
 	ITEM_INFO tItemInfo;
+	tItemInfo.strImageName = m_strImageName;
 	tItemInfo.strName = m_strItemName;
 	tItemInfo.strDescription = m_strItemDescription;
-	//tItemInfo.tImgInfo.pImage = m_pImage;
-	tItemInfo.strRelative;
 
 	m_mapItemInfo.insert({ m_strItemName, tItemInfo });
 
@@ -179,23 +277,30 @@ void CItemTool::OnLbnSelchangeItemList()
 	CString strFindName;
 	m_ListBox.GetText(iIndex, strFindName);
 
+	m_mapItemInfo.find(strFindName);
+
 	auto iter = m_mapItemInfo.find(strFindName);
 	if (iter == m_mapItemInfo.end())
 		return;
 
-	CImage* pImage = nullptr;// = iter->second.pImage;
+	CString strImgName = iter->second.strImageName;
+	auto iterImg = m_mapPngImage.find(strImgName);
+
+	CImage* pImage = iterImg->second;
 
 	if (!pImage)
 		return;
 
-	// CImage에서 HBITMAP 가져오기
-	HBITMAP hBitmap = (HBITMAP)pImage->Detach();
-
-	// CStatic에 이미지 설정
-	m_Picture.SetBitmap(hBitmap);
-
-	// 다시 CImage에 HBITMAP 연결
-	pImage->Attach(hBitmap);
+	//픽쳐 디시를 가져온다.
+	CClientDC dc(&m_Picture);
+	//렉트
+	CRect rect;
+	//픽쳐의 렉트를 가져온다.
+	m_Picture.GetClientRect(&rect);
+	//픽쳐를 렉트만큼 배경(파랑)으로 채운다.
+	dc.FillSolidRect(rect, RGB(255, 255, 255));
+	//이미지를 픽쳐에 렉트만큼 그린다.
+	pImage->Draw(dc, rect);
 
 	// 이름과 설명 출력
 	m_ItemName.SetWindowTextW(iter->first.GetString());
@@ -256,3 +361,40 @@ void CItemTool::OnBnClickedItemSave()
 //{
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 //}
+
+
+void CItemTool::OnImgListBox()
+{
+	int iIndex = m_ImgListBox.GetCurSel();
+	if (iIndex == LB_ERR)
+		return;
+
+	CString strFindName;
+	m_ImgListBox.GetText(iIndex, strFindName);
+
+	m_strImageName = strFindName;
+
+	auto iter = m_mapPngImage.find(strFindName);
+	if (iter == m_mapPngImage.end())
+		return;
+
+	CImage* pImage = iter->second;
+
+	if (!pImage)
+		return;
+	//이미지 저장
+	m_pImage = pImage;
+
+	//픽쳐 디시를 가져온다.
+	CClientDC dc(&m_Picture);
+	//렉트
+	CRect rect;
+	//픽쳐의 렉트를 가져온다.
+	m_Picture.GetClientRect(&rect);
+	//픽쳐를 렉트만큼 배경(파랑)으로 채운다.
+	dc.FillSolidRect(rect, RGB(255, 255, 255));
+	//이미지를 픽쳐에 렉트만큼 그린다.
+	pImage->Draw(dc, rect);
+
+
+}

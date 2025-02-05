@@ -76,7 +76,7 @@ typedef	struct tagFrame
 
 typedef struct tagItemInfo
 {
-	CString		strRelative;
+	CString		strImageName;
 	CString		strName;
 	CString		strDescription;
 }ITEM_INFO;
