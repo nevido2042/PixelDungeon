@@ -71,17 +71,17 @@ BOOL CItemTool::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
-	m_Picture.DragAcceptFiles();
+	//m_Picture.DragAcceptFiles();
 
-	Load_FromTileFile();
-
+	Load_Png_And_ListBox();
+	Load_Item();
 	// 드래그 앤 드랍 활성화
 	//DragAcceptFiles(TRUE);
 
 	return TRUE;
 }
 
-void CItemTool::Load_FromTileFile()
+void CItemTool::Load_Png_And_ListBox()
 {
 	//Texture->Terrain->File로 가서 파일 모두의 이름을 리스트에 등록
 
@@ -176,6 +176,71 @@ void CItemTool::Load_FromTileFile()
 
 }
 
+void CItemTool::Load_Item()
+{
+	TCHAR szItamDataPath[MAX_PATH]; // 현재 디렉토리를 저장할 버퍼
+
+	// GetCurrentDirectory 함수 호출
+	GetCurrentDirectory(MAX_PATH, szItamDataPath);
+	//L"D:\\Fork_Git\\PixelDungeon\\PixelDungeon\\Tool"
+
+	PathRemoveFileSpec(szItamDataPath);
+	//L"D:\\Fork_Git\\PixelDungeon\\PixelDungeon
+
+	lstrcat(szItamDataPath, L"\\Save\\Item.dat");
+	//L"D:\\Fork_Git\\PixelDungeon\\PixelDungeon\\Texture\\Terrain\\Tile\\*.*"
+	// FindFile : 매개 변수로 전달된 경로에 파일의 유무를 확인하는 함수
+
+	CStdioFile File;
+	if (!File.Open(szItamDataPath, CFile::modeRead | CFile::typeBinary))
+	{
+		AfxMessageBox(_T("저장된 타일이 없다, 드래그앤 드랍으로 넣어라, 파일 이름 형식 맞춰서"));
+		return;
+	}
+
+	while (true)
+	{
+		ITEM_INFO* pItemInfo = new ITEM_INFO;
+
+		UINT iResult(0);
+		iResult = ReadStringUntilNull(File, pItemInfo->strImageName);
+		iResult = ReadStringUntilNull(File, pItemInfo->strName);
+		iResult = ReadStringUntilNull(File, pItemInfo->strDescription);
+		//iResult = File.ReadString(pItemInfo->strImageName);
+		//iResult = File.ReadString(pItemInfo->strName);
+		//iResult = File.ReadString(pItemInfo->strDescription);
+		if (iResult == 0)
+		{
+			Safe_Delete(pItemInfo);
+			File.Close();
+			return;
+		}
+
+		m_mapItemInfo.emplace(pItemInfo->strName, pItemInfo);
+		m_ListBox.AddString(pItemInfo->strName);
+	}
+	File.Close();
+}
+
+int CItemTool::ReadStringUntilNull(CFile& File, CString& strOut)
+{
+	WCHAR ch;
+	CString tempStr;
+
+	int iResult(0);
+
+	while (File.Read(&ch, sizeof(WCHAR)) == sizeof(WCHAR)) { // WCHAR 단위로 읽기
+		if (ch == L'\0') { // 널 문자를 만나면 종료
+			break;
+		}
+		tempStr += ch;
+		++iResult;
+	}
+
+	strOut = tempStr; // 읽은 문자열 저장
+	return iResult;
+}
+
 
 BEGIN_MESSAGE_MAP(CItemTool, CDialog)
 	ON_WM_DROPFILES()
@@ -185,7 +250,7 @@ ON_EN_CHANGE(IDC_ITEM_NAME, &CItemTool::OnEnChangeItemName)
 ON_EN_CHANGE(IDC_ITEM_DESCRIPTION, &CItemTool::OnEnChangeItemDescription)
 ON_BN_CLICKED(IDC_ADD_ITEM, &CItemTool::OnBnClickedAddItem)
 ON_LBN_SELCHANGE(IDC_ITEM_LIST, &CItemTool::OnLbnSelchangeItemList)
-ON_BN_CLICKED(IDC_ITEM_SAVE, &CItemTool::OnBnClickedItemSave)
+ON_BN_CLICKED(IDC_ITEM_SAVE, &CItemTool::OnSave)
 //ON_STN_CLICKED(IDC_ITEM_IMG, &CItemTool::OnStnClickedItemImg)
 ON_LBN_SELCHANGE(IDC_LIST1, &CItemTool::OnImgListBox)
 END_MESSAGE_MAP()
@@ -198,6 +263,13 @@ void CItemTool::OnDestroy()
 	for_each(m_mapPngImage.begin(), m_mapPngImage.end(), [](auto& MyPair)
 		{
 			MyPair.second->Destroy();
+			Safe_Delete(MyPair.second);
+		});
+
+	m_mapPngImage.clear();
+
+	for_each(m_mapItemInfo.begin(), m_mapItemInfo.end(), [](auto& MyPair)
+		{
 			Safe_Delete(MyPair.second);
 		});
 
@@ -243,10 +315,10 @@ void CItemTool::OnEnChangeItemName()
 void CItemTool::OnEnChangeItemDescription()
 {
 	// Edit Control에서 텍스트를 가져와 m_strItemDescription에 저장
-	GetDlgItemText(IDC_ITEM_NAME, m_strItemDescription);
+	GetDlgItemText(IDC_ITEM_DESCRIPTION, m_strItemDescription);
 
 	// 디버그용으로 출력
-	TRACE(_T("Item Name Changed: %s\n"), m_strItemDescription);
+	TRACE(_T("Item 설명 Changed: %s\n"), m_strItemDescription);
 }
 
 
@@ -257,12 +329,12 @@ void CItemTool::OnBnClickedAddItem()
 		return;
 	}
 
-	ITEM_INFO tItemInfo;
-	tItemInfo.strImageName = m_strImageName;
-	tItemInfo.strName = m_strItemName;
-	tItemInfo.strDescription = m_strItemDescription;
+	ITEM_INFO* pItemInfo = new ITEM_INFO;
+	pItemInfo->strImageName = m_strImageName;
+	pItemInfo->strName = m_strItemName;
+	pItemInfo->strDescription = m_strItemDescription;
 
-	m_mapItemInfo.insert({ m_strItemName, tItemInfo });
+	m_mapItemInfo.insert({ m_strItemName, pItemInfo });
 
 	m_ListBox.AddString(m_strItemName);
 }
@@ -283,7 +355,7 @@ void CItemTool::OnLbnSelchangeItemList()
 	if (iter == m_mapItemInfo.end())
 		return;
 
-	CString strImgName = iter->second.strImageName;
+	CString strImgName = iter->second->strImageName;
 	auto iterImg = m_mapPngImage.find(strImgName);
 
 	CImage* pImage = iterImg->second;
@@ -304,15 +376,15 @@ void CItemTool::OnLbnSelchangeItemList()
 
 	// 이름과 설명 출력
 	m_ItemName.SetWindowTextW(iter->first.GetString());
-	m_ItemDescription.SetWindowTextW(iter->second.strDescription.GetString());
+	m_ItemDescription.SetWindowTextW(iter->second->strDescription.GetString());
 }
 
 
-void CItemTool::OnBnClickedItemSave()
+void CItemTool::OnSave()
 {
 	CFileDialog		Dlg(FALSE,		// TRUE(불러오기), FALSE(다른 이름으로 저장) 모드 지정
 		L"dat",		// default 확장자명
-		L"*.dat",	// 대화 상자에 표시될 최초 파일명
+		L"Item.dat",	// 대화 상자에 표시될 최초 파일명
 		OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,	// 읽기 전용 체크 박스 숨김 | 중복된 이름으로 파일 저장 시 경고 메세지 띄움
 		L"Data Files(*.dat) | *.dat ||", // 대화 상자에 표시될 파일 형식
 		this);	// 부모 윈도우 주소
@@ -347,9 +419,23 @@ void CItemTool::OnBnClickedItemSave()
 
 		DWORD dwByte(0);
 
-		for (auto& ItemInfo : m_mapItemInfo)
+		for (auto& Iter : m_mapItemInfo)
 		{
-			WriteFile(hFile, &ItemInfo, sizeof(ITEM_INFO), &dwByte, nullptr);
+			int iLength(0);
+
+			/*TCHAR szBuf[MAX_STR];
+			lstrcpyW(szBuf, Iter.second->strImageName.GetString());
+			iLength = lstrlen(szBuf);
+			WriteFile(hFile, szBuf, sizeof(iLength), &dwByte, nullptr);*/
+
+			iLength = (Iter.second->strImageName.GetLength() + 1) * sizeof(wchar_t);
+			WriteFile(hFile, Iter.second->strImageName.GetString(), iLength, &dwByte, nullptr);
+
+			iLength = (Iter.second->strName.GetLength() + 1) * sizeof(wchar_t);
+			WriteFile(hFile, Iter.second->strName.GetString(), iLength, &dwByte, nullptr);
+
+			iLength = (Iter.second->strDescription.GetLength() + 1) * sizeof(wchar_t);
+			WriteFile(hFile, Iter.second->strDescription.GetString(), iLength, &dwByte, nullptr);
 		}
 
 		CloseHandle(hFile);
