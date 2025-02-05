@@ -73,6 +73,9 @@
     <Filter Include="02. Manager\06. Camera">
       <UniqueIdentifier>{af813213-2f61-48d0-aaf5-2153c11f5509}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02. Manager\07. AstarMgr">
+      <UniqueIdentifier>{7dd56f09-e73e-46f8-b8ab-db1e069a234a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -153,6 +156,12 @@
     <ClInclude Include="Camera.h">
       <Filter>02. Manager\06. Camera</Filter>
     </ClInclude>
+    <ClInclude Include="CAstarMgr.h">
+      <Filter>02. Manager\07. AstarMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="TimeMgr.h">
+      <Filter>02. Manager\07. AstarMgr</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp">
@@ -220,6 +229,12 @@
     </ClCompile>
     <ClCompile Include="Camera.cpp">
       <Filter>02. Manager\06. Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="CAstarMgr.cpp">
+      <Filter>02. Manager\07. AstarMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="TimeMgr.cpp">
+      <Filter>02. Manager\07. AstarMgr</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
