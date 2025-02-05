@@ -28,7 +28,7 @@ public:
 	virtual BOOL OnInitDialog();
 private:
 	CPictureControl				m_Picture;
-	map<CString, IMAGE_INFO>	m_mapPngImage; //삭제할 것
+	map<CString, CImage*>		m_mapPngImage;
 	map<CString, ITEM_INFO>		m_mapItemInfo;
 public:
 	void Set_Image(CImage* pImage) { m_pImage = pImage; }
@@ -55,4 +55,5 @@ public:
 	afx_msg void OnBnClickedAddItem();
 	afx_msg void OnLbnSelchangeItemList();
 	afx_msg void OnBnClickedItemSave();
+//	afx_msg void OnStnClickedItemImg();
 };

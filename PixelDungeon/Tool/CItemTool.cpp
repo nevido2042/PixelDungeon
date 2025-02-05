@@ -88,6 +88,7 @@ ON_EN_CHANGE(IDC_ITEM_DESCRIPTION, &CItemTool::OnEnChangeItemDescription)
 ON_BN_CLICKED(IDC_ADD_ITEM, &CItemTool::OnBnClickedAddItem)
 ON_LBN_SELCHANGE(IDC_ITEM_LIST, &CItemTool::OnLbnSelchangeItemList)
 ON_BN_CLICKED(IDC_ITEM_SAVE, &CItemTool::OnBnClickedItemSave)
+//ON_STN_CLICKED(IDC_ITEM_IMG, &CItemTool::OnStnClickedItemImg)
 END_MESSAGE_MAP()
 // CItemTool 메시지 처리기
 
@@ -95,38 +96,38 @@ void CItemTool::OnDestroy()
 {
 	CDialog::OnDestroy();
 
-	for_each(m_mapPngImage.begin(), m_mapPngImage.end(), [](auto& MyPair)
+	/*for_each(m_mapPngImage.begin(), m_mapPngImage.end(), [](auto& MyPair)
 		{
 			(MyPair.second).pImage->Destroy();
 			Safe_Delete((MyPair.second).pImage);
 		});
 
-	m_mapPngImage.clear();
+	m_mapPngImage.clear();*/
 
 	//하나의 이미지로 여러아이템을 쓰면 터짐, 어케하지 (같은 이미지라도 다시 할당 받는 방법을 써야하나)
 	//언오드셋으로 해결
-	std::unordered_set<void*> deletedPointers;
+	//std::unordered_set<void*> deletedPointers;
 
-	for_each(m_mapItemInfo.begin(), m_mapItemInfo.end(), [&](auto& MyPair)
-		{
-			IMAGE_INFO& tImgInfo = MyPair.second.tImgInfo;
-			if (tImgInfo.pImage)
-			{
-				// 이미 해제된 포인터인지 확인
-				if (deletedPointers.find(tImgInfo.pImage) == deletedPointers.end())
-				{
-					deletedPointers.insert(tImgInfo.pImage);
-					tImgInfo.pImage->Destroy();
-					Safe_Delete(tImgInfo.pImage); // 해제 후 nullptr
-				}
-				else
-				{
-					tImgInfo.pImage = nullptr; // 중복 참조된 포인터는 nullptr 설정
-				}
-			}
-		});
+	//for_each(m_mapItemInfo.begin(), m_mapItemInfo.end(), [&](auto& MyPair)
+	//	{
+	//		IMAGE_INFO& tImgInfo = MyPair.second.tImgInfo;
+	//		if (tImgInfo.pImage)
+	//		{
+	//			// 이미 해제된 포인터인지 확인
+	//			if (deletedPointers.find(tImgInfo.pImage) == deletedPointers.end())
+	//			{
+	//				deletedPointers.insert(tImgInfo.pImage);
+	//				tImgInfo.pImage->Destroy();
+	//				Safe_Delete(tImgInfo.pImage); // 해제 후 nullptr
+	//			}
+	//			else
+	//			{
+	//				tImgInfo.pImage = nullptr; // 중복 참조된 포인터는 nullptr 설정
+	//			}
+	//		}
+	//	});
 
-	m_mapItemInfo.clear();
+	//m_mapItemInfo.clear();
 }
 
 
@@ -160,8 +161,8 @@ void CItemTool::OnBnClickedAddItem()
 	ITEM_INFO tItemInfo;
 	tItemInfo.strName = m_strItemName;
 	tItemInfo.strDescription = m_strItemDescription;
-	tItemInfo.tImgInfo.pImage = m_pImage;
-	tItemInfo.tImgInfo.strRelative;
+	//tItemInfo.tImgInfo.pImage = m_pImage;
+	tItemInfo.strRelative;
 
 	m_mapItemInfo.insert({ m_strItemName, tItemInfo });
 
@@ -182,7 +183,7 @@ void CItemTool::OnLbnSelchangeItemList()
 	if (iter == m_mapItemInfo.end())
 		return;
 
-	CImage* pImage = iter->second.tImgInfo.pImage;
+	CImage* pImage = nullptr;// = iter->second.pImage;
 
 	if (!pImage)
 		return;
@@ -249,3 +250,9 @@ void CItemTool::OnBnClickedItemSave()
 		CloseHandle(hFile);
 	}
 }
+
+
+//void CItemTool::OnStnClickedItemImg()
+//{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+//}

@@ -68,15 +68,15 @@ typedef	struct tagFrame
 
 }FRAME;
 
-typedef struct tagImageInfo
-{
-	CImage*		pImage;
-	CString		strRelative; // 상대경로
-}IMAGE_INFO;
+//typedef struct tagImageInfo
+//{
+//	CImage*		pImage;
+//	CString		strRelative; // 상대경로
+//}IMAGE_INFO;
 
 typedef struct tagItemInfo
 {
-	IMAGE_INFO	tImgInfo;
+	CString		strRelative;
 	CString		strName;
 	CString		strDescription;
 }ITEM_INFO;
