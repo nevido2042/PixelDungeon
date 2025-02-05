@@ -19,9 +19,9 @@ CPlayer::~CPlayer()
 void CPlayer::Initialize()
 {
    
-    m_eCurState = IDLE;
+    m_eCurState = WALK;
     m_iFrame = 0;
-    m_tInfo.vPos = { 100.f, 100.f, 0.f };
+    m_tInfo.vPos = { 80.f, 80.f, 0.f };
     m_fSpeed = 2.f;
     m_tInfo.vLook = { 1.f, 0.f, 0.f };
 
@@ -52,10 +52,11 @@ void CPlayer::Initialize()
 
 int CPlayer::Update()
 {
-    if (GetAsyncKeyState(VK_LBUTTON))
+    if ((GetAsyncKeyState(VK_LBUTTON) & 0x8000) && m_eCurState == WALK)
     {
         Set_State(WALK);
-        Mouse_Update();
+
+        CAstarMgr::Get_Instance()->Start_Astar(m_tInfo.vPos, Get_Mouse());
     }
 
     return CObj::Update();
@@ -65,17 +66,7 @@ int CPlayer::Update()
 
 void CPlayer::Late_Update()
 {
-    static bool bPrevMouseState = false;  // 이전 마우스 상태를 저장하는 변수
-    bool bCurMouseState = (GetAsyncKeyState(VK_LBUTTON) & 0x8000); // 현재 마우스 상태
-
-    // 마우스를 처음 눌렀을 때(A* 시작)
-    if (bCurMouseState && !bPrevMouseState)
-    {
-        CAstarMgr::Get_Instance()->Start_Astar(m_tInfo.vPos, Get_Mouse());
-    }
-
-    // 이전 마우스 상태 업데이트
-    bPrevMouseState = bCurMouseState;
+    
 
     Move_Astar();
 }
@@ -130,7 +121,15 @@ void CPlayer::Release()
 void CPlayer::Mouse_Update()
 {
     if (!CAstarMgr::Get_Instance()->Get_BestList().empty())
-        return;  // A* 이동 중에는 마우스로 이동하지 않음.
+        if (!CAstarMgr::Get_Instance()->Get_BestList().empty())
+        {
+            if (CAstarMgr::Get_Instance()->Get_BestList().size() == 1)
+            {
+                CAstarMgr::Get_Instance()->Get_BestList().clear(); // 마지막 타일 도착하면 이동 허용
+            }
+            return;
+        }
+
 
     if (GetAsyncKeyState(VK_LBUTTON) & 0x8000)
     {
@@ -154,15 +153,22 @@ void CPlayer::Move_Astar()
 {
     list<TILE*>& BestList = CAstarMgr::Get_Instance()->Get_BestList();
 
-    if (!BestList.empty())
+    if (!BestList.empty() && m_eCurState == WALK)
     {
         D3DXVECTOR3 vDir = BestList.front()->vPos - m_tInfo.vPos;
-        float       fDistance = D3DXVec3Length(&vDir);
+        float fDistance = D3DXVec3Length(&vDir);
 
         D3DXVec3Normalize(&vDir, &vDir);
-        m_tInfo.vPos += vDir * 300.f * CTimeMgr::Get_Instance()->Get_TimeDelta();
+        float fMoveSpeed = min(300.f * CTimeMgr::Get_Instance()->Get_TimeDelta(), fDistance);
+        m_tInfo.vPos += vDir * fMoveSpeed;
 
-        if (3.f >= fDistance)
+        if (3.f >= fDistance) // 목표 타일 도착 시
+        {
             BestList.pop_front();
+            if (BestList.empty())  // 모든 타일을 지나면 이동 종료
+            {
+                //Set_State(IDLE);
+            }
+        }
     }
 }

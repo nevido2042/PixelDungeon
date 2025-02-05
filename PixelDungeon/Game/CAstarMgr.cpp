@@ -5,6 +5,25 @@
 
 IMPLEMENT_SINGLETON(CAstarMgr)
 
+vector<list<TILE*>> Convert_Adj()
+{
+	vector<list<CObj*>>& vecAdj = CTileMgr::Get_Instance()->Get_VecAdj();
+	vector<list<TILE*>> vecConverted(vecAdj.size());
+
+	for (size_t i = 0; i < vecAdj.size(); ++i)
+	{
+		for (CObj* pObj : vecAdj[i])
+		{
+			if (TILE* pTile = dynamic_cast<TILE*>(pObj))
+			{
+				vecConverted[i].push_back(pTile);
+			}
+		}
+	}
+	return vecConverted;
+}
+
+
 CAstarMgr::CAstarMgr()
 {
 }
@@ -23,10 +42,10 @@ void CAstarMgr::Start_Astar(const D3DXVECTOR3& vStart, const D3DXVECTOR3& vGoal)
 	//dynamic_cast<TILE*>(vecTile.front());
 
 	vector<TILE*> vecTile(reinterpret_cast<vector<TILE*>&>(CTileMgr::Get_Instance()->Get_VecTile())); 
-
+	
 	m_iStartIdx = Get_TileIdx(vStart);
 	int iGoalIdx = Get_TileIdx(vGoal);
-
+	Convert_Adj();
 	
 	if (0 > m_iStartIdx ||
 		0 > iGoalIdx ||
@@ -41,7 +60,7 @@ void CAstarMgr::Start_Astar(const D3DXVECTOR3& vStart, const D3DXVECTOR3& vGoal)
 		return;
 
 	// 장애물 옵션이 있는거 일 경우
-	if (0 != vecTile[iGoalIdx]->byOption)
+	if (vecTile[iGoalIdx]->byOption == 1)
 		return;
 
 	if (true == Make_Route(m_iStartIdx, iGoalIdx))
@@ -50,23 +69,7 @@ void CAstarMgr::Start_Astar(const D3DXVECTOR3& vStart, const D3DXVECTOR3& vGoal)
 	}
 }
 
-vector<list<TILE*>> Convert_Adj()
-{
-	vector<list<CObj*>>& vecAdj = CTileMgr::Get_Instance()->Get_VecAdj();
-	vector<list<TILE*>> vecConverted(vecAdj.size());
 
-	for (size_t i = 0; i < vecAdj.size(); ++i)
-	{
-		for (CObj* pObj : vecAdj[i])
-		{
-			if (TILE* pTile = dynamic_cast<TILE*>(pObj))  
-			{
-				vecConverted[i].push_back(pTile);
-			}
-		}
-	}
-	return vecConverted;
-}
 
 
 bool CAstarMgr::Make_Route(int iStartIdx, int iGoalIdx)
@@ -172,23 +175,18 @@ int CAstarMgr::Get_TileIdx(const D3DXVECTOR3& vPos)
 
 bool CAstarMgr::Picking(const D3DXVECTOR3& vPos, const int& iIndex)
 {
-	vector<TILE*> vecTile(reinterpret_cast<vector<TILE*>&>(CTileMgr::Get_Instance()->Get_VecTile()));
+	vector<TILE*>& vecTile = (vector<TILE*>&)CTileMgr::Get_Instance()->Get_VecTile();
 
-	D3DXVECTOR3	vPoint[4] =
-	{
-		{ vecTile[iIndex]->vPos.x, vecTile[iIndex]->vPos.y + (TILECY / 2.f), 0.f },
-		{ vecTile[iIndex]->vPos.x + (TILECX / 2.f), vecTile[iIndex]->vPos.y, 0.f },
-		{ vecTile[iIndex]->vPos.x, vecTile[iIndex]->vPos.y - (TILECY / 2.f), 0.f },
-		{ vecTile[iIndex]->vPos.x - (TILECX / 2.f), vecTile[iIndex]->vPos.y, 0.f },
-	};
+	float left = vecTile[iIndex]->vPos.x - (TILECX / 2.f);
+	float right = vecTile[iIndex]->vPos.x + (TILECX / 2.f);
+	float top = vecTile[iIndex]->vPos.y - (TILECY / 2.f);
+	float bottom = vecTile[iIndex]->vPos.y + (TILECY / 2.f);
 
-	for (int i = 0; i < 4; ++i)
-	{
-		if (0.f < D3DXVec3Dot(&vPoint[i], &vPos))
-			return false;
-	}
-	return true;
+	return (vPos.x >= left && vPos.x <= right &&
+		vPos.y >= top && vPos.y <= bottom);
 }
+
+
 
 bool CAstarMgr::Check_Close(int iIndex)
 {

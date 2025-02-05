@@ -53,7 +53,7 @@ void CTileMgr::Ready_Adjacency()
 	// [ 좌상단 이동 ]
 	for (int i = 0; i < TILEY; ++i) // Y축으로 행 반복
 	{
-		for (int j = 0; j < TILEX; ++i) // X축으로 행 반복
+		for (int j = 0; j < TILEX; ++j) // X축으로 행 반복
 		{
 			// 현재 타일의 인덱스를 계산
 			int iIndex = i * TILEX + j;
@@ -75,13 +75,13 @@ void CTileMgr::Ready_Adjacency()
 			if ((19 != i) && (0 != iIndex % (TILEX))) // 좌 하단 이동
 			{
 				 // 29가 증가
-				m_vecAdj[iIndex].push_back(m_vecTile[iIndex - TILEX - 1]);
+				m_vecAdj[iIndex].push_back(m_vecTile[iIndex + TILEX - 1]);
 			}
 
 			if ((19 != i) && (TILEX - 1 != iIndex % 30)) //우 하단 이동
 			{
 				// 31 증가
-				m_vecAdj[iIndex].push_back(m_vecTile[(iIndex - TILEX) + 1]);
+				m_vecAdj[iIndex].push_back(m_vecTile[(iIndex + TILEX) + 1]);
 			}
 		}
 
@@ -100,9 +100,17 @@ void CTileMgr::Create_Terrain()
 {
 	if (Load_Terrain())
 	{
+		sort(m_vecTile.begin(), m_vecTile.end(), [&](CObj* Tile_1, CObj* Tile_2)
+			{
+				if (Tile_1->Get_Info().vPos.y > Tile_2->Get_Info().vPos.y)
+				{
+
+				}
+			});
+		Ready_Adjacency();
 		return;
 	}
-
+	
 	//저장 파일이 없으면 아래와 같이
 	for (int i = 0; i < TILEY; ++i)
 	{
@@ -126,6 +134,7 @@ void CTileMgr::Create_Terrain()
 			m_vecTile.push_back(pObj);
 		}
 	}
+	Ready_Adjacency();
 }
 
 bool CTileMgr::Load_Terrain()
@@ -175,5 +184,6 @@ bool CTileMgr::Load_Terrain()
 	}
 
 	File.Close();
+
 	return true;
 }
