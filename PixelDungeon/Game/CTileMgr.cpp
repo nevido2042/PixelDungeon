@@ -34,6 +34,68 @@ void CTileMgr::Release()
 {
 }
 
+void CTileMgr::Ready_Adjacency()
+{
+
+	//16x16
+    //가로로 30개
+	//세로로 20개
+
+	// 좌상단일때 31감소
+	// 상하일때 30감소
+	m_vecAdj.resize(m_vecTile.size());
+
+	// 타일 인접 관계 설정 시 체크할 조건:
+	// 1. 타일이 장애물(옵션 값이 0이 아님)이 아니어야 함.
+	// 2. 현재 인덱스가 유효한 범위 내에 있어야 함.
+
+		// 전체 타일을 순회하면서 인접 리스트를 구축함.
+	// [ 좌상단 이동 ]
+	for (int i = 0; i < TILEY; ++i) // Y축으로 행 반복
+	{
+		for (int j = 0; j < TILEX; ++i) // X축으로 행 반복
+		{
+			// 현재 타일의 인덱스를 계산
+			int iIndex = i * TILEX + j;
+
+			
+			// 첫 번째 행이 아니고, X축의 첫 번째 칸이 아닐 때
+			if((0 != i) && (0 != iIndex % (TILEX))) // 좌 상단 이동
+			{
+			    //  31감소
+				m_vecAdj[iIndex].push_back(m_vecTile[iIndex - TILEX-1]);				
+			}
+
+			if ((0 != i) && (TILEX - 1 != iIndex % 30)) //우 상단 이동
+			{
+				// 29 감소
+				m_vecAdj[iIndex].push_back(m_vecTile[(iIndex - TILEX)+1]);
+			}
+
+			if ((19 != i) && (0 != iIndex % (TILEX))) // 좌 하단 이동
+			{
+				 // 29가 증가
+				m_vecAdj[iIndex].push_back(m_vecTile[iIndex - TILEX - 1]);
+			}
+
+			if ((19 != i) && (TILEX - 1 != iIndex % 30)) //우 하단 이동
+			{
+				// 31 증가
+				m_vecAdj[iIndex].push_back(m_vecTile[(iIndex - TILEX) + 1]);
+			}
+		}
+
+
+
+	}
+
+
+	
+	
+
+
+}
+
 void CTileMgr::Create_Terrain()
 {
 	if (Load_Terrain())

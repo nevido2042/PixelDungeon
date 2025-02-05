@@ -16,6 +16,7 @@ public:
     void Render() override;
     void Release() override;
     void Mouse_Update();
+    void Move_Astar();
 public:
     void Set_State(PLAYER_STATE eState)
     {

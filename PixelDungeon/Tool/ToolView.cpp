@@ -240,7 +240,7 @@ void CToolView::OnDraw(CDC* /*pDC*/)
 
 	m_pDevice->Render_Begin();
 	m_pTerrain->Render();
-	m_pDevice->Render_End();
+	
 	CClientDC dc(this);
 
 	float fZoom = Get_Zoom(); // 현재 줌 값 가져오기
@@ -271,7 +271,7 @@ void CToolView::OnDraw(CDC* /*pDC*/)
 	}
 
 
-
+	m_pDevice->Render_End();
 
 
 }

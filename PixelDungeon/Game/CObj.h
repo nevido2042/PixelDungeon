@@ -11,6 +11,7 @@ public:
 
 public:
 	INFO&		Get_Info() { return m_tInfo; }
+
 	bool		Get_Dead() { return m_tInfo.bDead; }
 
 public:
