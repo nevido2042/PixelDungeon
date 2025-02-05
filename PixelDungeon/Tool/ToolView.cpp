@@ -1,7 +1,4 @@
-﻿
-// ToolView.cpp: CToolView 클래스의 구현
-//
-
+﻿// ToolView.cpp: CToolView 클래스의 구현
 #include "pch.h"
 #include "framework.h"
 // SHARED_HANDLERS는 미리 보기, 축소판 그림 및 검색 필터 처리기를 구현하는 ATL 프로젝트에서 정의할 수 있으며
@@ -24,8 +21,9 @@
 HWND	g_hWnd;
 
 
-// CToolView
 
+
+// CToolView
 IMPLEMENT_DYNCREATE(CToolView, CScrollView)
 
 BEGIN_MESSAGE_MAP(CToolView, CScrollView)
@@ -196,39 +194,41 @@ void CToolView::OnRButtonDown(UINT nFlags, CPoint point)
 	CView::OnRButtonDown(nFlags, point);
 }
 
-
-
 void CToolView::CreateUnit(const CString& strCategory, const CString& strUnitName, CPoint point)
 {
-	// CUnitTool을 통해 유닛의 이미지 경로를 가져옴
-	CString strImagePath = g_pUnitTool->GetUnitImagePath(strCategory, strUnitName);
+	
+	float fZoom = Get_Zoom(); 
 
+	CPoint adjustedPoint;
+	adjustedPoint.x = int((point.x + GetScrollPos(0)) / fZoom);
+	adjustedPoint.y = int((point.y + GetScrollPos(1)) / fZoom);
+
+
+	CString strImagePath = g_pUnitTool->GetUnitImagePath(strCategory, strUnitName);
 	if (!strImagePath.IsEmpty())
 	{
-		// 벡터에 유닛 정보 저장 (다시 그릴 때 필요)
-		m_vecUnits.push_back({ strCategory, strUnitName, point });
+		
+		m_vecUnits.push_back({ strCategory, strUnitName, adjustedPoint });
 
-		// 화면 다시 그리기 요청
-		Invalidate(FALSE);
+		Invalidate(FALSE); // 화면 갱신
 	}
 }
 
 
-
-
-
-
 void CToolView::OnMouseMove(UINT nFlags, CPoint point)
 {
-	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
-
 	CScrollView::OnMouseMove(nFlags, point);
 
 	if (GetAsyncKeyState(VK_LBUTTON) & 0x8000)
 	{
 		Change_Tile(point);
 	}
+
+
+	Invalidate(FALSE);
 }
+
+
 
 void CToolView::OnDraw(CDC* /*pDC*/)
 {
@@ -237,11 +237,16 @@ void CToolView::OnDraw(CDC* /*pDC*/)
 	if (!pDoc)
 		return;
 
+
 	m_pDevice->Render_Begin();
 	m_pTerrain->Render();
 	m_pDevice->Render_End();
-
 	CClientDC dc(this);
+
+	float fZoom = Get_Zoom(); // 현재 줌 값 가져오기
+	int iScrollX = GetScrollPos(0); // X축 스크롤 위치
+	int iScrollY = GetScrollPos(1); // Y축 스크롤 위치
+
 	for (const auto& unit : m_vecUnits)
 	{
 		CString strImagePath = g_pUnitTool->GetUnitImagePath(unit.strCategory, unit.strUnitName);
@@ -251,36 +256,26 @@ void CToolView::OnDraw(CDC* /*pDC*/)
 			CImage image;
 			if (SUCCEEDED(image.Load(strImagePath)))
 			{
-				D3DXMATRIX matWorld, matScale, matTrans;
-
-				
-				D3DXMatrixIdentity(&matWorld);
-
-			
-				float fZoom = m_fZoom;
-				D3DXMatrixScaling(&matScale, fZoom, fZoom, 1.f);
-
-			
-				D3DXMatrixTranslation(&matTrans,
-					(unit.position.x - GetScrollPos(0)) * fZoom,  // 스크롤 반영 + 줌 적용
-					(unit.position.y - GetScrollPos(1)) * fZoom,
-					0.f);
-
-			
-				matWorld = matScale * matTrans;
-
-			
+	
+				int iX = int((unit.position.x - iScrollX) * fZoom);
+				int iY = int((unit.position.y - iScrollY) * fZoom);
 				int iWidth = int(image.GetWidth() * fZoom);
 				int iHeight = int(image.GetHeight() * fZoom);
 
-				CRect rect(int(unit.position.x * fZoom), int(unit.position.y * fZoom),
-					int(unit.position.x * fZoom + iWidth), int(unit.position.y * fZoom + iHeight));
-
+				
+				//CDevice::Get_Instance()->Get_Device();
+				CRect rect(iX, iY, iX + iWidth, iY + iHeight);
 				image.StretchBlt(dc, rect, SRCCOPY);
 			}
 		}
 	}
+
+
+
+
+
 }
+
 
 
 
