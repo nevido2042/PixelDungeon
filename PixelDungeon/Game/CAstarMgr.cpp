@@ -70,7 +70,7 @@ void CAstarMgr::Start_Astar(const D3DXVECTOR3& vStart, const D3DXVECTOR3& vGoal)
 		return;
 
 	// 장애물 옵션이 있는거 일 경우
-	if (m_vecTile[iGoalIdx]->Get_Option() == 1)
+	if (m_vecTile[iGoalIdx]->Get_Option() != 0)
 		return;
 
 	if (true == Make_Route(m_iStartIdx, iGoalIdx))

@@ -206,7 +206,7 @@ bool CTileMgr::Load_Terrain()
 			{
 				pTile->Set_Option(byOption);
 				pTile->Set_DrawID(byDrawID);
-				pTile->Set_Tile_Index(i + TILEX + j);
+				pTile->Set_Tile_Index(i * TILEX + j);
 				pTile->Initialize();
 			}
 			
