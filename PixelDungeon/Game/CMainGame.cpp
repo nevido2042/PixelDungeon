@@ -103,11 +103,11 @@ void CMainGame::Load_Texture()
 		return;
 	}
 
-	CString folderPath = L"../Resources/Tile/tiles_sewers"; // 경로 설정
+	CString folderPath = L"../Texture/Terrain/Tile"; // 경로 설정
 	int fileCount = GetPngCount_InDirectory(folderPath);
 
 	if (FAILED(CTextureMgr::Get_Instance()->Insert_Texture(
-		L"../Resources/Tile/tiles_sewers/%02d_tiles_sewers.png",
+		L"../Texture/Terrain/Tile/tile_sewers%03d.png",
 		TEX_MULTI, L"Terrain", L"Tile", fileCount)))
 	{
 		AfxMessageBox(L"Terrain Texture Insert Failed");
