@@ -561,12 +561,22 @@ void CUnitTool::OnBnClickedButtonApply()
 
     if (m_strName.IsEmpty())
     {
-        AfxMessageBox(_T("유닛 이름을 입력하세요."));
+        AfxMessageBox(_T("유닛 이름을 입력"));
         return;
     }
 
-    // 기존 로직대로 m_mapUnitData에 "Category:UnitName" 형태로 관리할 수도 있고,
-    // 혹은 "Category:UnitName:FileName"를 쓰셔도 되는데, 여기서는 간단히 유지
+    // ✅ 플레이어 타입은 하나만 생성 가능하도록 체크
+    if (strCategory == _T("Player"))
+    {
+        auto itPlayer = m_mapCategory.find(_T("Player"));
+        if (itPlayer != m_mapCategory.end() && !itPlayer->second.empty())
+        {
+            AfxMessageBox(_T(" 플레이어는 하나만 생성할 수 있습니다!"));
+            return;
+        }
+    }
+
+    // 기존 로직: m_mapUnitData에 저장
     CString strKey;
     strKey.Format(_T("%s:%s"), strCategory, m_strName);
 
@@ -587,13 +597,14 @@ void CUnitTool::OnBnClickedButtonApply()
 
     m_mapUnitData[strKey] = pData;
 
-
+    // 유닛 카테고리 맵에 추가
     auto& mapUnitNameToImages = m_mapCategory[strCategory];
     if (mapUnitNameToImages.find(m_strName) == mapUnitNameToImages.end())
     {
         mapUnitNameToImages[m_strName] = vector<CString>();
     }
 
+    // 리스트 박스 갱신
     CString strSelectedType;
     int iTypeIndex = m_ListBox3.GetCurSel();
     if (iTypeIndex != LB_ERR)
@@ -616,6 +627,7 @@ void CUnitTool::OnBnClickedButtonApply()
     AfxMessageBox(_T("유닛이 생성(또는 갱신)되었습니다."));
     UpdateData(FALSE);
 }
+
 
 // 삭제
 void CUnitTool::OnBnClickedButtonDelete()
