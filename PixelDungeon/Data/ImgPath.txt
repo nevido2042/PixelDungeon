@@ -1,4 +1,4 @@
-Item|Item|128|..\Texture\Item\Item\items%d.png
-Terrain|Tile|8|..\Texture\Terrain\Tile\tile_sewers%d.png
+Item|Item|128|..\Texture\Item\Item\items%03d.png
+Terrain|Tile|15|..\Texture\Terrain\Tile\tile_sewers%03d.png
 Warrior|IDLE|2|..\Texture\Warrior\IDLE\warrior_IDLE0%d.png
 Warrior|WALK|6|..\Texture\Warrior\WALK\warrior%d.png

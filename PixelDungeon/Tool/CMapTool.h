@@ -39,5 +39,4 @@ private:
 	CListBox					m_ListBox;
 	map<CString, CImage*>		m_mapPngImage;
 	CStatic						m_Picture;
-
 };
