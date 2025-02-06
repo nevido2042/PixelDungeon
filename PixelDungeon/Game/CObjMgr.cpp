@@ -68,9 +68,9 @@ void CObjMgr::Render()
 			{
 				pObj->Render();
 
-
-				swprintf_s(szBuf, L"%d", iIndex);
-				CDevice::Get_Instance()->Get_Font()->DrawTextW(CDevice::Get_Instance()->Get_Sprite(), szBuf, lstrlen(szBuf), nullptr, 0, D3DCOLOR_ARGB(255, 255, 255, 255));
+				// 타일 번호 확인용
+				/*swprintf_s(szBuf, L"%d", iIndex);
+				CDevice::Get_Instance()->Get_Font()->DrawTextW(CDevice::Get_Instance()->Get_Sprite(), szBuf, lstrlen(szBuf), nullptr, 0, D3DCOLOR_ARGB(255, 255, 255, 255));*/
 
 			}
 			++iIndex;
