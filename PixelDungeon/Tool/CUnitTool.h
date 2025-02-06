@@ -123,6 +123,10 @@ public:
 
    void OnLbnSelchangeList2();
 
+   afx_msg void OnEnKillfocusStat();
+   void UpdateCurrentUnitData();
+
+
    CString GetUnitImagePath(const CString& strKey);
 
     CString m_strSelectedImagePath;  // 선택된 유닛의 이미지 저장용!!

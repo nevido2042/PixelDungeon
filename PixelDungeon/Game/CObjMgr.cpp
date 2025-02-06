@@ -84,4 +84,6 @@ void CObjMgr::Release()
 		for_each(m_ObjList[i].begin(), m_ObjList[i].end(), Safe_Delete<CObj*>);
 		m_ObjList[i].clear();
 	}
+
+
 }

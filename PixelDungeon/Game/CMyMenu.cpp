@@ -8,6 +8,7 @@
 #include "CKeyMgr.h"
 #include "CSceneMgr.h"
 #include "Camera.h"
+#include"CAstarMgr.h"
 
 CMyMenu::CMyMenu()
 {
@@ -54,4 +55,5 @@ void CMyMenu::Render()
 void CMyMenu::Release()
 {
     CObjMgr::DestroyInstance();
+  
 }

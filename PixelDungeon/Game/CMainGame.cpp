@@ -5,6 +5,10 @@
 #include "CSceneMgr.h"
 #include "TimeMgr.h"
 #include "CAstarMgr.h"
+#include "Camera.h"
+#include "CTileMgr.h"
+#include "CKeyMgr.h"
+#include "CSceneMgr.h"
 
 CMainGame::CMainGame()
 {
@@ -69,9 +73,16 @@ void CMainGame::Release()
 
 #endif // _DEBUG
 
-	CSceneMgr::Destroy_Instance();
 	CAstarMgr::Destroy_Instance();
-
+	CTimeMgr::Destroy_Instance();
+	CTextureMgr::Get_Instance()->Destroy_Instance();
+	CSceneMgr::Get_Instance()->Destroy_Instance();
+	CCamera::Get_Instance()->Destroy_Instance();
+	CTileMgr::Get_Instance()->Destroy_Instance();
+	CKeyMgr::Get_Instance()->Destroy_Instance();
+	CSceneMgr::Get_Instance()->Destroy_Instance();
+	CDevice::Get_Instance()->Destroy_Instance();
+	
 }
 
 void CMainGame::Load_Texture()

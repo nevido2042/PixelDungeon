@@ -215,6 +215,7 @@ void CAstarMgr::Release()
 	m_OpenList.clear();
 	m_CloseList.clear();
 	m_BestList.clear();
+
 	
 }
 
