@@ -4,6 +4,7 @@
 #include "AbstractFactory.h"
 #include "CSceneMgr.h"
 #include "TimeMgr.h"
+#include "CAstarMgr.h"
 
 CMainGame::CMainGame()
 {
@@ -69,6 +70,8 @@ void CMainGame::Release()
 #endif // _DEBUG
 
 	CSceneMgr::Destroy_Instance();
+	CAstarMgr::Destroy_Instance();
+
 }
 
 void CMainGame::Load_Texture()

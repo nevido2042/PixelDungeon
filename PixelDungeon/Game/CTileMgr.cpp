@@ -33,6 +33,8 @@ void CTileMgr::Late_Update()
 
 void CTileMgr::Release()
 {
+	m_vecTile.clear();
+	m_vecAdj.clear();
 }
 
 void CTileMgr::Ready_Adjacency()

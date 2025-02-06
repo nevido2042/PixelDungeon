@@ -57,9 +57,8 @@ int CPlayer::Update()
     {
         Set_State(WALK);
         CAstarMgr::Get_Instance()->Start_Astar(m_tInfo.vPos, Get_Mouse());
-        Move_Astar();
-        
     }
+    Move_Astar();
 
     return CObj::Update();
 }
