@@ -72,7 +72,7 @@ void CCamera::Initialize()
     m_tInfo.vPos.x = m_fWidth * 0.5f;
     m_tInfo.vPos.y = m_fHeight * 0.5f;
 
-    m_fZoom = 1.f;
+    m_fZoom = 2.f;
 }
 
 void CCamera::Update()
