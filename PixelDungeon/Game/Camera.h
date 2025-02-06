@@ -2,7 +2,7 @@
 
 #include "Include.h"
 
-#define ZOOM_MAX 3.f
+#define ZOOM_MAX 6.f
 #define ZOOM_MIN 0.2f
 
 class CCamera
@@ -11,21 +11,11 @@ private:
 	CCamera();
 	~CCamera();
 public:
-	POINT WorldToScreen(float worldX, float worldY)
-	{
-		POINT screenPoint;
-		screenPoint.x = int((worldX - m_tInfo.vPos.x) * m_fZoom + m_fWidth / 2);
-		screenPoint.y = int((worldY - m_tInfo.vPos.y) * m_fZoom + m_fHeight / 2);
-		return screenPoint;
-	}
+	POINT WorldToScreen(float worldX, float worldY);
+	D3DXMATRIX WorldToScreen(const D3DXMATRIX& matWorld);
+	POINT ScreenToWorld(int screenX, int screenY);
+	D3DXVECTOR3 ScreenToWorld(const D3DXVECTOR3& vecScreen);
 
-	POINT ScreenToWorld(int screenX, int screenY)
-	{
-		POINT worldPoint;
-		worldPoint.x = int((screenX - m_fWidth / 2) / m_fZoom + m_tInfo.vPos.x);
-		worldPoint.y = int((screenY - m_fHeight / 2) / m_fZoom + m_tInfo.vPos.y);
-		return worldPoint;
-	}
 	void Move_To_Lerp(float _fX, float _fY);
 public:
 	void Initialize();

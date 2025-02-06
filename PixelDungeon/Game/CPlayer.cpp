@@ -5,6 +5,7 @@
 #include "CAstarMgr.h"
 #include "TimeMgr.h"
 #include "CKeyMgr.h"
+#include "Camera.h"
 
 
 CPlayer::CPlayer()
@@ -56,7 +57,8 @@ int CPlayer::Update()
     if ((CKeyMgr::Get_Instance()->Key_Down(VK_LBUTTON) ))
     {
         Set_State(WALK);
-        CAstarMgr::Get_Instance()->Start_Astar(m_tInfo.vPos, Get_Mouse());
+        D3DXVECTOR3 vecScreen = Get_Mouse();
+        CAstarMgr::Get_Instance()->Start_Astar(m_tInfo.vPos, CCamera::Get_Instance()->ScreenToWorld(vecScreen));
     }
     Move_Astar();
 
@@ -98,7 +100,8 @@ void CPlayer::Render()
     float fCenterY = pTexInfo->tImgInfo.Height / 2.f;
     D3DXVECTOR3 vCenter(fCenterX, fCenterY, 0.f);
 
-    CDevice::Get_Instance()->Get_Sprite()->SetTransform(&m_tInfo.matWorld);
+    const D3DXMATRIX matRender = CCamera::Get_Instance()->WorldToScreen(m_tInfo.matWorld);
+    CDevice::Get_Instance()->Get_Sprite()->SetTransform(&matRender);
 
     CDevice::Get_Instance()->Get_Sprite()->Draw(
         pTexInfo->pTexture,
