@@ -70,7 +70,7 @@ void CAstarMgr::Start_Astar(const D3DXVECTOR3& vStart, const D3DXVECTOR3& vGoal)
 		return;
 
 	// 장애물 옵션이 있는거 일 경우
-	if (m_vecTile[iGoalIdx]->Get_Option() == 1)
+	if (m_vecTile[iGoalIdx]->Get_Option() != 0)
 		return;
 
 	if (true == Make_Route(m_iStartIdx, iGoalIdx))
@@ -103,6 +103,10 @@ bool CAstarMgr::Make_Route(int iStartIdx, int iGoalIdx)
 			return true;
 		}
 
+		if (pTile->Get_Option() == OPT_BLOCK)
+		{
+			continue;
+		}
 		// Close 리스트와 Open 리스트에 없는 타일만 추가
 		if (false == Check_Close(pTile->Get_Tile_Index()) &&
 			false == Check_Open(pTile->Get_Tile_Index()))
@@ -211,6 +215,7 @@ void CAstarMgr::Release()
 	m_OpenList.clear();
 	m_CloseList.clear();
 	m_BestList.clear();
+	
 }
 
 

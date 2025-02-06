@@ -33,6 +33,8 @@ void CTileMgr::Late_Update()
 
 void CTileMgr::Release()
 {
+	m_vecTile.clear();
+	m_vecAdj.clear();
 }
 
 void CTileMgr::Ready_Adjacency()
@@ -206,7 +208,7 @@ bool CTileMgr::Load_Terrain()
 			{
 				pTile->Set_Option(byOption);
 				pTile->Set_DrawID(byDrawID);
-				pTile->Set_Tile_Index(i + TILEX + j);
+				pTile->Set_Tile_Index(i * TILEX + j);
 				pTile->Initialize();
 			}
 			

@@ -4,6 +4,7 @@
 #include "CTextureMgr.h"
 #include "CAstarMgr.h"
 #include "TimeMgr.h"
+#include "CKeyMgr.h"
 
 
 CPlayer::CPlayer()
@@ -52,13 +53,12 @@ void CPlayer::Initialize()
 
 int CPlayer::Update()
 {
-    if ((GetAsyncKeyState(VK_LBUTTON) & 0x8000))
+    if ((CKeyMgr::Get_Instance()->Key_Down(VK_LBUTTON) ))
     {
         Set_State(WALK);
         CAstarMgr::Get_Instance()->Start_Astar(m_tInfo.vPos, Get_Mouse());
-        Move_Astar();
-        
     }
+    Move_Astar();
 
     return CObj::Update();
 }
@@ -119,36 +119,6 @@ void CPlayer::Release()
 
 
 
-void CPlayer::Mouse_Update()
-{
-    if (!CAstarMgr::Get_Instance()->Get_BestList().empty())
-        if (!CAstarMgr::Get_Instance()->Get_BestList().empty())
-        {
-            if (CAstarMgr::Get_Instance()->Get_BestList().size() == 1)
-            {
-                CAstarMgr::Get_Instance()->Get_BestList().clear(); // 마지막 타일 도착하면 이동 허용
-            }
-            return;
-        }
-
-
-    if (GetAsyncKeyState(VK_LBUTTON) & 0x8000)
-    {
-        m_tInfo.vDir = Get_Mouse() - m_tInfo.vPos;
-        D3DXVec3Normalize(&m_tInfo.vDir, &m_tInfo.vDir);
-
-        m_tInfo.vPos += m_tInfo.vDir * m_fSpeed;
-
-        int iMaxFrame = CTextureMgr::Get_Instance()->Get_TextureCount(L"Player", L"WALK");
-
-        if (iMaxFrame > 0)
-        {
-            m_iFrame++;
-            if (m_iFrame >= iMaxFrame)
-                m_iFrame = 0;
-        }
-    }
-}
 
 void CPlayer::Move_Astar()
 {
@@ -160,8 +130,8 @@ void CPlayer::Move_Astar()
         float fDistance = D3DXVec3Length(&vDir);
 
         D3DXVec3Normalize(&vDir, &vDir);
-        float fMoveSpeed = min(300.f * CTimeMgr::Get_Instance()->Get_TimeDelta(), fDistance);
-        m_tInfo.vPos += vDir * 3.f* CTimeMgr::Get_Instance()->Get_TimeDelta();
+     
+        m_tInfo.vPos += vDir * 100.f* CTimeMgr::Get_Instance()->Get_TimeDelta();
         cout << " 플레이어 위치 :" << m_tInfo.vPos.x << endl;
         if (3.f >= fDistance) // 목표 타일 도착 시
         {
