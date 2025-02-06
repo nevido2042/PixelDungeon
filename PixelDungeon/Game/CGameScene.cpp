@@ -19,6 +19,7 @@ CGameScene::~CGameScene()
 void CGameScene::Initialize()
 {
 	CCamera::Get_Instance()->Initialize();
+	CCamera::Get_Instance()->Set_Pos(0.f, 0.f);
 
 	CObj* pObj(nullptr);
 
