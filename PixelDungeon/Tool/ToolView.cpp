@@ -196,29 +196,26 @@ void CToolView::OnRButtonDown(UINT nFlags, CPoint point)
 
 void CToolView::CreateUnit(const CString& strCategory, const CString& strUnitName, CPoint point)
 {
-	float fZoom = Get_Zoom();
-
-	// 스크롤 위치를 고려하여 좌표 조정
-	CPoint adjustedPoint;
-	adjustedPoint.x = int((point.x + GetScrollPos(0)) / fZoom);
-	adjustedPoint.y = int((point.y + GetScrollPos(1)) / fZoom);
-
-
-	// 만약 다른 기준(예: strCategory)을 사용한다면 그에 맞게 수정하세요.)
-	if (strUnitName.CompareNoCase(_T("Player")) == 0)
+	// ► '유닛 이름' 대신 '카테고리'를 검사
+	if (strCategory.CompareNoCase(_T("Player")) == 0)
 	{
-		// 이미 플레이어가 존재하는지 검사
+		// 이미 Player 카테고리인 유닛이 존재하는지 검사
 		for (const auto& unit : m_vecUnits)
 		{
-			if (unit.strUnitName.CompareNoCase(_T("Player")) == 0)
+			if (unit.strCategory.CompareNoCase(_T("Player")) == 0)
 			{
 				AfxMessageBox(_T("플레이어는 하나만 생성할 수 있습니다!!!!!!"));
-				return; 
+				return;
 			}
 		}
 	}
 
-	// 이미지 경로 얻기 (해당 경로가 유효한지 체크)
+	// --- 이하 동일 ---
+	float fZoom = Get_Zoom();
+	CPoint adjustedPoint;
+	adjustedPoint.x = int((point.x + GetScrollPos(0)) / fZoom);
+	adjustedPoint.y = int((point.y + GetScrollPos(1)) / fZoom);
+
 	CString strImagePath = g_pUnitTool->GetUnitImagePath(strCategory, strUnitName);
 	if (!strImagePath.IsEmpty())
 	{
@@ -226,6 +223,7 @@ void CToolView::CreateUnit(const CString& strCategory, const CString& strUnitNam
 		Invalidate(FALSE); // 화면 갱신
 	}
 }
+
 
 
 void CToolView::OnMouseMove(UINT nFlags, CPoint point)

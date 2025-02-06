@@ -162,7 +162,7 @@ void CTileMgr::Create_Terrain()
 				pTile->Set_DrawID(0);
 				pTile->Set_Tile_Index(i + TILEX + j);
 			}
-			m_vecTile.push_back(pObj);
+			//m_vecTile.push_back(pObj);
 		}
 	}
 	Ready_Adjacency();

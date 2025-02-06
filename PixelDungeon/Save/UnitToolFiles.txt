@@ -1,6 +1,0 @@
-Player:Hong:warrior0.png|..\Resources\Player\Warrior\warrior0.png
-Player:Hong:warrior1.png|..\Resources\Player\Warrior\warrior1.png
-Player:Hong:warrior2.png|..\Resources\Player\Warrior\warrior2.png
-Player:Hong:warrior3.png|..\Resources\Player\Warrior\warrior3.png
-Player:Hong:warrior4.png|..\Resources\Player\Warrior\warrior4.png
-Player:Hong:warrior5.png|..\Resources\Player\Warrior\warrior5.png

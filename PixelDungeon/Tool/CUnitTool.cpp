@@ -64,10 +64,17 @@ BEGIN_MESSAGE_MAP(CUnitTool, CDialog)
     ON_BN_CLICKED(IDC_BUTTON_DELETE, &CUnitTool::OnBnClickedButtonDelete) //객체삭제 버튼
     ON_LBN_SELCHANGE(IDC_LIST2, &CUnitTool::OnLbnDblclkList2)
     ON_LBN_SELCHANGE(IDC_LIST3, &CUnitTool::OnLbnDblclkList3)
- 
+    ON_LBN_SELCHANGE(IDC_LIST2, &CUnitTool::OnLbnSelchangeList2)
     ON_BN_CLICKED(IDC_BUTTON1, &CUnitTool::OnBnClickedPause) // 일시 정지 버튼
     ON_BN_CLICKED(IDC_DELETE_IMAGE2, &CUnitTool::OnBnClickedDeleteImage2) // 이미지 삭제 버튼
-
+    ON_EN_KILLFOCUS(IDC_EDIT5, &CUnitTool::OnEnKillfocusStat)
+    ON_EN_KILLFOCUS(IDC_EDIT3, &CUnitTool::OnEnKillfocusStat)
+    ON_EN_KILLFOCUS(IDC_EDIT4, &CUnitTool::OnEnKillfocusStat)
+    ON_EN_KILLFOCUS(IDC_EDIT_LEVEL, &CUnitTool::OnEnKillfocusStat)
+    ON_EN_KILLFOCUS(IDC_EDIT_ATTACKSPEED, &CUnitTool::OnEnKillfocusStat)
+    ON_EN_KILLFOCUS(IDC_EDIT_LUCK, &CUnitTool::OnEnKillfocusStat)
+    ON_EN_KILLFOCUS(IDC_EDIT_MOVESPEED, &CUnitTool::OnEnKillfocusStat)
+    ON_EN_KILLFOCUS(IDC_EDIT_EVASION, &CUnitTool::OnEnKillfocusStat)
 
 
 END_MESSAGE_MAP()
@@ -594,6 +601,11 @@ void CUnitTool::OnBnClickedButtonApply()
 
     pData->iAttack = m_iAttack;
     pData->iHp = m_iHp;
+    pData->iLevel = m_iLevel;
+    pData->fAttackSpeed = m_fAttackSpeed;
+    pData->iLuck = m_iLuck;
+    pData->fMoveSpeed = m_fMoveSpeed;
+    pData->fEvasion = m_fEvasion;
 
     m_mapUnitData[strKey] = pData;
 
@@ -712,22 +724,42 @@ void CUnitTool::OnLbnDblclkList2()
     if (iIndex == LB_ERR)
         return;
 
-    // 선택한 유닛 이름을 저장!
+    // 선택한 유닛 이름을 저장
     m_ListBox2.GetText(iIndex, m_strSelectedUnit);
 
     int iTypeIndex = m_ListBox3.GetCurSel();
     if (iTypeIndex == LB_ERR)
         return;
 
-    // 선택한 카테고리를 저장!
+    // 선택한 카테고리 저장
     m_ListBox3.GetText(iTypeIndex, m_strSelectedCategory);
 
-    TRACE(_T("[디버깅] 선택된 유닛: %s, 선택된 카테고리: %s\n"), m_strSelectedUnit, m_strSelectedCategory);
+    // 선택한 유닛의 스탯을 m_mapUnitData에서 찾아서 대입
+    CString key;
+    key.Format(_T("%s:%s"), m_strSelectedCategory, m_strSelectedUnit);
+    auto itData = m_mapUnitData.find(key);
+    if (itData != m_mapUnitData.end())
+    {
+        UNITDATA* pData = itData->second;
+        m_strName = pData->strName;
+        m_iAttack = pData->iAttack;
+        m_iHp = pData->iHp;
+        m_iLevel = pData->iLevel;
+        m_fAttackSpeed = pData->fAttackSpeed;
+        m_iLuck = pData->iLuck;
+        m_fMoveSpeed = pData->fMoveSpeed;
+        m_fEvasion = pData->fEvasion;
+    }
+    else
+    {
+        // 만약 해당 키가 없으면, 기본값이나 빈 문자열 등을 넣어 초기화할 수 있음.
+        m_strName = _T("");
+        m_iAttack = m_iHp = m_iLevel = m_iLuck = 0;
+        m_fAttackSpeed = m_fMoveSpeed = m_fEvasion = 0.0f;
+    }
 
-    // 리스트박스1 초기화
+    // [기존 이미지 및 애니메이션 관련 코드]
     m_ListBox.ResetContent();
-
-    // 애니메이션용 벡터 초기화
     m_ImagePaths.clear();
     m_CurrentFrameIndex = 0;
 
@@ -737,25 +769,25 @@ void CUnitTool::OnLbnDblclkList2()
         auto itUnit = itType->second.find(m_strSelectedUnit);
         if (itUnit != itType->second.end())
         {
-            // 해당 유닛의 이미지 목록
+            // 해당 유닛의 이미지 목록을 리스트박스1에 추가
             for (auto& imagePath : itUnit->second)
             {
                 CString fileName = PathFindFileName(imagePath);
                 CString fullKey;
                 fullKey.Format(_T("%s:%s:%s"), m_strSelectedCategory, m_strSelectedUnit, fileName);
-
-                // 리스트박스1에 추가
                 m_ListBox.AddString(fullKey);
-
-                // 애니메이션 재생을 위해 m_ImagePaths에도 추가
                 m_ImagePaths.push_back(imagePath);
             }
         }
     }
 
+    // ToolView 같은 다른 컨트롤에도 이미지를 갱신해 줄 수 있음
     OnLbnSelchangeList2();
+
+    // 변경된 대화상자 멤버 변수를 컨트롤에 반영
     UpdateData(FALSE);
 }
+
 
 
 
@@ -923,40 +955,98 @@ CString CUnitTool::ConvertToAbsolutePath(const CString& relativePath)
 // CUnitTool.cpp
 void CUnitTool::OnLbnSelchangeList2()
 {
+    // 현재 컨트롤의 값을 멤버 변수에 반영
     UpdateData(TRUE);
 
+    // 리스트박스2에서 선택된 인덱스 확인
     int iIndex = m_ListBox2.GetCurSel();
-    if (iIndex != LB_ERR)
+    if (iIndex == LB_ERR)
+        return;
+
+    // 선택된 유닛 이름 얻기
+    CString strUnitName;
+    m_ListBox2.GetText(iIndex, strUnitName);
+
+    // 리스트박스3(카테고리 선택)에서 현재 선택된 카테고리 얻기
+    int iTypeIndex = m_ListBox3.GetCurSel();
+    if (iTypeIndex == LB_ERR)
+        return;
+
+    CString strCategory;
+    m_ListBox3.GetText(iTypeIndex, strCategory);
+
+    // 유닛 데이터 저장 시 사용한 키 형식 : "카테고리:유닛이름"
+    CString key;
+    key.Format(_T("%s:%s"), strCategory, strUnitName);
+
+    // m_mapUnitData에서 해당 유닛의 데이터를 찾기
+    auto itData = m_mapUnitData.find(key);
+    if (itData != m_mapUnitData.end())
     {
-        CString strUnitName;
-        m_ListBox2.GetText(iIndex, strUnitName);
-
-        int iTypeIndex = m_ListBox3.GetCurSel();
-        if (iTypeIndex != LB_ERR)
-        {
-            CString strCategory;
-            m_ListBox3.GetText(iTypeIndex, strCategory);
-
-            // 선택된 유닛의 첫 번째 이미지 경로 찾기
-            auto& vecImages = m_mapCategory[strCategory][strUnitName];
-            if (!vecImages.empty())
-            {
-                CString strFileName = PathFindFileName(vecImages[0]);
-                CString strKey;
-                strKey.Format(_T("%s:%s:%s"), strCategory, strUnitName, strFileName);
-
-           
-                if (m_pToolView)
-                {
-                    CToolView* pToolView = (CToolView*)m_pToolView;
-                    pToolView->DisplayImage(strKey);
-                }
-            }
-        }
+        UNITDATA* pData = itData->second;
+        // 편집 컨트롤과 연결된 대화 상자 멤버 변수에 값을 할당
+        m_strName = pData->strName;
+        m_iAttack = pData->iAttack;
+        m_iHp = pData->iHp;
+        m_iLevel = pData->iLevel;
+        m_fAttackSpeed = pData->fAttackSpeed;
+        m_iLuck = pData->iLuck;
+        m_fMoveSpeed = pData->fMoveSpeed;
+        m_fEvasion = pData->fEvasion;
     }
+    else
+    {
+        // 데이터가 없으면 기본값으로 초기화 (필요한 경우)
+        m_strName = _T("");
+        m_iAttack = 0;
+        m_iHp = 0;
+        m_iLevel = 0;
+        m_fAttackSpeed = 0.0f;
+        m_iLuck = 0;
+        m_fMoveSpeed = 0.0f;
+        m_fEvasion = 0.0f;
+    } 
 
+    // 변경된 멤버 변수 값을 컨트롤에 반영
     UpdateData(FALSE);
 }
+
+
+void CUnitTool::OnEnKillfocusStat()
+{
+    // 편집 컨트롤의 값이 변경되었을 때(포커스가 벗어날 때) 멤버 변수에 반영
+    UpdateData(TRUE);
+
+    // 현재 선택된 유닛 데이터 업데이트
+    UpdateCurrentUnitData();
+
+}
+
+
+void CUnitTool::UpdateCurrentUnitData()
+{
+    // m_strSelectedCategory와 m_strSelectedUnit은 리스트박스2에서 선택된 유닛의 카테고리/이름을 저장
+    if (m_strSelectedCategory.IsEmpty() || m_strSelectedUnit.IsEmpty())
+        return;
+
+    CString key;
+    key.Format(_T("%s:%s"), m_strSelectedCategory, m_strSelectedUnit);
+    auto it = m_mapUnitData.find(key);
+    if (it != m_mapUnitData.end())
+    {
+     
+        it->second->strName = m_strName;
+        it->second->iAttack = m_iAttack;
+        it->second->iHp = m_iHp;
+        it->second->iLevel = m_iLevel;
+        it->second->fAttackSpeed = m_fAttackSpeed;
+        it->second->iLuck = m_iLuck;
+        it->second->fMoveSpeed = m_fMoveSpeed;
+        it->second->fEvasion = m_fEvasion;
+    }
+}
+
+
 
 CString CUnitTool::GetUnitImagePath(const CString& strKey)
 {
