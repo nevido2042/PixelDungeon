@@ -28,9 +28,6 @@
     <Filter Include="02. Manager\01. TextureMgr">
       <UniqueIdentifier>{4fb46b27-f474-45a7-837e-a268c5897ed4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="02. Manager\01. TextureMgr\00. SingleTexture">
-      <UniqueIdentifier>{3fab970d-cac8-452b-87c8-efeaf75c1caf}</UniqueIdentifier>
-    </Filter>
     <Filter Include="02. Manager\01. TextureMgr\01. MultiTexture">
       <UniqueIdentifier>{c87ec628-e28a-442b-ac16-56a87cd280a0}</UniqueIdentifier>
     </Filter>
@@ -76,6 +73,9 @@
     <Filter Include="02. Manager\07. AstarMgr">
       <UniqueIdentifier>{7dd56f09-e73e-46f8-b8ab-db1e069a234a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02. Manager\01. TextureMgr\01. MultiTexture\00. SingleTexture">
+      <UniqueIdentifier>{3fab970d-cac8-452b-87c8-efeaf75c1caf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -118,7 +118,7 @@
       <Filter>02. Manager\01. TextureMgr\01. MultiTexture</Filter>
     </ClInclude>
     <ClInclude Include="CSingleTexture.h">
-      <Filter>02. Manager\01. TextureMgr\00. SingleTexture</Filter>
+      <Filter>02. Manager\01. TextureMgr\01. MultiTexture\00. SingleTexture</Filter>
     </ClInclude>
     <ClInclude Include="CObjMgr.h">
       <Filter>02. Manager\02. ObjMgr</Filter>
@@ -192,7 +192,7 @@
       <Filter>02. Manager\01. TextureMgr\01. MultiTexture</Filter>
     </ClCompile>
     <ClCompile Include="CSingleTexture.cpp">
-      <Filter>02. Manager\01. TextureMgr\00. SingleTexture</Filter>
+      <Filter>02. Manager\01. TextureMgr\01. MultiTexture\00. SingleTexture</Filter>
     </ClCompile>
     <ClCompile Include="CObjMgr.cpp">
       <Filter>02. Manager\02. ObjMgr</Filter>

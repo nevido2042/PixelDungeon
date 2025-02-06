@@ -13,14 +13,14 @@ private:
 
 public:
 	CObj* Get_Player()		{ return m_ObjList[OBJ_PLAYER].front(); }
-
+	CObj* Get_TILE() { return m_ObjList[OBJ_TILE].front(); }
 public:
 	void		Add_Object(OBJID eID, CObj* pObj);
 	int			Update();
 	void		Late_Update();
 	void		Render();
 	void		Release();
-
+	
 public:
 	static CObjMgr* Get_Instance()
 	{

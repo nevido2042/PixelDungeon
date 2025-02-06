@@ -41,7 +41,7 @@ private:
     int             m_iCurrentFrame; // 현재 프레임 인덱스
 
     // PNG 이미지와 경로를 저장하는 맵
-    map<CString, CImage*>  m_mapPngImages;
+    map<CString, CImage*,greater<CString>>  m_mapPngImages;
     map<CString, CString>  m_mapFilePaths;
     map<CString, map<CString, vector<CString>>> m_mapCategory;
 public:

@@ -2,6 +2,7 @@
 #include "Include.h"
 #include "CObjMgr.h"
 #include "Camera.h"
+#include "CDevice.h"
 
 CObjMgr* CObjMgr::m_pInstance = nullptr;
 
@@ -57,16 +58,25 @@ void CObjMgr::Render()
 {
 	for (size_t i = 0; i < OBJ_END; ++i)
 	{
+		int iIndex = 0;
+		TCHAR	szBuf[MIN_STR] = L"";
+
 		for (auto& pObj : m_ObjList[i])
 		{
+
 			if (CCamera::Get_Instance()->IsInCameraView(pObj->Get_Info().vPos.x, pObj->Get_Info().vPos.y))
 			{
 				pObj->Render();
+
+
+				swprintf_s(szBuf, L"%d", iIndex);
+				CDevice::Get_Instance()->Get_Font()->DrawTextW(CDevice::Get_Instance()->Get_Sprite(), szBuf, lstrlen(szBuf), nullptr, 0, D3DCOLOR_ARGB(255, 255, 255, 255));
+
 			}
+			++iIndex;
 		}
 	}
 }
-
 void CObjMgr::Release()
 {
 	for (size_t i = 0; i < OBJ_END; ++i)
