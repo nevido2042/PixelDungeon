@@ -18,6 +18,45 @@ CCamera::~CCamera()
 {
 }
 
+POINT CCamera::WorldToScreen(float worldX, float worldY)
+{
+    POINT screenPoint;
+    screenPoint.x = int((worldX - m_tInfo.vPos.x) * m_fZoom + m_fWidth / 2);
+    screenPoint.y = int((worldY - m_tInfo.vPos.y) * m_fZoom + m_fHeight / 2);
+    return screenPoint;
+}
+
+D3DXMATRIX CCamera::WorldToScreen(const D3DXMATRIX& matWorld)
+{
+    // Extract the translation (position) components from the matrix
+    float worldX = matWorld._41; // Assuming _41 contains the X translation
+    float worldY = matWorld._42; // Assuming _42 contains the Y translation
+
+    D3DXMATRIX matRender = matWorld;
+    matRender._41 = (worldX - m_tInfo.vPos.x) * m_fZoom + m_fWidth / 2; // Update X position
+    matRender._42 = (worldY - m_tInfo.vPos.y) * m_fZoom + m_fHeight / 2; // Update Y position
+
+    return matRender;
+}
+
+POINT CCamera::ScreenToWorld(int screenX, int screenY)
+{
+    POINT worldPoint;
+    worldPoint.x = int((screenX - m_fWidth / 2) / m_fZoom + m_tInfo.vPos.x);
+    worldPoint.y = int((screenY - m_fHeight / 2) / m_fZoom + m_tInfo.vPos.y);
+    return worldPoint;
+}
+
+D3DXVECTOR3 CCamera::ScreenToWorld(const D3DXVECTOR3& vecScreen)
+{
+    D3DXVECTOR3 vecWorld;
+    vecWorld.x = (vecScreen.x - m_fWidth / 2) / m_fZoom + m_tInfo.vPos.x; // Convert X
+    vecWorld.y = (vecScreen.y - m_fHeight / 2) / m_fZoom + m_tInfo.vPos.y; // Convert Y
+    vecWorld.z = vecScreen.z; // Preserve Z as is
+
+    return vecWorld;
+}
+
 void CCamera::Move_To_Lerp(float _fX, float _fY)
 {
     m_fMoveX = _fX;

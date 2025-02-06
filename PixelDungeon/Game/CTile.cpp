@@ -2,6 +2,8 @@
 #include "CTile.h"
 #include "CTextureMgr.h"
 #include "CDevice.h"
+#include "Camera.h"
+
 
 CTile::CTile()
 	:m_byDrawID(0), m_byOption(0), m_index(0), m_iPrvindex(0)
@@ -25,7 +27,8 @@ void CTile::Late_Update()
 
 void CTile::Render()
 {
-	CDevice::Get_Instance()->Get_Sprite()->SetTransform(&m_tInfo.matWorld);
+	const D3DXMATRIX matRender = CCamera::Get_Instance()->WorldToScreen(m_tInfo.matWorld);
+	CDevice::Get_Instance()->Get_Sprite()->SetTransform(&matRender);
 
 	float	fCenterX = m_tTexInfo->tImgInfo.Width / 2.f;
 	float	fCenterY = m_tTexInfo->tImgInfo.Height / 2.f;
