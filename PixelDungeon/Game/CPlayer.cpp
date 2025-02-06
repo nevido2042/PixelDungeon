@@ -21,7 +21,7 @@ void CPlayer::Initialize()
    
     m_eCurState = WALK;
     m_iFrame = 0;
-    m_tInfo.vPos = { 80.f, 80.f, 0.f };
+    m_tInfo.vPos = { 0, 0, 0.f };
     m_fSpeed = 2.f;
     m_tInfo.vLook = { 1.f, 0.f, 0.f };
 
@@ -52,11 +52,12 @@ void CPlayer::Initialize()
 
 int CPlayer::Update()
 {
-    if ((GetAsyncKeyState(VK_LBUTTON) & 0x8000) && m_eCurState == WALK)
+    if ((GetAsyncKeyState(VK_LBUTTON) & 0x8000))
     {
         Set_State(WALK);
-
         CAstarMgr::Get_Instance()->Start_Astar(m_tInfo.vPos, Get_Mouse());
+        Move_Astar();
+        
     }
 
     return CObj::Update();
@@ -68,7 +69,7 @@ void CPlayer::Late_Update()
 {
     
 
-    Move_Astar();
+  
 }
 
 
@@ -151,17 +152,17 @@ void CPlayer::Mouse_Update()
 
 void CPlayer::Move_Astar()
 {
-    list<TILE*>& BestList = CAstarMgr::Get_Instance()->Get_BestList();
+    list<CTile*>& BestList = CAstarMgr::Get_Instance()->Get_BestList();
 
     if (!BestList.empty() && m_eCurState == WALK)
     {
-        D3DXVECTOR3 vDir = BestList.front()->vPos - m_tInfo.vPos;
+        D3DXVECTOR3 vDir = BestList.front()->Get_Info().vPos - m_tInfo.vPos;
         float fDistance = D3DXVec3Length(&vDir);
 
         D3DXVec3Normalize(&vDir, &vDir);
         float fMoveSpeed = min(300.f * CTimeMgr::Get_Instance()->Get_TimeDelta(), fDistance);
-        m_tInfo.vPos += vDir * fMoveSpeed;
-
+        m_tInfo.vPos += vDir * 3.f* CTimeMgr::Get_Instance()->Get_TimeDelta();
+        cout << " 플레이어 위치 :" << m_tInfo.vPos.x << endl;
         if (3.f >= fDistance) // 목표 타일 도착 시
         {
             BestList.pop_front();

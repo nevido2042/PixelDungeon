@@ -3,6 +3,7 @@
 #include "CDevice.h"
 #include "AbstractFactory.h"
 #include "CSceneMgr.h"
+#include "TimeMgr.h"
 
 CMainGame::CMainGame()
 {
@@ -42,6 +43,7 @@ void CMainGame::Initialize()
 void CMainGame::Update()
 {
 	CSceneMgr::Get_Instance()->Update();
+	CTimeMgr::Get_Instance()->Update();
 }
 
 void CMainGame::Late_Update()

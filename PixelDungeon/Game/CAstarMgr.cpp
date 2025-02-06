@@ -1,31 +1,15 @@
 #include "pch.h"
 #include "CAstarMgr.h"
 #include "CObjMgr.h"
-#include "CTileMgr.h"
 
 IMPLEMENT_SINGLETON(CAstarMgr)
 
-vector<list<TILE*>> Convert_Adj()
-{
-	vector<list<CObj*>>& vecAdj = CTileMgr::Get_Instance()->Get_VecAdj();
-	vector<list<TILE*>> vecConverted(vecAdj.size());
 
-	for (size_t i = 0; i < vecAdj.size(); ++i)
-	{
-		for (CObj* pObj : vecAdj[i])
-		{
-			if (TILE* pTile = dynamic_cast<TILE*>(pObj))
-			{
-				vecConverted[i].push_back(pTile);
-			}
-		}
-	}
-	return vecConverted;
-}
 
 
 CAstarMgr::CAstarMgr()
 {
+	
 }
 
 CAstarMgr::~CAstarMgr()
@@ -33,24 +17,50 @@ CAstarMgr::~CAstarMgr()
 	Release();
 }
 
+void CAstarMgr::Convert_Adj()
+{
+	vector<list<CObj*>>& vecAdjObj = CTileMgr::Get_Instance()->Get_VecAdj();
+	m_vecAdj.resize(vecAdjObj.size());
+
+	for (size_t i = 0; i < m_vecAdj.size(); ++i)
+	{
+		for (CObj* pObj : vecAdjObj[i])
+		{
+			if (CTile* pTile = dynamic_cast<CTile*>(pObj))
+			{
+				m_vecAdj[i].push_back(pTile);
+			}
+		}
+	}
+	
+}
+
+void CAstarMgr::Convert_Tile()
+{
+
+	vector<CObj*> vecTileObj = CTileMgr::Get_Instance()->Get_VecTile();
+	m_vecTile.resize(vecTileObj.size());
+
+
+	for (size_t i = 0; i < m_vecTile.size(); ++i)
+	{
+		m_vecTile[i] = dynamic_cast<CTile*>(vecTileObj[i]);
+	}
+}
+
 void CAstarMgr::Start_Astar(const D3DXVECTOR3& vStart, const D3DXVECTOR3& vGoal)
 {
 	Release();
 	
-	//CObj* pMyTile = CObjMgr::Get_Instance()->Get_TILE();
-	//vector<CObj*> vecTile = CTileMgr::Get_Instance()->Get_VecTile();
-	//dynamic_cast<TILE*>(vecTile.front());
-
-	vector<TILE*> vecTile(reinterpret_cast<vector<TILE*>&>(CTileMgr::Get_Instance()->Get_VecTile())); 
-	
 	m_iStartIdx = Get_TileIdx(vStart);
 	int iGoalIdx = Get_TileIdx(vGoal);
-	Convert_Adj();
+
 	
+	cout << "내가 누른 인덱스 번호 :" << iGoalIdx << endl;
 	if (0 > m_iStartIdx ||
 		0 > iGoalIdx ||
-		(size_t)m_iStartIdx >= vecTile.size() ||
-		(size_t)iGoalIdx >= vecTile.size())
+		(size_t)m_iStartIdx >= m_vecTile.size() ||
+		(size_t)iGoalIdx >= m_vecTile.size())
 	{
 		return;
 	}
@@ -60,7 +70,7 @@ void CAstarMgr::Start_Astar(const D3DXVECTOR3& vStart, const D3DXVECTOR3& vGoal)
 		return;
 
 	// 장애물 옵션이 있는거 일 경우
-	if (vecTile[iGoalIdx]->byOption == 1)
+	if (m_vecTile[iGoalIdx]->Get_Option() == 1)
 		return;
 
 	if (true == Make_Route(m_iStartIdx, iGoalIdx))
@@ -74,9 +84,7 @@ void CAstarMgr::Start_Astar(const D3DXVECTOR3& vStart, const D3DXVECTOR3& vGoal)
 
 bool CAstarMgr::Make_Route(int iStartIdx, int iGoalIdx)
 { 
-	CObj* pMyTerrain = CObjMgr::Get_Instance()->Get_TILE();
-	vector<TILE*> vecTile(reinterpret_cast<vector<TILE*>&>(CTileMgr::Get_Instance()->Get_VecTile()));
-	vector<list<TILE*>> vecAdj = Convert_Adj();
+	
 
 	// Open 리스트가 비어 있지 않다면 첫 번째 요소 제거
 	if (!m_OpenList.empty())
@@ -86,21 +94,21 @@ bool CAstarMgr::Make_Route(int iStartIdx, int iGoalIdx)
 	m_CloseList.push_back(iStartIdx);
 
 	// 현재 타일의 인접 타일을 확인
-	for (auto& pTile : vecAdj[iStartIdx])
+	for (auto& pTile : m_vecAdj[iStartIdx])
 	{
 		// 목표 지점에 도착한 경우 경로 탐색 종료
-		if (iGoalIdx == pTile->iIndex)
+		if (iGoalIdx == pTile->Get_Tile_Index())
 		{
-			pTile->iParentIndex = iStartIdx;
+			pTile->Set_PrevTile_Index(iStartIdx);
 			return true;
 		}
 
 		// Close 리스트와 Open 리스트에 없는 타일만 추가
-		if (false == Check_Close(pTile->iIndex) &&
-			false == Check_Open(pTile->iIndex))
+		if (false == Check_Close(pTile->Get_Tile_Index()) &&
+			false == Check_Open(pTile->Get_Tile_Index()))
 		{
-			pTile->iParentIndex = iStartIdx;
-			m_OpenList.push_back(pTile->iIndex);
+			pTile->Set_PrevTile_Index(iStartIdx);
+			m_OpenList.push_back(pTile->Get_Tile_Index());
 		}
 	}
 
@@ -111,15 +119,15 @@ bool CAstarMgr::Make_Route(int iStartIdx, int iGoalIdx)
 	int iStart = m_iStartIdx;
 
 	// Open 리스트를 정렬 (A* 알고리즘의 비용 계산)
-	m_OpenList.sort([&vecTile, &iGoalIdx, &iStart](int Dst, int Src)->bool
+	m_OpenList.sort([this, &iGoalIdx, &iStart](int Dst, int Src)->bool
 		{
 			// 시작 지점에서 해당 타일까지의 비용 (G값)
-			D3DXVECTOR3	vPCost1 = vecTile[iStart]->vPos - vecTile[Dst]->vPos;
-			D3DXVECTOR3	vPCost2 = vecTile[iStart]->vPos - vecTile[Src]->vPos;
+			D3DXVECTOR3	vPCost1 = m_vecTile[iStart]->Get_Info().vPos - m_vecTile[Dst]->Get_Info().vPos;
+			D3DXVECTOR3	vPCost2 = m_vecTile[iStart]->Get_Info().vPos - m_vecTile[Src]->Get_Info().vPos;
 
 			// 해당 타일에서 목표 지점까지의 예상 비용 (H값)
-			D3DXVECTOR3	vGCost1 = vecTile[iGoalIdx]->vPos - vecTile[Dst]->vPos;
-			D3DXVECTOR3	vGCost2 = vecTile[iGoalIdx]->vPos - vecTile[Src]->vPos;
+			D3DXVECTOR3	vGCost1 = m_vecTile[iGoalIdx]->Get_Info().vPos - m_vecTile[Dst]->Get_Info().vPos;
+			D3DXVECTOR3	vGCost2 = m_vecTile[iGoalIdx]->Get_Info().vPos - m_vecTile[Src]->Get_Info().vPos;
 
 			// F = G + H
 			float	fCost1 = D3DXVec3Length(&vPCost1) + D3DXVec3Length(&vGCost1);
@@ -135,12 +143,11 @@ bool CAstarMgr::Make_Route(int iStartIdx, int iGoalIdx)
 
 void CAstarMgr::Make_BestList(int iStartIdx, int iGoalIdx)
 {
-	vector<TILE*> vecTile(reinterpret_cast<vector<TILE*>&>(CTileMgr::Get_Instance()->Get_VecTile()));
 
 	// 목표 지점부터 거슬러 올라가며 최적 경로를 저장
-	m_BestList.push_front(vecTile[iGoalIdx]);
+	m_BestList.push_front(m_vecTile[iGoalIdx]);
 
-	int iRouteIdx = vecTile[iGoalIdx]->iParentIndex;
+	int iRouteIdx = m_vecTile[iGoalIdx]->Get_PrevTile_Index();
 
 	while (true)
 	{
@@ -148,21 +155,21 @@ void CAstarMgr::Make_BestList(int iStartIdx, int iGoalIdx)
 		if (iRouteIdx == iStartIdx)
 			break;
 
-		m_BestList.push_front(vecTile[iRouteIdx]);
-		iRouteIdx = vecTile[iRouteIdx]->iParentIndex;
+		m_BestList.push_front(m_vecTile[iRouteIdx]);
+		iRouteIdx = m_vecTile[iRouteIdx]->Get_PrevTile_Index();
 	}
 
 }
 
 int CAstarMgr::Get_TileIdx(const D3DXVECTOR3& vPos)
 {
-	vector<TILE*> vecTile(reinterpret_cast<vector<TILE*>&>(CTileMgr::Get_Instance()->Get_VecTile()));
+	
 
-	if (vecTile.empty())
+	if (m_vecTile.empty())
 		return -1;
 
 	// 좌표가 포함된 타일의 인덱스를 찾음
-	for (size_t index = 0; index < vecTile.size(); ++index)
+	for (size_t index = 0; index < m_vecTile.size(); ++index)
 	{
 		if (Picking(vPos, index))
 		{
@@ -175,12 +182,12 @@ int CAstarMgr::Get_TileIdx(const D3DXVECTOR3& vPos)
 
 bool CAstarMgr::Picking(const D3DXVECTOR3& vPos, const int& iIndex)
 {
-	vector<TILE*>& vecTile = (vector<TILE*>&)CTileMgr::Get_Instance()->Get_VecTile();
+	
 
-	float left = vecTile[iIndex]->vPos.x - (TILECX / 2.f);
-	float right = vecTile[iIndex]->vPos.x + (TILECX / 2.f);
-	float top = vecTile[iIndex]->vPos.y - (TILECY / 2.f);
-	float bottom = vecTile[iIndex]->vPos.y + (TILECY / 2.f);
+	float left = m_vecTile[iIndex]->Get_Info().vPos.x - (TILECX / 2.f);
+	float right = m_vecTile[iIndex]->Get_Info().vPos.x + (TILECX / 2.f);
+	float top = m_vecTile[iIndex]->Get_Info().vPos.y - (TILECY / 2.f);
+	float bottom = m_vecTile[iIndex]->Get_Info().vPos.y + (TILECY / 2.f);
 
 	return (vPos.x >= left && vPos.x <= right &&
 		vPos.y >= top && vPos.y <= bottom);

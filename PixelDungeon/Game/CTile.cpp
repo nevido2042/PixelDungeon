@@ -4,7 +4,7 @@
 #include "CDevice.h"
 
 CTile::CTile()
-	:m_byDrawID(0), m_byOption(0)
+	:m_byDrawID(0), m_byOption(0), m_index(0), m_iPrvindex(0)
 {
 }
 

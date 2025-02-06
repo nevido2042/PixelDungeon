@@ -35,7 +35,7 @@ void CTimeMgr::Update()
 	
 	if (m_CurTime.QuadPart - m_OriginTime.QuadPart > m_CpuTick.QuadPart)
 	{
-		QueryPerformanceFrequency(&m_CpuTick);
+		QueryPerformanceFrequency(&m_CpuTick); 
 		m_OriginTime = m_CurTime;
 	}
 	
